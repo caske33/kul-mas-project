@@ -1,0 +1,13 @@
+<component name="libraryTable">
+  <library name="Maven: com.github.rinde:rinsim-test-util:test-jar:tests:4.1.0">
+    <CLASSES>
+      <root url="jar://$MAVEN_REPOSITORY$/com/github/rinde/rinsim-test-util/4.1.0/rinsim-test-util-4.1.0-tests.jar!/" />
+    </CLASSES>
+    <JAVADOC>
+      <root url="jar://$MAVEN_REPOSITORY$/com/github/rinde/rinsim-test-util/4.1.0/rinsim-test-util-4.1.0-test-javadoc.jar!/" />
+    </JAVADOC>
+    <SOURCES>
+      <root url="jar://$MAVEN_REPOSITORY$/com/github/rinde/rinsim-test-util/4.1.0/rinsim-test-util-4.1.0-test-sources.jar!/" />
+    </SOURCES>
+  </library>
+</component>
