@@ -10,9 +10,6 @@ import com.github.rinde.rinsim.geom.Point
 import com.google.common.base.Optional
 import com.google.common.collect.ImmutableList
 
-/**
- * Created by victo on 19/04/2016.
- */
 class Client(location: Point) : Depot(location), TickListener, CommUser {
 
     private var hasContract : Boolean = false
@@ -25,7 +22,7 @@ class Client(location: Point) : Depot(location), TickListener, CommUser {
 
     override fun tick(timeLapse: TimeLapse?) {
         if (!hasContract && !messageBroadcast) {
-            device?.broadcast(ContractNetExample.ClientOfferMessage(ContractNetExample.PackageType.IPOD))
+            device?.broadcast(ClientOfferMessage(PackageType.IPOD))
             messageBroadcast = true
         }
         if (!hasContract && messageBroadcast) {
@@ -34,8 +31,8 @@ class Client(location: Point) : Depot(location), TickListener, CommUser {
             val messages = device?.unreadMessages ?: ImmutableList.of()
             for (i in messages.indices) {
                 val message = messages[i]
-                if (message.contents is ContractNetExample.BiddingMessage && message.sender is Hub) {
-                    val contents = message.contents as ContractNetExample.BiddingMessage
+                if (message.contents is BiddingMessage && message.sender is Hub) {
+                    val contents = message.contents as BiddingMessage
 
                     val bid = contents.bid
                     if (bid < bestBid) {
@@ -45,7 +42,7 @@ class Client(location: Point) : Depot(location), TickListener, CommUser {
                 }
             }
             if (bestVehicle != null) {
-                device?.send(ContractNetExample.WinningClientBidMessage(ContractNetExample.PackageType.IPOD), bestVehicle)
+                device?.send(WinningClientBidMessage(PackageType.IPOD), bestVehicle)
                 //val messages2 = device?.unreadMessages ?: ImmutableList.of()
                 //for (i in messages.indices) {
                 //    if (messages[i].contents === Messages.I_CHOOSE_YOU) {

@@ -25,14 +25,14 @@ class Hub(location: Point) : Depot(location), TickListener, CommUser {
     var pickedUp = false
     var messageBroadcast = false
 
-    private var order: ContractNetExample.Order? = null
+    private var order: Order? = null
         get() = getOrders()
 
-    private fun getOrders(): ContractNetExample.Order? {
+    private fun getOrders(): Order? {
         var rm = roadModel
         var pdp = pdpModel
-        val allOrders = rm.getObjectsOfType(ContractNetExample.Order::class.java).iterator()
-        var hubOrder : ContractNetExample.Order? = null
+        val allOrders = rm.getObjectsOfType(Order::class.java).iterator()
+        var hubOrder : Order? = null
         while(allOrders.hasNext()) {
             val corder = allOrders.next()
             if (corder.origin === this) {
@@ -42,7 +42,7 @@ class Hub(location: Point) : Depot(location), TickListener, CommUser {
         return hubOrder
     }
 
-    private var currentOrder : ContractNetExample.PackageType? = null
+    private var currentOrder : PackageType? = null
 
     override fun initRoadPDP(pRoadModel: RoadModel?, pPdpModel: PDPModel?) {
     }
@@ -67,45 +67,45 @@ class Hub(location: Point) : Depot(location), TickListener, CommUser {
             val messages = device?.unreadMessages
             // bid on incoming contract proposals
             for (message in messages!!) {
-                if (message.contents is ContractNetExample.WinningClientBidMessage) {
-                    currentOrder = (message.contents as ContractNetExample.WinningClientBidMessage).order
+                if (message.contents is WinningClientBidMessage) {
+                    currentOrder = (message.contents as WinningClientBidMessage).order
                     hasClientContract = true
                 }
-                else if (message.contents is ContractNetExample.ClientOfferMessage) {
-                    val wantedPackage = (message.contents as ContractNetExample.ClientOfferMessage).order
+                else if (message.contents is ClientOfferMessage) {
+                    val wantedPackage = (message.contents as ClientOfferMessage).order
                     if (wantedPackage === order!!.content) {
                         val distance = Point.distance(message.sender.position.get(), this.position.get())
-                        device?.send(ContractNetExample.BiddingMessage(distance, order!!), message.sender)
+                        device?.send(BiddingMessage(distance, order!!), message.sender)
                     }
                 }
             }
         }
         else {
             if (!pickedUp && !messageBroadcast) {
-                device?.broadcast(ContractNetExample.HubOfferMessage(order))
+                device?.broadcast(HubOfferMessage(order))
                 messageBroadcast = true
             }
             if (messageBroadcast) {
                 var bestBid = Integer.MAX_VALUE.toInt().toDouble()
-                var bestVehicle: ContractNetExample.Drone? = null
+                var bestVehicle: Drone? = null
                 val messages = device?.unreadMessages ?: ImmutableList.of()
                 for (i in messages.indices) {
                     val message = messages[i]
-                    if (message.contents is ContractNetExample.BiddingMessage) {
-                        val contents = message.contents as ContractNetExample.BiddingMessage
+                    if (message.contents is BiddingMessage) {
+                        val contents = message.contents as BiddingMessage
 
                         val bid = contents.bid
                         if (bid < bestBid) {
                             bestBid = bid
-                            bestVehicle = message.sender as ContractNetExample.Drone
+                            bestVehicle = message.sender as Drone
                         }
                     }
                 }
                 if (bestVehicle != null) {
-                    device?.send(ContractNetExample.WinningBidMessage(order), bestVehicle)
+                    device?.send(WinningBidMessage(order), bestVehicle)
                     val messages2 = device?.unreadMessages ?: ImmutableList.of()
                     for (i in messages2.indices) {
-                        if (messages2[i].contents === ContractNetExample.Messages.I_CHOOSE_YOU) {
+                        if (messages2[i].contents === Messages.I_CHOOSE_YOU) {
                             pickedUp = true
                             break
                         }

@@ -41,20 +41,20 @@ class Drone(var position: Point) : Vehicle(VehicleDTO.builder().capacity(1).star
         if (!isDelivering && !hasContract) {
             // bid on incoming contract proposals
             for (message in messages!!) {
-                if (message.contents is ContractNetExample.WinningBidMessage) {
+                if (message.contents is WinningBidMessage) {
                     if (dynamic && hasContract) {
-                        device?.send(ContractNetExample.CancelMessage(), currentOrder!!.origin)
+                        device?.send(CancelMessage(), currentOrder!!.origin)
                     }
-                    currentOrder = (message.contents as ContractNetExample.WinningBidMessage).order
+                    currentOrder = (message.contents as WinningBidMessage).order
                     hasContract = true
                 }
-                else if (message.contents is ContractNetExample.HubOfferMessage) {
-                    val hub = message.sender as ContractNetExample.Hub
+                else if (message.contents is HubOfferMessage) {
+                    val hub = message.sender as Hub
                     val hubPos = hub.position.get()
-                    val order = (message.contents as ContractNetExample.HubOfferMessage).order
+                    val order = (message.contents as HubOfferMessage).order
                     val distance = Point.distance(hubPos, this.getPosition().get())
                     val currentDistance = Point.distance(order!!.pickupLocation, this.getPosition().get()) + Point.distance(order.pickupLocation, order.deliveryLocation)
-                    device?.send(ContractNetExample.BiddingMessage(currentDistance, order), hub)
+                    device?.send(BiddingMessage(currentDistance, order), hub)
                 }
             }
         }
