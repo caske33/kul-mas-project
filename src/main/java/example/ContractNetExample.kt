@@ -1,14 +1,8 @@
 package example
 
-import org.apache.commons.math3.random.RandomGenerator
 
 import com.github.rinde.rinsim.core.Simulator
-import com.github.rinde.rinsim.core.model.comm.CommDevice
-import com.github.rinde.rinsim.core.model.comm.CommDeviceBuilder
 import com.github.rinde.rinsim.core.model.comm.CommModel
-import com.github.rinde.rinsim.core.model.comm.Message
-import com.github.rinde.rinsim.core.model.comm.MessageContents
-import com.github.rinde.rinsim.core.model.road.MovingRoadUser
 import com.github.rinde.rinsim.core.model.road.RoadModel
 import com.github.rinde.rinsim.core.model.road.RoadModelBuilders
 import com.github.rinde.rinsim.core.model.time.TickListener
@@ -18,11 +12,7 @@ import com.github.rinde.rinsim.ui.View
 import com.github.rinde.rinsim.ui.renderers.CommRenderer
 import com.github.rinde.rinsim.ui.renderers.PlaneRoadModelRenderer
 import com.github.rinde.rinsim.ui.renderers.RoadUserRenderer
-import com.github.rinde.rinsim.core.model.comm.CommUser
 import com.github.rinde.rinsim.core.model.pdp.*
-import com.google.common.base.Optional
-import com.google.common.collect.ImmutableList
-
 
 object ContractNetExample {
 
