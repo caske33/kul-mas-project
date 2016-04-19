@@ -126,24 +126,4 @@ object ContractNetExample {
         // run the simulation without visualization.
         sim.start()
     }
-
-    internal class BiddingMessage(var bid: Double, var order: Order?) : MessageContents
-
-    internal class CancelMessage() : MessageContents
-
-    internal class WinningBidMessage(var order: Order?) : MessageContents
-
-    internal class ClientOfferMessage(var order: PackageType?) : MessageContents
-
-    internal class WinningClientBidMessage(var order : PackageType?) : MessageContents
-
-    internal class HubOfferMessage(var order: Order?) : MessageContents
-
-    internal enum class Messages : MessageContents {
-        PICK_ME_UP, I_CHOOSE_YOU
-    }
-
-    internal enum class PackageType {
-        CAMERA, COOKIE, IPOD
-    }
 }
