@@ -21,23 +21,24 @@ class Client(location: Point) : Depot(location), TickListener, CommUser {
     }
 
     override fun tick(timeLapse: TimeLapse?) {
+        /*
         if (!hasContract && !messageBroadcast) {
             device?.broadcast(ClientOfferMessage(PackageType.IPOD))
             messageBroadcast = true
         }
         if (!hasContract && messageBroadcast) {
             var bestBid = Integer.MAX_VALUE.toInt().toDouble()
-            var bestVehicle: Hub? = null
+            var bestVehicle: Depot? = null
             val messages = device?.unreadMessages ?: ImmutableList.of()
             for (i in messages.indices) {
                 val message = messages[i]
-                if (message.contents is BiddingMessage && message.sender is Hub) {
-                    val contents = message.contents as BiddingMessage
+                if (message.contents is DroneBiddingMessage && message.sender is Depot) {
+                    val contents = message.contents as DroneBiddingMessage
 
                     val bid = contents.bid
                     if (bid < bestBid) {
                         bestBid = bid
-                        bestVehicle = message.sender as Hub
+                        bestVehicle = message.sender as Depot
                     }
                 }
             }
@@ -55,7 +56,7 @@ class Client(location: Point) : Depot(location), TickListener, CommUser {
         } else {
             device?.unreadMessages
         }
-
+        */
     }
 
     override fun setCommDevice(builder: CommDeviceBuilder?) {
@@ -69,4 +70,8 @@ class Client(location: Point) : Depot(location), TickListener, CommUser {
         }
         return Optional.absent<Point>()
     }
+
+    val realPosition: Point
+        get() = position?.get()!!
+
 }

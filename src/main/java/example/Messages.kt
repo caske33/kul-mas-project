@@ -2,18 +2,9 @@ package example
 
 import com.github.rinde.rinsim.core.model.comm.MessageContents
 
-enum class Messages : MessageContents {
-    PICK_ME_UP, I_CHOOSE_YOU
-}
+class DeclareOrder(val order: Order) : MessageContents
+class BidOnOrder(val order: Order, val value: Double) : MessageContents
+class AcceptOrder(val order: Order) : MessageContents
+class ConfirmOrder(val order: Order) : MessageContents
+class CancelOrder(val order: Order) : MessageContents
 
-class BiddingMessage(var bid: Double, var order: Order?) : MessageContents
-
-class CancelMessage() : MessageContents
-
-class WinningBidMessage(var order: Order?) : MessageContents
-
-class ClientOfferMessage(var order: PackageType?) : MessageContents
-
-class WinningClientBidMessage(var order : PackageType?) : MessageContents
-
-class HubOfferMessage(var order: Order?) : MessageContents

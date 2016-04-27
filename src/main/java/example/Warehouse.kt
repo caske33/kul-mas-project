@@ -11,13 +11,9 @@ import com.github.rinde.rinsim.core.model.time.TimeLapse
 import com.github.rinde.rinsim.geom.Point
 import com.google.common.base.Optional
 import com.google.common.collect.ImmutableList
+import org.apache.commons.math3.random.RandomGenerator
 
-/**
- * Created by victo on 19/04/2016.
- */
-
-class Hub(location: Point) : Depot(location), TickListener, CommUser {
-
+class Warehouse(val position: Point, val rng: RandomGenerator) : Depot(position), TickListener, CommUser {
 
     var device: CommDevice? = null
 
@@ -25,44 +21,32 @@ class Hub(location: Point) : Depot(location), TickListener, CommUser {
     var pickedUp = false
     var messageBroadcast = false
 
-    private var order: Order? = null
-        get() = getOrders()
+    val prices: Map<PackageType, Double>
 
-    private fun getOrders(): Order? {
-        var rm = roadModel
-        var pdp = pdpModel
-        val allOrders = rm.getObjectsOfType(Order::class.java).iterator()
-        var hubOrder : Order? = null
-        while(allOrders.hasNext()) {
-            val corder = allOrders.next()
-            if (corder.origin === this) {
-                hubOrder = corder
-            }
+    init {
+        prices = PackageType.values().associate { type ->
+            val price = type.marketPrice * (1 + rng.nextDouble()*0.4-0.2) // +/- 20% of market price
+            Pair(type, price)
         }
-        return hubOrder
     }
-
-    private var currentOrder : PackageType? = null
 
     override fun initRoadPDP(pRoadModel: RoadModel?, pPdpModel: PDPModel?) {
     }
 
     override fun getPosition(): Optional<Point> {
-        val rm = roadModel
-        if (rm.containsObject(this)) {
-            return Optional.of(rm.getPosition(this))
-        }
-        return Optional.absent<Point>()
-
+        return Optional.of(position)
     }
 
     override fun setCommDevice(builder: CommDeviceBuilder) {
         device = builder.setReliability(1.0).build()
     }
 
+    fun getPriceFor(type: PackageType): Double
+        = prices.get(type)!!
 
     override fun tick(timeLapse: TimeLapse) {
 
+        /*
         if (!hasClientContract) {
             val messages = device?.unreadMessages
             // bid on incoming contract proposals
@@ -75,7 +59,7 @@ class Hub(location: Point) : Depot(location), TickListener, CommUser {
                     val wantedPackage = (message.contents as ClientOfferMessage).order
                     if (wantedPackage === order!!.content) {
                         val distance = Point.distance(message.sender.position.get(), this.position.get())
-                        device?.send(BiddingMessage(distance, order!!), message.sender)
+                        device?.send(DroneBiddingMessage(distance, order!!), message.sender)
                     }
                 }
             }
@@ -91,8 +75,8 @@ class Hub(location: Point) : Depot(location), TickListener, CommUser {
                 val messages = device?.unreadMessages ?: ImmutableList.of()
                 for (i in messages.indices) {
                     val message = messages[i]
-                    if (message.contents is BiddingMessage) {
-                        val contents = message.contents as BiddingMessage
+                    if (message.contents is DroneBiddingMessage) {
+                        val contents = message.contents as DroneBiddingMessage
 
                         val bid = contents.bid
                         if (bid < bestBid) {
@@ -114,12 +98,11 @@ class Hub(location: Point) : Depot(location), TickListener, CommUser {
             } else {
                 device?.unreadMessages
             }
-        }
+        }*/
     }
 
     override fun afterTick(timeLapse: TimeLapse) {
         // TODO Auto-generated method stub
 
     }
-
 }

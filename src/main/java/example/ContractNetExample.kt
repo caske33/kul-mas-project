@@ -31,7 +31,7 @@ object ContractNetExample {
     private val NEW_CUSTOMER_PROB = .03141567841510015464654654654
 
     private val NUM_HUBS = 4
-    private val NUM_CLIENTS = 4
+    private val NUM_INITIAL_CLIENTS = 4
 
 
     /**
@@ -56,20 +56,33 @@ object ContractNetExample {
                     .withImageAssociation(Drone::class.java, "/graphics/perspective/semi-truck-32.png")
                     .withImageAssociation(Order::class.java, "/graphics/perspective/deliverypackage.png")
                     .withImageAssociation(Client::class.java, "/graphics/flat/deliverylocation.png")
-                    .withImageAssociation(Hub::class.java, "/graphics/flat/warehouse-32.png"))
+                    .withImageAssociation(Warehouse::class.java, "/graphics/flat/warehouse-32.png"))
                 .with(CommRenderer.builder().withReliabilityColors().withMessageCount())
 
         if (testing) {
-            viewBuilder = viewBuilder.withSpeedUp(TEST_SPEEDUP).withAutoClose().withAutoPlay().withSimulatorEndTime(TEST_STOP_TIME)
+            viewBuilder = viewBuilder
+                    .withSpeedUp(TEST_SPEEDUP)
+                    .withAutoClose()
+                    .withAutoPlay()
+                    .withSimulatorEndTime(TEST_STOP_TIME)
         }
 
         // initialize a new Simulator instance
-        val sim = Simulator.builder().setTickLength(TICK_LENGTH).setRandomSeed(RANDOM_SEED).addModel(
-                RoadModelBuilders.plane().withMinPoint(MIN_POINT).withMaxPoint(MAX_POINT).withMaxSpeed(VEHICLE_SPEED_KMH)).addModel(viewBuilder).addModel(DefaultPDPModel.builder()).addModel(CommModel.builder()).build()
+        val sim = Simulator.builder()
+                .setTickLength(TICK_LENGTH)
+                .setRandomSeed(RANDOM_SEED)
+                .addModel(
+                    RoadModelBuilders.plane()
+                            .withMinPoint(MIN_POINT)
+                            .withMaxPoint(MAX_POINT)
+                            .withMaxSpeed(VEHICLE_SPEED_KMH)
+                ).addModel(viewBuilder)
+                .addModel(DefaultPDPModel.builder())
+                .addModel(CommModel.builder())
+                .build()
 
         val roadModel = sim.getModelProvider().getModel(RoadModel::class.java)
         val rng = sim.getRandomGenerator()
-        val device = null
 
         // add a number of drones on the road
         for (i in 0..NUM_DRONES - 1) {
@@ -77,13 +90,14 @@ object ContractNetExample {
         }
 
         for (i in 0..NUM_HUBS - 1) {
-            sim.register(Hub(roadModel.getRandomPosition(rng)))
+            sim.register(Warehouse(roadModel.getRandomPosition(rng), rng))
         }
 
-        for (i in 0..NUM_CLIENTS - 1) {
+        for (i in 0..NUM_INITIAL_CLIENTS - 1) {
             sim.register(Client(roadModel.getRandomPosition(rng)))
         }
 
+        /*
         val hubIterator = roadModel.getObjectsOfType(Hub::class.java).iterator()
         // add a number of packages
         for (i in 0..NUM_HUBS - 1) { // TODO for now 1 package per hub
@@ -92,23 +106,19 @@ object ContractNetExample {
                     roadModel.getObjectsOfType(Client::class.java).toList().get(i).position!!.get()).serviceDuration(SERVICE_DURATION).neededCapacity(1.0) // + rng.nextInt(MAX_CAPACITY))
                     .buildDTO(), PackageType.IPOD, hub))
         }
-
+        */
 
 
         sim.addTickListener(object : TickListener {
             override fun tick(time: TimeLapse) {
                 if (time.startTime > Integer.MAX_VALUE) {
                     sim.stop()
-                } /*else if (rng.nextDouble() < NEW_CUSTOMER_PROB) {
-                    sim.register(Package(
-                            Parcel.builder(roadModel.getRandomPosition(rng),
-                                    roadModel.getRandomPosition(rng)).serviceDuration(SERVICE_DURATION).neededCapacity((1 + rng.nextInt(MAX_CAPACITY)).toDouble()).buildDTO()))
-                }*/
+                } else if (rng.nextDouble() < NEW_CUSTOMER_PROB) {
+                    sim.register(Client(roadModel.getRandomPosition(rng)))
+                }
             }
 
             override fun afterTick(timeLapse: TimeLapse) {
-                // TODO Auto-generated method stub
-
             }
         })
 
