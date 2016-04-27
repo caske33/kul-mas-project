@@ -12,7 +12,7 @@ import com.github.rinde.rinsim.core.model.time.TimeLapse
 import com.github.rinde.rinsim.geom.Point
 import com.google.common.base.Optional
 
-class Drone(var position: Point) :
+class Drone(position: Point) :
         Vehicle(
                 VehicleDTO.builder()
                         .capacity(1)
@@ -25,7 +25,7 @@ class Drone(var position: Point) :
     // to keep track of time. The RandomUser interface indicates that this class
     // wants to get access to a random generator
 
-    private var currentOrder: Order? = null
+    private var currentBid: Bid? = null
     private var device: CommDevice? = null
     private var state: DroneState = DroneState.IDLE
     private var batteryLevel: Double = 1.0
@@ -44,50 +44,58 @@ class Drone(var position: Point) :
 
         handleMessages(time, messages?.toMutableList()?.toList()!!)
 
-        /*if (!isDelivering && !hasContract) {
-            // bid on incoming contract proposals
-            for (message in messages!!) {
-                if (message.contents is WinningBidMessage) {
-                    if (dynamic && hasContract) {
-                        device?.send(CancelMessage(), currentOrder!!.client)
-                    }
-                    currentOrder = (message.contents as WinningBidMessage).order
-                    hasContract = true
-                }
-                else if (message.contents is HubOfferMessage) {
-                    val hub = message.sender as Hub
-                    val hubPos = hub.position.get()
-                    val order = (message.contents as HubOfferMessage).order
-                    val distance = Point.distance(hubPos, this.getPosition().get())
-                    val currentDistance = Point.distance(order!!.pickupLocation, this.getPosition().get()) + Point.distance(order.pickupLocation, order.deliveryLocation)
-                    device?.send(DroneBiddingMessage(currentDistance, order), hub)
-                }
-            }
+        when(state){
+            DroneState.IDLE -> moveToClosestWarehouse(time)
+            DroneState.CHARGING -> charge(time)
+            DroneState.CHARGING_FOR_CONTRACT -> chargeUntilMove(time)
+            DroneState.PICKING_UP -> moveToWarehouse(time, currentBid!!.warehouse)
+            DroneState.DELIVERING -> moveToClient(time)
         }
 
-        else {
-            val inCargo = pm.containerContains(this, currentOrder)
-            // sanity check: if it is not in our cargo AND it is also not on the
-            // RoadModel, we cannot go to curr anymore.
-            if (!inCargo && !rm.containsObject(currentOrder)) {
-                currentOrder = null
-            } else if (inCargo) {
-                // if it is in cargo, go to its destination
-                rm.moveTo(this, currentOrder!!.deliveryLocation, time)
-                if (rm.getPosition(this) == currentOrder!!.deliveryLocation) {
-                    // deliver when we arrive
-                    pm.deliver(this, currentOrder!!, time)
-                    currentOrder!!.isDelivered = true
-                }
-            } else {
-                // it is still available, go there as fast as possible
-                rm.moveTo(this, currentOrder!!.pickupLocation, time)
-                if (rm.equalPosition(this, currentOrder!!)) {
-                    // pickup customer
-                    pm.pickup(this, currentOrder!!, time)
-                }
-            }
-        }*/
+        //TODO: move
+        //TODO: cost update
+        //TODO: deliver package?
+        //TODO: more state changes!
+        //TODO: crashes! (statistically correct!)
+        //TODO: pay energy + battery drain for moving
+    }
+    fun moveToClosestWarehouse(time: TimeLapse) {
+        val closest = roadModel.getObjectsOfType(Warehouse::class.java).minBy { warehouse ->
+            Point.distance(realPosition, warehouse.position)
+        }!!
+        if(realPosition.equals(closest.position)){
+            state = DroneState.CHARGING
+            charge(time)
+        } else {
+            roadModel.moveTo(this, closest, time)
+        }
+    }
+    fun moveToWarehouse(time: TimeLapse, warehouse: Warehouse) {
+        if(realPosition.equals(warehouse.position)){
+            state = DroneState.DELIVERING
+            moveToClient(time)
+            //TODO pay cost package
+        } else {
+            roadModel.moveTo(this, warehouse, time)
+        }
+    }
+    fun charge(time: TimeLapse) {
+        batteryLevel += time.timeLeft * BATTERY_CHARGING_RATE
+        if(batteryLevel > 1.0)
+            batteryLevel = 1.0
+    }
+    fun moveToClient(time: TimeLapse) {
+        val client = currentBid!!.order.client
+        if(realPosition.equals(client.position)){
+            state = DroneState.IDLE
+            //TODO get paid
+            moveToClosestWarehouse(time)
+        } else {
+            roadModel.moveTo(this, client, time)
+        }
+    }
+    fun chargeUntilMove(time: TimeLapse) {
+        //TODO charge, zo lang ge nog niet moet vertrekken
     }
 
     fun handleMessages(time: TimeLapse, messages: List<Message>) {
@@ -100,7 +108,7 @@ class Drone(var position: Point) :
                 if(warehouse != null) {
                     val cost = -order.price + estimatedCostWarehouse(warehouse, order.type, message.sender as Client)
                     if(cost < order.fine) // Otherwise beter om order te laten vervallen
-                        device?.send(BidOnOrder(order, cost), message.sender)
+                        device?.send(BidOnOrder(Bid(order, cost, warehouse)), message.sender)
                 }
             }
         }
@@ -109,9 +117,13 @@ class Drone(var position: Point) :
         val acceptOrderMessages = messages.filter { message -> message.contents is AcceptOrder }
         if(acceptOrderMessages.size > 0){
 
-            val winningOrder: Message = acceptOrderMessages.minBy { message -> (message.contents as AcceptOrder).bid }!!
+            // accept order with lowest (estimated) cost
+            val winningOrder: Message = acceptOrderMessages.minBy { message -> (message.contents as AcceptOrder).bid.bidValue }!!
             device?.send(ConfirmOrder(winningOrder.contents as AcceptOrder), winningOrder.sender)
+            state = DroneState.PICKING_UP
+            currentBid = (winningOrder.contents as AcceptOrder).bid
 
+            // cancel other orders
             acceptOrderMessages.filter { message -> message != winningOrder }.forEach { message ->
                 device?.send(CancelOrder(message.contents as AcceptOrder), message.sender)
             }
@@ -120,7 +132,7 @@ class Drone(var position: Point) :
 
     fun getCheapestWarehouse(order: Order, time: TimeLapse): Warehouse? {
         return roadModel.getObjectsOfType(Warehouse::class.java).filter { warehouse ->
-            val distance = Point.distance(position, warehouse.position) + Point.distance(warehouse.position, order.client.position)
+            val distance = Point.distance(realPosition, warehouse.position) + Point.distance(warehouse.position, order.client.position)
             val traveltime = distance / DRONE_SPEED
             time.startTime + traveltime < order.endTime
         }.minBy { warehouse ->
@@ -130,9 +142,9 @@ class Drone(var position: Point) :
 
     fun estimatedCostWarehouse(warehouse: Warehouse, type: PackageType, client: Client): Double
         = warehouse.getPriceFor(type) +
-        estimatedCostFailureOnTrajectory(position, warehouse.position, batteryLevel) +
-        estimatedCostFailureOnTrajectory(warehouse.position, client.position, batteryLevel - batteryDrainTrajectory(position, warehouse.position), type.marketPrice) +
-        costForEnergyOnTrajectory(position, warehouse.position) +
+        estimatedCostFailureOnTrajectory(realPosition, warehouse.position, batteryLevel) +
+        estimatedCostFailureOnTrajectory(warehouse.position, client.position, batteryLevel - batteryDrainTrajectory(realPosition, warehouse.position), type.marketPrice) +
+        costForEnergyOnTrajectory(realPosition, warehouse.position) +
         costForEnergyOnTrajectory(warehouse.position, client.position)
 
     fun costForEnergyOnTrajectory(p1: Point, p2: Point)
@@ -167,8 +179,9 @@ class Drone(var position: Point) :
             return Optional.of(rm.getPosition(this))
         }
         return Optional.absent<Point>()
-
     }
+    val realPosition: Point
+        get() = position.get()!!
 
     override fun setCommDevice(builder: CommDeviceBuilder) {
         device = builder.setReliability(1.0).build()

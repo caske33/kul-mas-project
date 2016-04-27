@@ -53,10 +53,10 @@ class Client(val position: Point, val rng: RandomGenerator, val sim: Simulator) 
         // BidOnOrder
         if(drone == null){
             messages.filter { message -> message.contents is BidOnOrder }.minBy { message ->
-                (message.contents as BidOnOrder).bid
+                (message.contents as BidOnOrder).bid.bidValue
             }?.let { message ->
                 val winningBid = message.contents as BidOnOrder
-                device?.send(AcceptOrder(winningBid.order, winningBid.bid), message.sender)
+                device?.send(AcceptOrder(winningBid.bid), message.sender)
 
                 drone = message.sender as Drone
             }

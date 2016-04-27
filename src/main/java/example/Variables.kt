@@ -15,3 +15,5 @@ val MAX_WINDOW_LENGTH = 1000000
 val MIN_CLIENT_PRICE = 1.2 // relative tov marketPrice
 val MAX_CLIENT_PRICE = 1.3 // relative tov marketPrice
 val FINE_PERCENTAGE = 0.5
+
+val BATTERY_CHARGING_RATE = 0.1 // percentage per time unit

@@ -5,8 +5,6 @@ import com.github.rinde.rinsim.core.Simulator
 import com.github.rinde.rinsim.core.model.comm.CommModel
 import com.github.rinde.rinsim.core.model.road.RoadModel
 import com.github.rinde.rinsim.core.model.road.RoadModelBuilders
-import com.github.rinde.rinsim.core.model.time.TickListener
-import com.github.rinde.rinsim.core.model.time.TimeLapse
 import com.github.rinde.rinsim.geom.Point
 import com.github.rinde.rinsim.ui.View
 import com.github.rinde.rinsim.ui.renderers.CommRenderer
@@ -97,18 +95,7 @@ object ContractNetExample {
             sim.register(Client(roadModel.getRandomPosition(rng), rng, sim))
         }
 
-        /*
-        val hubIterator = roadModel.getObjectsOfType(Hub::class.java).iterator()
-        // add a number of packages
-        for (i in 0..NUM_HUBS - 1) { // TODO for now 1 package per hub
-            val hub : Hub = hubIterator.next()
-            sim.register(Order(Parcel.builder(hub.position.get(),
-                    roadModel.getObjectsOfType(Client::class.java).toList().get(i).position!!.get()).serviceDuration(SERVICE_DURATION).neededCapacity(1.0) // + rng.nextInt(MAX_CAPACITY))
-                    .buildDTO(), PackageType.IPOD, hub))
-        }
-        */
-
-        sim.addTickListener(object : TickListener {
+        /*sim.addTickListener(object : TickListener {
             override fun tick(time: TimeLapse) {
                 if (time.startTime > Integer.MAX_VALUE) {
                     sim.stop()
@@ -119,7 +106,7 @@ object ContractNetExample {
 
             override fun afterTick(timeLapse: TimeLapse) {
             }
-        })
+        })*/
 
         // if a GUI is added, it starts it, if no GUI is specified it will
         // run the simulation without visualization.
