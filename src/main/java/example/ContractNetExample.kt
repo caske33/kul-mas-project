@@ -94,7 +94,7 @@ object ContractNetExample {
         }
 
         for (i in 0..NUM_INITIAL_CLIENTS - 1) {
-            sim.register(Client(roadModel.getRandomPosition(rng)))
+            sim.register(Client(roadModel.getRandomPosition(rng), rng, sim))
         }
 
         /*
@@ -108,13 +108,12 @@ object ContractNetExample {
         }
         */
 
-
         sim.addTickListener(object : TickListener {
             override fun tick(time: TimeLapse) {
                 if (time.startTime > Integer.MAX_VALUE) {
                     sim.stop()
                 } else if (rng.nextDouble() < NEW_CUSTOMER_PROB) {
-                    sim.register(Client(roadModel.getRandomPosition(rng)))
+                    sim.register(Client(roadModel.getRandomPosition(rng), rng, sim))
                 }
             }
 

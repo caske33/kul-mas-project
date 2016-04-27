@@ -1,62 +1,74 @@
 package example
 
+import com.github.rinde.rinsim.core.Simulator
 import com.github.rinde.rinsim.core.model.comm.CommDevice
 import com.github.rinde.rinsim.core.model.comm.CommDeviceBuilder
 import com.github.rinde.rinsim.core.model.comm.CommUser
 import com.github.rinde.rinsim.core.model.pdp.Depot
+import com.github.rinde.rinsim.core.model.pdp.PDPModel
+import com.github.rinde.rinsim.core.model.pdp.Parcel
+import com.github.rinde.rinsim.core.model.road.RoadModel
 import com.github.rinde.rinsim.core.model.time.TickListener
 import com.github.rinde.rinsim.core.model.time.TimeLapse
 import com.github.rinde.rinsim.geom.Point
 import com.google.common.base.Optional
 import com.google.common.collect.ImmutableList
+import org.apache.commons.math3.random.RandomGenerator
+import java.text.FieldPosition
 
-class Client(location: Point) : Depot(location), TickListener, CommUser {
+class Client(val position: Point, val rng: RandomGenerator, val sim: Simulator) : Depot(position), TickListener, CommUser {
 
-    private var hasContract : Boolean = false
-    private var messageBroadcast : Boolean = false
-    private var device : CommDevice? = null
+    //private var hasContract: Boolean = false
+    //private var messageBroadcast: Boolean = false
+    private var device: CommDevice? = null
+
+    private var order: Order? = null
+    private var drone: Drone? = null
+
+    override fun initRoadPDP(roadModel: RoadModel?, pdpModel: PDPModel?) {
+        super.initRoadPDP(roadModel, pdpModel)
+
+        val type = PackageType.values()[rng.nextInt(PackageType.values().size)]
+        val percent = rng.nextDouble()
+        val windowLength = MIN_WINDOW_LENGTH + (MAX_WINDOW_LENGTH-MIN_WINDOW_LENGTH) * percent
+        val price = (MAX_CLIENT_PRICE - (MAX_CLIENT_PRICE-MIN_CLIENT_PRICE)*percent)*type.marketPrice
+        val fine = FINE_PERCENTAGE * type.marketPrice
+
+        order = Order(type, this, Math.round(sim.currentTime + windowLength), price, fine)
+    }
 
     override fun afterTick(timeLapse: TimeLapse?) {
         //
     }
 
     override fun tick(timeLapse: TimeLapse?) {
-        /*
-        if (!hasContract && !messageBroadcast) {
-            device?.broadcast(ClientOfferMessage(PackageType.IPOD))
-            messageBroadcast = true
-        }
-        if (!hasContract && messageBroadcast) {
-            var bestBid = Integer.MAX_VALUE.toInt().toDouble()
-            var bestVehicle: Depot? = null
-            val messages = device?.unreadMessages ?: ImmutableList.of()
-            for (i in messages.indices) {
-                val message = messages[i]
-                if (message.contents is DroneBiddingMessage && message.sender is Depot) {
-                    val contents = message.contents as DroneBiddingMessage
+        val messages = device?.unreadMessages!!
 
-                    val bid = contents.bid
-                    if (bid < bestBid) {
-                        bestBid = bid
-                        bestVehicle = message.sender as Depot
-                    }
-                }
-            }
-            if (bestVehicle != null) {
-                device?.send(WinningClientBidMessage(PackageType.IPOD), bestVehicle)
-                //val messages2 = device?.unreadMessages ?: ImmutableList.of()
-                //for (i in messages.indices) {
-                //    if (messages[i].contents === Messages.I_CHOOSE_YOU) {
-                hasContract = true
-                println("Contract for client " + this.hashCode() + " awarded to " + bestVehicle.hashCode())
-                //        break
-                //    }
-                //}
-            }
-        } else {
-            device?.unreadMessages
+        // CancelOrder
+        messages.filter { message -> message.contents is CancelOrder }.forEach { message ->
+            if(message.sender == drone)
+                drone = null
         }
-        */
+
+        // BidOnOrder
+        if(drone == null){
+            messages.filter { message -> message.contents is BidOnOrder }.minBy { message ->
+                (message.contents as BidOnOrder).bid
+            }?.let { message ->
+                val winningBid = message.contents as BidOnOrder
+                device?.send(AcceptOrder(winningBid.order, winningBid.bid), message.sender)
+
+                drone = message.sender as Drone
+            }
+        }
+
+        //Send DeclareOrder
+        if(order != null && drone == null) {
+            device?.broadcast(DeclareOrder(order!!))
+        }
+
+        // ConfirmOrder
+        // do nothing until DynamicCNET
     }
 
     override fun setCommDevice(builder: CommDeviceBuilder?) {
@@ -64,14 +76,6 @@ class Client(location: Point) : Depot(location), TickListener, CommUser {
     }
 
     override fun getPosition(): Optional<Point>? {
-        val rm = roadModel
-        if (rm.containsObject(this)) {
-            return Optional.of(rm.getPosition(this))
-        }
-        return Optional.absent<Point>()
+        return Optional.of(position)
     }
-
-    val realPosition: Point
-        get() = position?.get()!!
-
 }

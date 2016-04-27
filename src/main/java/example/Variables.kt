@@ -9,3 +9,9 @@ val LAMBDA_NORMAL = 100000
 val PRICE_DRONE = 10000
 
 val COST_FOR_ENERGY_PER_DISTANCE_UNIT = 2 // in euros
+
+val MIN_WINDOW_LENGTH = 100000
+val MAX_WINDOW_LENGTH = 1000000
+val MIN_CLIENT_PRICE = 1.2 // relative tov marketPrice
+val MAX_CLIENT_PRICE = 1.3 // relative tov marketPrice
+val FINE_PERCENTAGE = 0.5

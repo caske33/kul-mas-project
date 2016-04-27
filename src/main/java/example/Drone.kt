@@ -91,6 +91,7 @@ class Drone(var position: Point) :
     }
 
     fun handleMessages(time: TimeLapse, messages: List<Message>) {
+        // DeclareOrder
         if(state.canBid()){
             messages.filter { message -> message.contents is DeclareOrder }.forEach { message ->
                 val order: Order = (message.contents as DeclareOrder).order
@@ -98,15 +99,28 @@ class Drone(var position: Point) :
                 val warehouse: Warehouse? = getCheapestWarehouse(order, time)
                 if(warehouse != null) {
                     val cost = -order.price + estimatedCostWarehouse(warehouse, order.type, message.sender as Client)
-                    device?.send(BidOnOrder(order, cost), message.sender)
+                    if(cost < order.fine) // Otherwise beter om order te laten vervallen
+                        device?.send(BidOnOrder(order, cost), message.sender)
                 }
+            }
+        }
+
+        // AcceptOrder
+        val acceptOrderMessages = messages.filter { message -> message.contents is AcceptOrder }
+        if(acceptOrderMessages.size > 0){
+
+            val winningOrder: Message = acceptOrderMessages.minBy { message -> (message.contents as AcceptOrder).bid }!!
+            device?.send(ConfirmOrder(winningOrder.contents as AcceptOrder), winningOrder.sender)
+
+            acceptOrderMessages.filter { message -> message != winningOrder }.forEach { message ->
+                device?.send(CancelOrder(message.contents as AcceptOrder), message.sender)
             }
         }
     }
 
     fun getCheapestWarehouse(order: Order, time: TimeLapse): Warehouse? {
         return roadModel.getObjectsOfType(Warehouse::class.java).filter { warehouse ->
-            val distance = Point.distance(position, warehouse.position) + Point.distance(warehouse.position, order.client.realPosition)
+            val distance = Point.distance(position, warehouse.position) + Point.distance(warehouse.position, order.client.position)
             val traveltime = distance / DRONE_SPEED
             time.startTime + traveltime < order.endTime
         }.minBy { warehouse ->
@@ -117,9 +131,9 @@ class Drone(var position: Point) :
     fun estimatedCostWarehouse(warehouse: Warehouse, type: PackageType, client: Client): Double
         = warehouse.getPriceFor(type) +
         estimatedCostFailureOnTrajectory(position, warehouse.position, batteryLevel) +
-        estimatedCostFailureOnTrajectory(warehouse.position, client.realPosition, batteryLevel - batteryDrainTrajectory(position, warehouse.position), type.marketPrice) +
+        estimatedCostFailureOnTrajectory(warehouse.position, client.position, batteryLevel - batteryDrainTrajectory(position, warehouse.position), type.marketPrice) +
         costForEnergyOnTrajectory(position, warehouse.position) +
-        costForEnergyOnTrajectory(warehouse.position, client.realPosition)
+        costForEnergyOnTrajectory(warehouse.position, client.position)
 
     fun costForEnergyOnTrajectory(p1: Point, p2: Point)
         = Point.distance(p1, p2) * COST_FOR_ENERGY_PER_DISTANCE_UNIT
