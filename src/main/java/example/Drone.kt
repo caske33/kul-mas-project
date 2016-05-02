@@ -106,6 +106,7 @@ class Drone(position: Point) :
 
                 val warehouse: Warehouse? = getCheapestWarehouse(order, time)
                 if(warehouse != null) {
+                    //TODO: order.price enkel aftrekken van cost als ge ook effectief op tijd zou aankomen!
                     val cost = -order.price + estimatedCostWarehouse(warehouse, order.type, message.sender as Client)
                     if(cost < order.fine) // Otherwise beter om order te laten vervallen
                         device?.send(BidOnOrder(Bid(order, cost, warehouse)), message.sender)
@@ -159,6 +160,8 @@ class Drone(position: Point) :
             return estimatedCostFailureOnTrajectory(p1, middlePoint, startBatteryLevel) + estimatedCostFailureOnTrajectory(middlePoint, p2, stateChangeLevel)
         }
 
+        //TODO: is this correct formula for Poisson distribution??? => not chance of failing because can be larger than 1
+        //TODO: price should only be multiplied with (1-p_failing) because that's the chance of succeeding
         return Point.distance(p1, p2) / BatteryState.stateFromLevel(startBatteryLevel).failureLambda * (PRICE_DRONE + priceContentsDrone)
     }
 
