@@ -63,8 +63,6 @@ class Drone(position: Point, val rng: RandomGenerator) :
         } catch(e: DroneCrashException) {
             //do nothing
         }
-
-        //TODO: crashes! (statistically correct!)
     }
 
     fun moveTo(endPosition: RoadUser, time: TimeLapse) {
@@ -72,10 +70,14 @@ class Drone(position: Point, val rng: RandomGenerator) :
         val startBatteryLevel = batteryLevel
         batteryLevel -= moveProgress.distance().value / DISTANCE_PER_PERCENTAGE_BATTERY_DRAIN
 
+        if(batteryLevel < 0)
+            crash()
+
+        //TODO: estimated cost: onmogelijk als batteryLevel < 0 zou gaan
+
         val probabilityToCrash = calculateProbabilityToCrash(startBatteryLevel, batteryLevel, moveProgress.distance().value)
         if(rng.nextDouble() <= probabilityToCrash){
-            //TODO re-enable
-            //crash()
+            crash()
         }
     }
 
@@ -97,7 +99,6 @@ class Drone(position: Point, val rng: RandomGenerator) :
     }
 
     fun crash() {
-        //TODO: cost drone aftrekken
         //TODO: client: wat doen bij crash?
         totalProfit -= PRICE_DRONE
 
@@ -268,7 +269,7 @@ enum class DroneState(private val canBid : Boolean) {
 }
 
 enum class BatteryState(val lowerBound: Double, val upperBound: Double, val failureLambda: Int) {
-    CRITICAL(-1.0, 0.1, LAMBDA_CRITICAL),
+    CRITICAL(Double.NEGATIVE_INFINITY, 0.1, LAMBDA_CRITICAL),
     LOW(0.1, 0.2, LAMBDA_LOW),
     NORMAL(0.2, 1.0, LAMBDA_NORMAL);
 

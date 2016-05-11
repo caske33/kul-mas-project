@@ -1,10 +1,11 @@
 package example
 
-val DRONE_SPEED = 1000.0
+val DRONE_SPEED = 50.0
 val DISTANCE_PER_PERCENTAGE_BATTERY_DRAIN = 10
-val LAMBDA_CRITICAL = 100000
-val LAMBDA_LOW = 1000
-val LAMBDA_NORMAL = 100
+//lambda = het verwachte aantal voorvallen per distance unit
+val LAMBDA_CRITICAL = 1/100
+val LAMBDA_LOW = 1/1000
+val LAMBDA_NORMAL = 1/100000
 
 val PRICE_DRONE = 10000
 
