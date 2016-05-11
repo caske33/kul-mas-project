@@ -29,8 +29,10 @@ class Drone(position: Point) :
     private var currentBid: Bid? = null
     private var device: CommDevice? = null
     private var state: DroneState = DroneState.IDLE
-    private var batteryLevel: Double = 1.0
-    private var totalProfit: Double = 0.0
+    var batteryLevel: Double = 1.0
+      private set
+    var totalProfit: Double = 0.0
+      private set
 
     override fun afterTick(timeLapse: TimeLapse?) {
         // we don't need this in this example. This method is called after
@@ -54,9 +56,7 @@ class Drone(position: Point) :
             DroneState.DELIVERING -> moveToClient(time)
         }
 
-        //TODO: more state changes!
         //TODO: crashes! (statistically correct!)
-        //TODO: pay energy + battery drain for moving
     }
 
     fun moveTo(endPosition: RoadUser, time: TimeLapse) {

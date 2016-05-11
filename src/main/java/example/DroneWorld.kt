@@ -11,9 +11,11 @@ import com.github.rinde.rinsim.ui.renderers.CommRenderer
 import com.github.rinde.rinsim.ui.renderers.PlaneRoadModelRenderer
 import com.github.rinde.rinsim.ui.renderers.RoadUserRenderer
 import com.github.rinde.rinsim.core.model.pdp.*
+import com.github.rinde.rinsim.ui.renderers.DroneCommRenderer
 
-object ContractNetExample {
+object DroneWorld {
 
+    //TODO move to Variables
     internal val VEHICLE_SPEED_KMH = 50.0
     internal val MIN_POINT = Point(0.0, 0.0)
     internal val MAX_POINT = Point(10.0, 10.0)
@@ -55,7 +57,11 @@ object ContractNetExample {
                     .withImageAssociation(Order::class.java, "/graphics/perspective/deliverypackage.png")
                     .withImageAssociation(Client::class.java, "/graphics/flat/deliverylocation.png")
                     .withImageAssociation(Warehouse::class.java, "/graphics/flat/warehouse-32.png"))
-                .with(CommRenderer.builder().withReliabilityColors().withMessageCount())
+                .with(DroneCommRenderer.builder()
+                        .withReliabilityColors()
+                        .withMessageCount()
+                        .withBatteryLevel()
+                        .withProfit())
 
         if (testing) {
             viewBuilder = viewBuilder
