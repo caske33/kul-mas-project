@@ -12,8 +12,9 @@ import com.github.rinde.rinsim.core.model.time.TickListener
 import com.github.rinde.rinsim.core.model.time.TimeLapse
 import com.github.rinde.rinsim.geom.Point
 import com.google.common.base.Optional
+import org.apache.commons.math3.random.RandomGenerator
 
-class Drone(position: Point) :
+class Drone(position: Point, val rng: RandomGenerator) :
         Vehicle(
                 VehicleDTO.builder()
                         .capacity(1)
@@ -34,13 +35,16 @@ class Drone(position: Point) :
     var totalProfit: Double = 0.0
       private set
 
+    var crashed: Boolean = false
+      private set
+
     override fun afterTick(timeLapse: TimeLapse?) {
         // we don't need this in this example. This method is called after
         // all TickListener#tick() calls, hence the name.
     }
 
     override fun tickImpl(time: TimeLapse) {
-        if (!time.hasTimeLeft()) {
+        if (!time.hasTimeLeft() || crashed) {
             return
         }
 
@@ -48,12 +52,16 @@ class Drone(position: Point) :
 
         handleMessages(time, messages?.toMutableList()?.toList()!!)
 
-        when(state){
-            DroneState.IDLE -> moveToClosestWarehouse(time)
-            DroneState.CHARGING -> charge(time)
-            DroneState.CHARGING_FOR_CONTRACT -> chargeUntilMove(time)
-            DroneState.PICKING_UP -> moveToPackageWarehouse(time, currentBid!!.warehouse)
-            DroneState.DELIVERING -> moveToClient(time)
+        try{
+            when(state){
+                DroneState.IDLE -> moveToClosestWarehouse(time)
+                DroneState.CHARGING -> charge(time)
+                DroneState.CHARGING_FOR_CONTRACT -> chargeUntilMove(time)
+                DroneState.PICKING_UP -> moveToPackageWarehouse(time, currentBid!!.warehouse)
+                DroneState.DELIVERING -> moveToClient(time)
+            }
+        } catch(e: DroneCrashException) {
+            //do nothing
         }
 
         //TODO: crashes! (statistically correct!)
@@ -61,7 +69,41 @@ class Drone(position: Point) :
 
     fun moveTo(endPosition: RoadUser, time: TimeLapse) {
         val moveProgress = roadModel.moveTo(this, endPosition, time)
+        val startBatteryLevel = batteryLevel
         batteryLevel -= moveProgress.distance().value / DISTANCE_PER_PERCENTAGE_BATTERY_DRAIN
+
+        val probabilityToCrash = calculateProbabilityToCrash(startBatteryLevel, batteryLevel, moveProgress.distance().value)
+        if(rng.nextDouble() <= probabilityToCrash){
+            //TODO re-enable
+            //crash()
+        }
+    }
+
+    private fun calculateProbabilityToCrash(startBatteryLevel: Double, endBatteryLevel: Double, distance: Double): Double {
+        if(!BatteryState.isSameState(startBatteryLevel, endBatteryLevel)) {
+            val stateChangeLevel = BatteryState.values().map { it.upperBound }.filter { it < startBatteryLevel }.max()!!
+
+            val distance1 = (startBatteryLevel-stateChangeLevel)/(startBatteryLevel-endBatteryLevel) * distance
+
+            val failureFirst = calculateProbabilityToCrash(startBatteryLevel, stateChangeLevel+1e-15, distance1)
+            val failureSecond = calculateProbabilityToCrash(stateChangeLevel, endBatteryLevel, distance - distance1)
+
+            return failureFirst + (1-failureFirst) * failureSecond
+        } else {
+            val lambda = BatteryState.stateFromLevel(startBatteryLevel).failureLambda
+            return 1 - Math.exp(- lambda * distance)
+        }
+
+    }
+
+    fun crash() {
+        //TODO: cost drone aftrekken
+        //TODO: client: wat doen bij crash?
+        totalProfit -= PRICE_DRONE
+
+        crashed = true
+
+        throw DroneCrashException()
     }
 
     fun moveToClosestWarehouse(time: TimeLapse) {
@@ -170,6 +212,7 @@ class Drone(position: Point) :
         }
     }
 
+    //TODO: can charge in warehouse => hou rekening mee?
     fun estimatedCostWarehouse(warehouse: Warehouse, type: PackageType, client: Client): Double
         = warehouse.getPriceFor(type) +
         estimatedCostFailureOnTrajectory(realPosition, warehouse.position, batteryLevel) +
@@ -182,16 +225,10 @@ class Drone(position: Point) :
 
     fun estimatedCostFailureOnTrajectory(p1: Point, p2: Point, startBatteryLevel: Double, priceContentsDrone: Double = 0.0): Double {
         val endBatteryLevel = startBatteryLevel - batteryDrainTrajectory(p1, p2)
-        if(!BatteryState.isSameState(startBatteryLevel, endBatteryLevel)){
-            val stateChangeLevel = BatteryState.values().map { it.upperBound }.filter { it < startBatteryLevel }.first()
-            val middlePointDistance = (startBatteryLevel-stateChangeLevel)*DISTANCE_PER_PERCENTAGE_BATTERY_DRAIN
-            val middlePoint = middlePoint(p1, p2, middlePointDistance)
-            return estimatedCostFailureOnTrajectory(p1, middlePoint, startBatteryLevel) + estimatedCostFailureOnTrajectory(middlePoint, p2, stateChangeLevel)
-        }
+        val probabilityToCrash = calculateProbabilityToCrash(startBatteryLevel, endBatteryLevel, Point.distance(p1, p2))
 
-        //TODO: is this correct formula for Poisson distribution??? => not chance of failing because can be larger than 1
         //TODO: price should only be multiplied with (1-p_failing) because that's the chance of succeeding
-        return Point.distance(p1, p2) / BatteryState.stateFromLevel(startBatteryLevel).failureLambda * (PRICE_DRONE + priceContentsDrone)
+        return probabilityToCrash * (PRICE_DRONE + priceContentsDrone)
     }
 
     private fun middlePoint(p1: Point, p2: Point, distance: Double): Point{
@@ -231,7 +268,7 @@ enum class DroneState(private val canBid : Boolean) {
 }
 
 enum class BatteryState(val lowerBound: Double, val upperBound: Double, val failureLambda: Int) {
-    CRITICAL(-1e-15, 0.1, LAMBDA_CRITICAL),
+    CRITICAL(-1.0, 0.1, LAMBDA_CRITICAL),
     LOW(0.1, 0.2, LAMBDA_LOW),
     NORMAL(0.2, 1.0, LAMBDA_NORMAL);
 

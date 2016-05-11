@@ -10,6 +10,7 @@ import java.util.Set;
 
 import javax.annotation.CheckReturnValue;
 
+import example.BatteryState;
 import example.Drone;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Color;
@@ -46,6 +47,11 @@ public final class DroneCommRenderer extends AbstractTypedCanvasRenderer<CommUse
     final RGB unreliableColor;
     private final Map<CommUser, DeviceUI> uiObjects;
     private final CommModel model;
+
+    static final RGB GREEN = new RGB(39, 174, 96);
+    static final RGB YELLOW = new RGB(241, 196, 15);
+    static final RGB RED = new RGB(192, 57, 43);
+    static final RGB ORANGE = new RGB(211, 84, 0);
 
     DroneCommRenderer(Builder b, CommModel m) {
         model = m;
@@ -151,6 +157,24 @@ public final class DroneCommRenderer extends AbstractTypedCanvasRenderer<CommUse
                 helper.fillCircle(user.getPosition().get(), device.getMaxRange().get());
             }
 
+            if (user instanceof Drone) {
+                Drone drone = (Drone) user;
+                RGB rgb;
+                if(drone.getCrashed()) {
+                    gc.setAlpha(200);
+                    rgb = RED;
+                } else {
+                    gc.setAlpha(SEMI_TRANSPARENT);
+                    if (drone.getBatteryLevel() < BatteryState.CRITICAL.getUpperBound())
+                        rgb = ORANGE;
+                    else if(drone.getBatteryLevel() < BatteryState.LOW.getUpperBound())
+                        rgb = YELLOW;
+                    else
+                        rgb = GREEN;
+                }
+                gc.setBackground(new Color(gc.getDevice(), rgb));
+                helper.fillCircle(user.getPosition().get(), DOT_RADIUS*10);
+            }
             gc.setAlpha(OPAQUE);
             helper.fillCircle(user.getPosition().get(), DOT_RADIUS);
 

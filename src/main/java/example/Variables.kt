@@ -1,10 +1,10 @@
 package example
 
 val DRONE_SPEED = 1000.0
-val DISTANCE_PER_PERCENTAGE_BATTERY_DRAIN = 100
-val LAMBDA_CRITICAL = 100
+val DISTANCE_PER_PERCENTAGE_BATTERY_DRAIN = 10
+val LAMBDA_CRITICAL = 100000
 val LAMBDA_LOW = 1000
-val LAMBDA_NORMAL = 100000
+val LAMBDA_NORMAL = 100
 
 val PRICE_DRONE = 10000
 
@@ -16,4 +16,4 @@ val MIN_CLIENT_PRICE = 1.2 // relative tov marketPrice
 val MAX_CLIENT_PRICE = 1.3 // relative tov marketPrice
 val FINE_PERCENTAGE = 0.5
 
-val BATTERY_CHARGING_RATE = 0.1 // percentage per time unit
+val BATTERY_CHARGING_RATE = 0.000001 // percentage per time unit

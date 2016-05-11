@@ -58,7 +58,6 @@ object DroneWorld {
                     .withImageAssociation(Client::class.java, "/graphics/flat/deliverylocation.png")
                     .withImageAssociation(Warehouse::class.java, "/graphics/flat/warehouse-32.png"))
                 .with(DroneCommRenderer.builder()
-                        .withReliabilityColors()
                         .withMessageCount()
                         .withBatteryLevel()
                         .withProfit())
@@ -79,7 +78,7 @@ object DroneWorld {
                     RoadModelBuilders.plane()
                             .withMinPoint(MIN_POINT)
                             .withMaxPoint(MAX_POINT)
-                            .withMaxSpeed(VEHICLE_SPEED_KMH)
+                            .withMaxSpeed(DRONE_SPEED)
                 ).addModel(viewBuilder)
                 .addModel(DefaultPDPModel.builder())
                 .addModel(CommModel.builder())
@@ -90,7 +89,7 @@ object DroneWorld {
 
         // add a number of drones on the road
         for (i in 0..NUM_DRONES - 1) {
-            sim.register(Drone(roadModel.getRandomPosition(rng)))
+            sim.register(Drone(roadModel.getRandomPosition(rng), rng))
         }
 
         for (i in 0..NUM_HUBS - 1) {
