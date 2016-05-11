@@ -78,4 +78,16 @@ class Client(val position: Point, val rng: RandomGenerator, val sim: Simulator) 
     override fun getPosition(): Optional<Point>? {
         return Optional.of(position)
     }
+
+    fun deliverOrder(deliverTime: Long, order: Order): Double {
+        if(order == this.order){
+            this.order = null
+
+            if(deliverTime < order.endTime)
+                return order.price
+            else
+                return -order.fine
+        }
+        throw IllegalArgumentException("should pass order of the client")
+    }
 }

@@ -7,6 +7,7 @@ import com.github.rinde.rinsim.core.model.comm.Message
 import com.github.rinde.rinsim.core.model.pdp.Vehicle
 import com.github.rinde.rinsim.core.model.pdp.VehicleDTO
 import com.github.rinde.rinsim.core.model.road.MovingRoadUser
+import com.github.rinde.rinsim.core.model.road.RoadUser
 import com.github.rinde.rinsim.core.model.time.TickListener
 import com.github.rinde.rinsim.core.model.time.TimeLapse
 import com.github.rinde.rinsim.geom.Point
@@ -29,6 +30,7 @@ class Drone(position: Point) :
     private var device: CommDevice? = null
     private var state: DroneState = DroneState.IDLE
     private var batteryLevel: Double = 1.0
+    private var totalProfit: Double = 0.0
 
     override fun afterTick(timeLapse: TimeLapse?) {
         // we don't need this in this example. This method is called after
@@ -48,54 +50,82 @@ class Drone(position: Point) :
             DroneState.IDLE -> moveToClosestWarehouse(time)
             DroneState.CHARGING -> charge(time)
             DroneState.CHARGING_FOR_CONTRACT -> chargeUntilMove(time)
-            DroneState.PICKING_UP -> moveToWarehouse(time, currentBid!!.warehouse)
+            DroneState.PICKING_UP -> moveToPackageWarehouse(time, currentBid!!.warehouse)
             DroneState.DELIVERING -> moveToClient(time)
         }
 
-        //TODO: move
-        //TODO: cost update
-        //TODO: deliver package?
         //TODO: more state changes!
         //TODO: crashes! (statistically correct!)
         //TODO: pay energy + battery drain for moving
     }
+
+    fun moveTo(endPosition: RoadUser, time: TimeLapse) {
+        val moveProgress = roadModel.moveTo(this, endPosition, time)
+        batteryLevel -= moveProgress.distance().value / DISTANCE_PER_PERCENTAGE_BATTERY_DRAIN
+    }
+
     fun moveToClosestWarehouse(time: TimeLapse) {
         val closest = roadModel.getObjectsOfType(Warehouse::class.java).minBy { warehouse ->
             Point.distance(realPosition, warehouse.position)
         }!!
+
+        moveTo(closest, time)
+
         if(realPosition.equals(closest.position)){
             state = DroneState.CHARGING
             charge(time)
-        } else {
-            roadModel.moveTo(this, closest, time)
         }
     }
-    fun moveToWarehouse(time: TimeLapse, warehouse: Warehouse) {
+    fun moveToPackageWarehouse(time: TimeLapse, warehouse: Warehouse) {
+        moveTo(warehouse, time)
+
         if(realPosition.equals(warehouse.position)){
             state = DroneState.DELIVERING
+            totalProfit -= warehouse.getPriceFor(currentBid!!.order.type)
             moveToClient(time)
-            //TODO pay cost package
-        } else {
-            roadModel.moveTo(this, warehouse, time)
         }
     }
-    fun charge(time: TimeLapse) {
-        batteryLevel += time.timeLeft * BATTERY_CHARGING_RATE
+    fun charge(time: TimeLapse, chargeDuration: Long = time.timeLeft) {
+        val oldBatteryLevel = batteryLevel
+
+        batteryLevel += chargeDuration * BATTERY_CHARGING_RATE
         if(batteryLevel > 1.0)
             batteryLevel = 1.0
+
+        time.consume(chargeDuration)
+
+        totalProfit -= (batteryLevel-oldBatteryLevel) * COST_FOR_ENERGY_PER_DISTANCE_UNIT * DISTANCE_PER_PERCENTAGE_BATTERY_DRAIN
     }
     fun moveToClient(time: TimeLapse) {
         val client = currentBid!!.order.client
+
+        moveTo(client, time)
+
         if(realPosition.equals(client.position)){
             state = DroneState.IDLE
-            //TODO get paid
+            totalProfit += client.deliverOrder(time.startTime + time.timeConsumed, currentBid!!.order)
+            currentBid = null
             moveToClosestWarehouse(time)
-        } else {
-            roadModel.moveTo(this, client, time)
         }
     }
     fun chargeUntilMove(time: TimeLapse) {
-        //TODO charge, zo lang ge nog niet moet vertrekken
+        val lastMomentToLeaveBecauseItsTime= Math.round(Math.floor(currentBid!!.order.endTime - Point.distance(currentBid!!.order.client.position, realPosition) / DRONE_SPEED))
+
+        //TODO 20% bij klant of terug bij warehouse
+        val batteryLevelAtClientWithoutCharging = batteryLevel - Point.distance(currentBid!!.order.client.position, realPosition) / DISTANCE_PER_PERCENTAGE_BATTERY_DRAIN
+        // canLeaveBecauseSufficientlyCharged: zal met >= 20% battery bij klant aankomen
+        val canLeaveBecauseSufficientlyCharged = Math.round(Math.ceil(time.startTime + (20 - batteryLevelAtClientWithoutCharging) / BATTERY_CHARGING_RATE))
+
+        val leaveTime: Long = Math.min(lastMomentToLeaveBecauseItsTime, canLeaveBecauseSufficientlyCharged)
+
+        if(leaveTime < time.startTime) {
+            moveToClient(time)
+        } else if(leaveTime > time.endTime) {
+            charge(time)
+        } else {
+            charge(time, leaveTime - time.startTime)
+            moveToClient(time)
+        }
     }
 
     fun handleMessages(time: TimeLapse, messages: List<Message>) {
@@ -106,7 +136,6 @@ class Drone(position: Point) :
 
                 val warehouse: Warehouse? = getCheapestWarehouse(order, time)
                 if(warehouse != null) {
-                    //TODO: order.price enkel aftrekken van cost als ge ook effectief op tijd zou aankomen!
                     val cost = -order.price + estimatedCostWarehouse(warehouse, order.type, message.sender as Client)
                     if(cost < order.fine) // Otherwise beter om order te laten vervallen
                         device?.send(BidOnOrder(Bid(order, cost, warehouse)), message.sender)
