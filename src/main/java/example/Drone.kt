@@ -179,6 +179,7 @@ class Drone(position: Point, val rng: RandomGenerator) :
 
                 val warehouse: Warehouse? = getCheapestWarehouse(order, time)
                 if(warehouse != null) {
+                    //TODO: price should be multiplied with (1-p_failing) because that's the chance of succeeding
                     val cost = -order.price + estimatedCostWarehouse(warehouse, order.type, message.sender as Client)
                     if(cost < order.fine) // Otherwise beter om order te laten vervallen
                         device?.send(BidOnOrder(Bid(order, cost, warehouse)), message.sender)
@@ -214,22 +215,30 @@ class Drone(position: Point, val rng: RandomGenerator) :
     }
 
     //TODO: can charge in warehouse => hou rekening mee?
-    fun estimatedCostWarehouse(warehouse: Warehouse, type: PackageType, client: Client): Double
-        = warehouse.getPriceFor(type) +
-        estimatedCostFailureOnTrajectory(realPosition, warehouse.position, batteryLevel) +
-        estimatedCostFailureOnTrajectory(warehouse.position, client.position, batteryLevel - batteryDrainTrajectory(realPosition, warehouse.position), type.marketPrice) +
-        costForEnergyOnTrajectory(realPosition, warehouse.position) +
-        costForEnergyOnTrajectory(warehouse.position, client.position)
+    fun estimatedCostWarehouse(warehouse: Warehouse, type: PackageType, client: Client): Double {
+        val probabilityToCrashBeforeWarehouse = calculateProbabilityToCrash(batteryLevel, realPosition, warehouse.position)
+        val fixedCost = warehouse.getPriceFor(type) +
+                        costForEnergyOnTrajectory(realPosition, warehouse.position) +
+                        costForEnergyOnTrajectory(warehouse.position, client.position) +
+                        probabilityToCrashBeforeWarehouse * PRICE_DRONE
+
+        //TODO keep in mind charging in warehouse?
+        val timeCharging = 0
+        val batteryChargingInWarehouse = timeCharging * BATTERY_CHARGING_RATE
+        val batteryDrainToWarehouse = batteryDrainTrajectory(realPosition, warehouse.position)
+        val newBatteryLevel = batteryLevel - batteryDrainToWarehouse + batteryChargingInWarehouse
+
+        val probabilityToCrashAfterWarehouse = calculateProbabilityToCrash(newBatteryLevel,  warehouse.position, client.position)
+
+        return fixedCost + (1-probabilityToCrashBeforeWarehouse) * probabilityToCrashAfterWarehouse * (PRICE_DRONE+type.marketPrice)
+    }
 
     fun costForEnergyOnTrajectory(p1: Point, p2: Point)
         = Point.distance(p1, p2) * COST_FOR_ENERGY_PER_DISTANCE_UNIT
 
-    fun estimatedCostFailureOnTrajectory(p1: Point, p2: Point, startBatteryLevel: Double, priceContentsDrone: Double = 0.0): Double {
-        val endBatteryLevel = startBatteryLevel - batteryDrainTrajectory(p1, p2)
-        val probabilityToCrash = calculateProbabilityToCrash(startBatteryLevel, endBatteryLevel, Point.distance(p1, p2))
-
-        //TODO: price should only be multiplied with (1-p_failing) because that's the chance of succeeding
-        return probabilityToCrash * (PRICE_DRONE + priceContentsDrone)
+    private fun calculateProbabilityToCrash(batteryLevel: Double, p1: Point, p2: Point): Double {
+        val endBatteryLevel = batteryLevel - batteryDrainTrajectory(p1, p2)
+        return calculateProbabilityToCrash(batteryLevel, endBatteryLevel, Point.distance(p1, p2))
     }
 
     private fun middlePoint(p1: Point, p2: Point, distance: Double): Point{
