@@ -52,6 +52,10 @@ class Drone(position: Point, val rng: RandomGenerator) :
 
         handleMessages(time, messages?.toMutableList()?.toList()!!)
 
+        doAction(time)
+    }
+
+    fun doAction(time: TimeLapse) {
         try{
             when(state){
                 DroneState.IDLE -> moveToClosestWarehouse(time)
@@ -65,7 +69,7 @@ class Drone(position: Point, val rng: RandomGenerator) :
         }
     }
 
-    fun moveTo(endPosition: RoadUser, time: TimeLapse) {
+    private fun moveTo(endPosition: RoadUser, time: TimeLapse) {
         val moveProgress = roadModel.moveTo(this, endPosition, time)
         val startBatteryLevel = batteryLevel
         batteryLevel -= moveProgress.distance().value / DISTANCE_PER_PERCENTAGE_BATTERY_DRAIN
@@ -112,10 +116,10 @@ class Drone(position: Point, val rng: RandomGenerator) :
 
         if(realPosition.equals(closest.position)){
             state = DroneState.CHARGING
-            charge(time)
+            doAction(time)
         }
     }
-    fun getClosestWarehouse(p1: Point): Warehouse {
+    private fun getClosestWarehouse(p1: Point): Warehouse {
         return roadModel.getObjectsOfType(Warehouse::class.java).minBy { warehouse ->
             Point.distance(p1, warehouse.position)
         }!!
@@ -124,21 +128,22 @@ class Drone(position: Point, val rng: RandomGenerator) :
         moveTo(warehouse, time)
 
         if(realPosition.equals(warehouse.position)){
-            state = DroneState.DELIVERING
             totalProfit -= warehouse.getPriceFor(currentBid!!.order.type)
-            moveToClient(time)
+            state = DroneState.CHARGING_FOR_CONTRACT
+            doAction(time)
         }
     }
-    fun charge(time: TimeLapse, chargeDuration: Long = time.timeLeft) {
+    fun charge(time: TimeLapse, maxChargeDuration: Long = time.timeLeft) {
         val oldBatteryLevel = batteryLevel
 
+        val chargeDuration = Math.min(maxChargeDuration, Math.round(Math.ceil((1.0-batteryLevel) / BATTERY_CHARGING_RATE)))
         batteryLevel += chargeDuration * BATTERY_CHARGING_RATE
-        if(batteryLevel > 1.0)
-            batteryLevel = 1.0
-
         time.consume(chargeDuration)
-
         totalProfit -= (batteryLevel-oldBatteryLevel) * COST_FOR_ENERGY_PER_DISTANCE_UNIT * DISTANCE_PER_PERCENTAGE_BATTERY_DRAIN
+
+        if(batteryLevel >= 1.0){
+            batteryLevel = 1.0
+        }
     }
     fun moveToClient(time: TimeLapse) {
         val client = currentBid!!.order.client
@@ -149,28 +154,33 @@ class Drone(position: Point, val rng: RandomGenerator) :
             state = DroneState.IDLE
             totalProfit += client.deliverOrder(time.startTime + time.timeConsumed, currentBid!!.order)
             currentBid = null
-            moveToClosestWarehouse(time)
+            doAction(time)
         }
     }
     fun chargeUntilMove(time: TimeLapse) {
-        val lastMomentToLeaveBecauseItsTime= Math.round(Math.floor(currentBid!!.order.endTime - Point.distance(currentBid!!.order.client.position, realPosition) / DRONE_SPEED))
+        val distanceToClient = Point.distance(currentBid!!.warehouse.position, currentBid!!.order.client.position)
+        val lastMomentToLeaveBecauseItsTime= Math.round(Math.floor(currentBid!!.order.endTime - distanceToClient / DRONE_SPEED))
 
         val positionClient = currentBid!!.order.client.position
         val batteryLevelAtWarehouseAfterClientWithoutCharging = batteryLevel -
-                Point.distance(positionClient, realPosition) / DISTANCE_PER_PERCENTAGE_BATTERY_DRAIN -
-                Point.distance(positionClient, getClosestWarehouse(positionClient).position)
+                batteryDrainTrajectory(currentBid!!.warehouse.position, positionClient) -
+                batteryDrainTrajectory(positionClient, getClosestWarehouse(positionClient).position)
         // canLeaveBecauseSufficientlyCharged: zal met >= 20% battery bij dichtste warehouse vanaf klant aankomen
-        val canLeaveBecauseSufficientlyCharged = Math.round(Math.ceil(time.startTime + (20 - batteryLevelAtWarehouseAfterClientWithoutCharging) / BATTERY_CHARGING_RATE))
+        val highestLevel = BatteryState.values().maxBy { state -> state.lowerBound }!!.lowerBound
+        val canLeaveBecauseSufficientlyCharged = Math.round(Math.ceil(time.startTime + (highestLevel - batteryLevelAtWarehouseAfterClientWithoutCharging) / BATTERY_CHARGING_RATE))
+
 
         val leaveTime: Long = Math.min(lastMomentToLeaveBecauseItsTime, canLeaveBecauseSufficientlyCharged)
 
-        if(leaveTime < time.startTime) {
-            moveToClient(time)
+        if(leaveTime <= time.startTime || batteryLevel == 1.0) {
+            state = DroneState.DELIVERING
+            doAction(time)
         } else if(leaveTime > time.endTime) {
             charge(time)
         } else {
             charge(time, leaveTime - time.startTime)
-            moveToClient(time)
+            state = DroneState.DELIVERING
+            doAction(time)
         }
     }
 
@@ -183,7 +193,7 @@ class Drone(position: Point, val rng: RandomGenerator) :
                 val warehouse: Warehouse? = getCheapestWarehouse(order, time)
                 if(warehouse != null) {
                     //TODO: price should be multiplied with (1-p_failing) because that's the chance of succeeding
-                    val cost = -order.price + estimatedCostWarehouse(warehouse, order.type, message.sender as Client)
+                    val cost = -order.price + estimatedCostWarehouse(warehouse, order, time.startTime)
                     if(cost < order.fine) // Otherwise beter om order te laten vervallen
                         device?.send(BidOnOrder(Bid(order, cost, warehouse)), message.sender)
                 }
@@ -207,42 +217,58 @@ class Drone(position: Point, val rng: RandomGenerator) :
         }
     }
 
-    fun getCheapestWarehouse(order: Order, time: TimeLapse): Warehouse? {
-        //TODO keep in account battery can be recharged in warehouse
+    private fun getCheapestWarehouse(order: Order, time: TimeLapse): Warehouse? {
         return roadModel.getObjectsOfType(Warehouse::class.java).filter { warehouse ->
             val distance = Point.distance(realPosition, warehouse.position) + Point.distance(warehouse.position, order.client.position)
             val traveltime = distance / DRONE_SPEED
             val canGetInTime = time.startTime + traveltime < order.endTime
 
-            val endBatteryLevel = batteryLevel - distance / DISTANCE_PER_PERCENTAGE_BATTERY_DRAIN -
+            var batteryLevelAtWarehouse = batteryLevel -
+                    batteryDrainTrajectory(realPosition, warehouse.position) +
+                    extraChargeInWarehouse(warehouse, order, time.startTime)
+            batteryLevelAtWarehouse = Math.min(1.0, batteryLevelAtWarehouse)
+
+            var endBatteryLevel = batteryLevelAtWarehouse -
+                                  batteryDrainTrajectory(warehouse.position, order.client.position) -
                                   batteryDrainTrajectory(order.client.position, getClosestWarehouse(order.client.position).position)
 
             canGetInTime && endBatteryLevel > 0
         }.minBy { warehouse ->
-            estimatedCostWarehouse(warehouse, order.type, order.client)
+            estimatedCostWarehouse(warehouse, order, time.startTime)
         }
     }
 
-    //TODO: can charge in warehouse => hou rekening mee?
-    fun estimatedCostWarehouse(warehouse: Warehouse, type: PackageType, client: Client): Double {
+    /**
+     * Import to note that this method can return > 100 %, so keep in mind that result needs to be bound to max 1.0
+     */
+    private fun extraChargeInWarehouse(warehouse: Warehouse, order: Order, currentTime: Long): Double {
+        val distance = Point.distance(realPosition, warehouse.position) + Point.distance(warehouse.position, order.client.position)
+        val timeLeft = order.endTime - currentTime - distance / DRONE_SPEED
+
+        return timeLeft * BATTERY_CHARGING_RATE
+    }
+
+    private fun estimatedCostWarehouse(warehouse: Warehouse, order: Order, currentTime: Long): Double {
+        val type = order.type
+        val client = order.client
+
         val probabilityToCrashBeforeWarehouse = calculateProbabilityToCrash(batteryLevel, realPosition, warehouse.position)
         val fixedCost = warehouse.getPriceFor(type) +
                         costForEnergyOnTrajectory(realPosition, warehouse.position) +
                         costForEnergyOnTrajectory(warehouse.position, client.position) +
                         probabilityToCrashBeforeWarehouse * PRICE_DRONE
 
-        //TODO keep in mind charging in warehouse?
-        val timeCharging = 0
-        val batteryChargingInWarehouse = timeCharging * BATTERY_CHARGING_RATE
+        val batteryChargingInWarehouse = extraChargeInWarehouse(warehouse, order, currentTime)
         val batteryDrainToWarehouse = batteryDrainTrajectory(realPosition, warehouse.position)
-        val newBatteryLevel = batteryLevel - batteryDrainToWarehouse + batteryChargingInWarehouse
+        var newBatteryLevel = batteryLevel - batteryDrainToWarehouse + batteryChargingInWarehouse
+        newBatteryLevel = Math.min(newBatteryLevel, 1.0)
 
         val probabilityToCrashAfterWarehouse = calculateProbabilityToCrash(newBatteryLevel,  warehouse.position, client.position)
 
         return fixedCost + (1-probabilityToCrashBeforeWarehouse) * probabilityToCrashAfterWarehouse * (PRICE_DRONE+type.marketPrice)
     }
 
-    fun costForEnergyOnTrajectory(p1: Point, p2: Point)
+    private fun costForEnergyOnTrajectory(p1: Point, p2: Point)
         = Point.distance(p1, p2) * COST_FOR_ENERGY_PER_DISTANCE_UNIT
 
     private fun calculateProbabilityToCrash(batteryLevel: Double, p1: Point, p2: Point): Double {
@@ -258,7 +284,7 @@ class Drone(position: Point, val rng: RandomGenerator) :
         return Point.diff(Point.divide(Point.diff(p2, p1), 1 / percentage), Point.divide(p1, -1.0))
     }
 
-    fun batteryDrainTrajectory(p1: Point, p2: Point): Double
+    private fun batteryDrainTrajectory(p1: Point, p2: Point): Double
         = Point.distance(p1, p2) / DISTANCE_PER_PERCENTAGE_BATTERY_DRAIN
 
     override fun getPosition(): Optional<Point> {
@@ -289,7 +315,7 @@ enum class DroneState(private val canBid : Boolean) {
 enum class BatteryState(val lowerBound: Double, val upperBound: Double, val failureLambda: Int) {
     CRITICAL(Double.NEGATIVE_INFINITY, 0.1, LAMBDA_CRITICAL),
     LOW(0.1, 0.2, LAMBDA_LOW),
-    NORMAL(0.2, 1.0, LAMBDA_NORMAL);
+    NORMAL(0.2, Double.POSITIVE_INFINITY, LAMBDA_NORMAL);
 
     companion object {
         fun isSameState(level1: Double, level2: Double)

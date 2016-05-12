@@ -181,11 +181,11 @@ public final class DroneCommRenderer extends AbstractTypedCanvasRenderer<CommUse
                 Client client = (Client) user;
                 RGB rgb;
                 gc.setAlpha(SEMI_TRANSPARENT);
-                if(client.getDrone() != null) {
-                    rgb = GREEN;
-                } else if (client.getOrder() != null) {
+                if (client.getOrder() != null) {
                     if(client.getOrder().getEndTime() < time)
                         rgb = RED;
+                    else if(client.getDrone() != null)
+                        rgb = GREEN;
                     else
                         rgb = YELLOW;
                 } else {

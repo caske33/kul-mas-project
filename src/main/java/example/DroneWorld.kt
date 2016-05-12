@@ -17,7 +17,6 @@ object DroneWorld {
     //TODO move to Variables
     internal val MIN_POINT = Point(0.0, 0.0)
     internal val MAX_POINT = Point(10.0, 10.0)
-    internal val TICK_LENGTH = 1000L
     internal val RANDOM_SEED = 123L
     internal val NUM_DRONES = 3
 
