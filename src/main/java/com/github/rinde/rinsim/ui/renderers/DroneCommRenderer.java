@@ -11,6 +11,7 @@ import java.util.Set;
 import javax.annotation.CheckReturnValue;
 
 import example.BatteryState;
+import example.Client;
 import example.Drone;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Color;
@@ -52,6 +53,7 @@ public final class DroneCommRenderer extends AbstractTypedCanvasRenderer<CommUse
     static final RGB YELLOW = new RGB(241, 196, 15);
     static final RGB RED = new RGB(192, 57, 43);
     static final RGB ORANGE = new RGB(211, 84, 0);
+    static final RGB BLUE = new RGB(41, 128, 185);
 
     DroneCommRenderer(Builder b, CommModel m) {
         model = m;
@@ -171,6 +173,23 @@ public final class DroneCommRenderer extends AbstractTypedCanvasRenderer<CommUse
                         rgb = YELLOW;
                     else
                         rgb = GREEN;
+                }
+                gc.setBackground(new Color(gc.getDevice(), rgb));
+                helper.fillCircle(user.getPosition().get(), DOT_RADIUS*10);
+            }
+            if (user instanceof Client) {
+                Client client = (Client) user;
+                RGB rgb;
+                gc.setAlpha(SEMI_TRANSPARENT);
+                if(client.getDrone() != null) {
+                    rgb = GREEN;
+                } else if (client.getOrder() != null) {
+                    if(client.getOrder().getEndTime() < time)
+                        rgb = RED;
+                    else
+                        rgb = YELLOW;
+                } else {
+                    rgb = BLUE;
                 }
                 gc.setBackground(new Color(gc.getDevice(), rgb));
                 helper.fillCircle(user.getPosition().get(), DOT_RADIUS*10);

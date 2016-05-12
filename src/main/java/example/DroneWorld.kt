@@ -7,7 +7,6 @@ import com.github.rinde.rinsim.core.model.road.RoadModel
 import com.github.rinde.rinsim.core.model.road.RoadModelBuilders
 import com.github.rinde.rinsim.geom.Point
 import com.github.rinde.rinsim.ui.View
-import com.github.rinde.rinsim.ui.renderers.CommRenderer
 import com.github.rinde.rinsim.ui.renderers.PlaneRoadModelRenderer
 import com.github.rinde.rinsim.ui.renderers.RoadUserRenderer
 import com.github.rinde.rinsim.core.model.pdp.*

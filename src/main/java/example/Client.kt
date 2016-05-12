@@ -22,8 +22,10 @@ class Client(val position: Point, val rng: RandomGenerator, val sim: Simulator) 
     //private var messageBroadcast: Boolean = false
     private var device: CommDevice? = null
 
-    private var order: Order? = null
-    private var drone: Drone? = null
+    var order: Order? = null
+      private set
+    var drone: Drone? = null
+      private set
 
     override fun initRoadPDP(roadModel: RoadModel?, pdpModel: PDPModel?) {
         super.initRoadPDP(roadModel, pdpModel)
@@ -69,6 +71,14 @@ class Client(val position: Point, val rng: RandomGenerator, val sim: Simulator) 
 
         // ConfirmOrder
         // do nothing until DynamicCNET
+
+
+        if(order != null && timeLapse!!.startTime > order!!.endTime){
+            //order = null
+            //TODO fine moet betaald worden
+            //TODO what if client later toekomt
+        }
+
     }
 
     override fun setCommDevice(builder: CommDeviceBuilder?) {

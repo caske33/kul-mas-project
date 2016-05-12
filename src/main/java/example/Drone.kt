@@ -108,9 +108,7 @@ class Drone(position: Point, val rng: RandomGenerator) :
     }
 
     fun moveToClosestWarehouse(time: TimeLapse) {
-        val closest = roadModel.getObjectsOfType(Warehouse::class.java).minBy { warehouse ->
-            Point.distance(realPosition, warehouse.position)
-        }!!
+        val closest = getClosestWarehouse(realPosition)
 
         moveTo(closest, time)
 
@@ -118,6 +116,11 @@ class Drone(position: Point, val rng: RandomGenerator) :
             state = DroneState.CHARGING
             charge(time)
         }
+    }
+    fun getClosestWarehouse(p1: Point): Warehouse {
+        return roadModel.getObjectsOfType(Warehouse::class.java).minBy { warehouse ->
+            Point.distance(p1, warehouse.position)
+        }!!
     }
     fun moveToPackageWarehouse(time: TimeLapse, warehouse: Warehouse) {
         moveTo(warehouse, time)
@@ -212,7 +215,8 @@ class Drone(position: Point, val rng: RandomGenerator) :
             val traveltime = distance / DRONE_SPEED
             val canGetInTime = time.startTime + traveltime < order.endTime
 
-            val endBatteryLevel = batteryLevel - distance / DISTANCE_PER_PERCENTAGE_BATTERY_DRAIN
+            val endBatteryLevel = batteryLevel - distance / DISTANCE_PER_PERCENTAGE_BATTERY_DRAIN -
+                                  batteryDrainTrajectory(order.client.position, getClosestWarehouse(order.client.position).position)
 
             canGetInTime && endBatteryLevel > 0
         }.minBy { warehouse ->
