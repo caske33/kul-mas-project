@@ -75,7 +75,7 @@ class Client(val position: Point, val rng: RandomGenerator, val sim: Simulator) 
 
         if(order != null && timeLapse!!.startTime > order!!.endTime){
             //order = null
-            //TODO fine moet betaald worden
+            //TODO fine moet betaald worden (zie deliverOrder)
             //TODO what if client later toekomt
         }
 

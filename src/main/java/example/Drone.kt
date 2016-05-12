@@ -73,8 +73,6 @@ class Drone(position: Point, val rng: RandomGenerator) :
         if(batteryLevel < 0)
             crash()
 
-        //TODO: estimated cost: onmogelijk als batteryLevel < 0 zou gaan
-
         val probabilityToCrash = calculateProbabilityToCrash(startBatteryLevel, batteryLevel, moveProgress.distance().value)
         if(rng.nextDouble() <= probabilityToCrash){
             crash()
@@ -157,10 +155,12 @@ class Drone(position: Point, val rng: RandomGenerator) :
     fun chargeUntilMove(time: TimeLapse) {
         val lastMomentToLeaveBecauseItsTime= Math.round(Math.floor(currentBid!!.order.endTime - Point.distance(currentBid!!.order.client.position, realPosition) / DRONE_SPEED))
 
-        //TODO 20% bij klant of terug bij warehouse
-        val batteryLevelAtClientWithoutCharging = batteryLevel - Point.distance(currentBid!!.order.client.position, realPosition) / DISTANCE_PER_PERCENTAGE_BATTERY_DRAIN
-        // canLeaveBecauseSufficientlyCharged: zal met >= 20% battery bij klant aankomen
-        val canLeaveBecauseSufficientlyCharged = Math.round(Math.ceil(time.startTime + (20 - batteryLevelAtClientWithoutCharging) / BATTERY_CHARGING_RATE))
+        val positionClient = currentBid!!.order.client.position
+        val batteryLevelAtWarehouseAfterClientWithoutCharging = batteryLevel -
+                Point.distance(positionClient, realPosition) / DISTANCE_PER_PERCENTAGE_BATTERY_DRAIN -
+                Point.distance(positionClient, getClosestWarehouse(positionClient).position)
+        // canLeaveBecauseSufficientlyCharged: zal met >= 20% battery bij dichtste warehouse vanaf klant aankomen
+        val canLeaveBecauseSufficientlyCharged = Math.round(Math.ceil(time.startTime + (20 - batteryLevelAtWarehouseAfterClientWithoutCharging) / BATTERY_CHARGING_RATE))
 
         val leaveTime: Long = Math.min(lastMomentToLeaveBecauseItsTime, canLeaveBecauseSufficientlyCharged)
 
@@ -209,7 +209,6 @@ class Drone(position: Point, val rng: RandomGenerator) :
 
     fun getCheapestWarehouse(order: Order, time: TimeLapse): Warehouse? {
         //TODO keep in account battery can be recharged in warehouse
-        //TODO keep in account that he needs to reach other warehouse after client
         return roadModel.getObjectsOfType(Warehouse::class.java).filter { warehouse ->
             val distance = Point.distance(realPosition, warehouse.position) + Point.distance(warehouse.position, order.client.position)
             val traveltime = distance / DRONE_SPEED
