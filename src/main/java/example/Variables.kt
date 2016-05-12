@@ -1,6 +1,7 @@
 package example
 
 val DRONE_SPEED = 50.0
+val DRONE_SPEED_PER_MILLISECOND = DRONE_SPEED / 3600 / 1000
 val DISTANCE_PER_PERCENTAGE_BATTERY_DRAIN = 10
 //lambda = het verwachte aantal voorvallen per distance unit
 //TODO fail more often

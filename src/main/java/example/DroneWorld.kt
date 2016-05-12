@@ -11,6 +11,7 @@ import com.github.rinde.rinsim.ui.renderers.PlaneRoadModelRenderer
 import com.github.rinde.rinsim.ui.renderers.RoadUserRenderer
 import com.github.rinde.rinsim.core.model.pdp.*
 import com.github.rinde.rinsim.ui.renderers.DroneCommRenderer
+import javax.measure.unit.SI
 
 object DroneWorld {
 
@@ -68,6 +69,7 @@ object DroneWorld {
         }
 
         // initialize a new Simulator instance
+        //TODO set speed
         val sim = Simulator.builder()
                 .setTickLength(TICK_LENGTH)
                 .setRandomSeed(RANDOM_SEED)
@@ -76,6 +78,8 @@ object DroneWorld {
                             .withMinPoint(MIN_POINT)
                             .withMaxPoint(MAX_POINT)
                             .withMaxSpeed(DRONE_SPEED)
+                            //.withDistanceUnit(SI.METER)
+                            //.withSpeedUnit(SI.METERS_PER_SECOND)
                 ).addModel(viewBuilder)
                 .addModel(DefaultPDPModel.builder())
                 .addModel(CommModel.builder())

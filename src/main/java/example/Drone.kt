@@ -159,7 +159,7 @@ class Drone(position: Point, val rng: RandomGenerator) :
     }
     fun chargeUntilMove(time: TimeLapse) {
         val distanceToClient = Point.distance(currentBid!!.warehouse.position, currentBid!!.order.client.position)
-        val lastMomentToLeaveBecauseItsTime= Math.round(Math.floor(currentBid!!.order.endTime - distanceToClient / DRONE_SPEED))
+        val lastMomentToLeaveBecauseItsTime= Math.round(Math.floor(currentBid!!.order.endTime - distanceToClient / DRONE_SPEED_PER_MILLISECOND))
 
         val positionClient = currentBid!!.order.client.position
         val batteryLevelAtWarehouseAfterClientWithoutCharging = batteryLevel -
