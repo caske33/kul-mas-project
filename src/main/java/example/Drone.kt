@@ -205,10 +205,16 @@ class Drone(position: Point, val rng: RandomGenerator) :
     }
 
     fun getCheapestWarehouse(order: Order, time: TimeLapse): Warehouse? {
+        //TODO keep in account battery can be recharged in warehouse
+        //TODO keep in account that he needs to reach other warehouse after client
         return roadModel.getObjectsOfType(Warehouse::class.java).filter { warehouse ->
             val distance = Point.distance(realPosition, warehouse.position) + Point.distance(warehouse.position, order.client.position)
             val traveltime = distance / DRONE_SPEED
-            time.startTime + traveltime < order.endTime
+            val canGetInTime = time.startTime + traveltime < order.endTime
+
+            val endBatteryLevel = batteryLevel - distance / DISTANCE_PER_PERCENTAGE_BATTERY_DRAIN
+
+            canGetInTime && endBatteryLevel > 0
         }.minBy { warehouse ->
             estimatedCostWarehouse(warehouse, order.type, order.client)
         }

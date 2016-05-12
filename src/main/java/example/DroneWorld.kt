@@ -16,7 +16,6 @@ import com.github.rinde.rinsim.ui.renderers.DroneCommRenderer
 object DroneWorld {
 
     //TODO move to Variables
-    internal val VEHICLE_SPEED_KMH = 50.0
     internal val MIN_POINT = Point(0.0, 0.0)
     internal val MAX_POINT = Point(10.0, 10.0)
     internal val TICK_LENGTH = 1000L
