@@ -14,6 +14,8 @@ import com.github.rinde.rinsim.geom.Point
 import com.google.common.base.Optional
 import org.apache.commons.math3.random.RandomGenerator
 
+//TODO: Dynamisch contract-net
+//TODO: Experiment
 class Drone(position: Point, val rng: RandomGenerator) :
         Vehicle(
                 VehicleDTO.builder()
