@@ -9,4 +9,5 @@ data class ExperimentResult(val nbCrashes: Int,
                             val nbDrones: Int,
                             val averageDistanceTravelledPerDrone: Double,
                             val averageNbOrdersPerDrone: Double,
-                            val estimatedTotalProfit: Double);
+                            val estimatedTotalProfit: Double,
+                            val estimatedNbCrashes: Double);

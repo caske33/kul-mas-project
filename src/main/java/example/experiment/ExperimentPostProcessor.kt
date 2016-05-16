@@ -32,7 +32,8 @@ class ExperimentPostProcessor() : PostProcessor<ExperimentResult> {
                 drones.size,
                 drones.map { it.totalDistanceTravelled }.average(),
                 drones.map { it.nbOrdersDelivered }.average(),
-                drones.map { it.totalEstimatedProfit }.sum() - undeliveredClients.filter { it.order!!.hasExpired }.map { it.order!!.fine } .sum()
+                drones.map { it.totalEstimatedProfit }.sum() - undeliveredClients.filter { it.order!!.hasExpired }.map { it.order!!.fine } .sum(),
+                drones.map { it.totalEstimatedCrashes }.sum()
         )
     }
 
