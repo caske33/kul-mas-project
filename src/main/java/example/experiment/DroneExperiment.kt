@@ -25,36 +25,44 @@ object DroneExperiment {
 
     @JvmStatic fun main(args: Array<String>) {
         val uiSpeedUp = 16
+        val testing: Boolean = false
 
-        val results: ExperimentResults
-
-        results = Experiment.builder()
+        var builder = Experiment.builder()
                 .addConfiguration(MASConfiguration.builder()
                         .addEventHandler(AddClientEvent::class.java, AddClientEventHandler())
                         .addEventHandler(AddDroneEvent::class.java, AddDroneEventHandler())
                         .addEventHandler(AddWarehousesEvent::class.java, AddWarehouseEventHandler())
                         .addModel(CommModel.builder()).build())
-                //.addScenario(createScenario(MAX_TIME_SCENARIO))
                 .addScenarios(createScenariosWithMoreDrones(MAX_TIME_SCENARIO, 15, 1, 10, 2, 5, 5))
-                .repeat(2)
                 .withRandomSeed(RANDOM_SEED)
-                .withThreads(1)
                 .usePostProcessor(ExperimentPostProcessor())
-                .showGui(View.builder()
-                        .with(PlaneRoadModelRenderer.builder())
-                        .withResolution(800, 800)
-                        .withAutoPlay()
-                        .withAutoClose()
-                        .withSpeedUp(uiSpeedUp)
-                        .with(RoadUserRenderer.builder()
-                                .withImageAssociation(Drone::class.java, "/graphics/perspective/semi-truck-32.png")
-                                .withImageAssociation(Client::class.java, "/graphics/flat/deliverylocation.png")
-                                .withImageAssociation(Warehouse::class.java, "/graphics/flat/warehouse-32.png"))
-                        .with(DroneCommRenderer.builder()
-                                .withBatteryLevel()
-                                .withProfit())
-                        .withTitleAppendix("Experiments DroneWorld"))
-                .perform(System.out, *args).get()
+
+        if(testing){
+            builder = builder
+                    .withThreads(1)
+                    .repeat(2)
+                    .showGui(View.builder()
+                            .with(PlaneRoadModelRenderer.builder())
+                            .withResolution(800, 800)
+                            .withAutoPlay()
+                            .withAutoClose()
+                            .withSpeedUp(uiSpeedUp)
+                            .with(RoadUserRenderer.builder()
+                                    .withImageAssociation(Drone::class.java, "/graphics/perspective/semi-truck-32.png")
+                                    .withImageAssociation(Client::class.java, "/graphics/flat/deliverylocation.png")
+                                    .withImageAssociation(Warehouse::class.java, "/graphics/flat/warehouse-32.png"))
+                            .with(DroneCommRenderer.builder()
+                                    .withBatteryLevel()
+                                    .withProfit())
+                            .withTitleAppendix("Experiments DroneWorld"))
+
+        } else {
+            builder = builder
+                    .withThreads(8)
+                    .repeat(50)
+        }
+
+        val results = builder.perform(System.out, *args).get()
 
         for (sr in results.results) {
 
