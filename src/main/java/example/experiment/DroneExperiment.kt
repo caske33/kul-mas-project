@@ -32,15 +32,14 @@ object DroneExperiment {
                 .addConfiguration(MASConfiguration.builder()
                         .addEventHandler(AddClientEvent::class.java, AddClientEventHandler())
                         .addEventHandler(AddDroneEvent::class.java, AddDroneEventHandler())
-                        .addEventHandler(AddWarehouseEvent::class.java, AddWarehouseEventHandler())
+                        .addEventHandler(AddWarehousesEvent::class.java, AddWarehouseEventHandler())
                         .addModel(CommModel.builder()).build())
                 //.addScenario(createScenario(MAX_TIME_SCENARIO))
-                .addScenarios(createScenariosWithMoreDrones(MAX_TIME_SCENARIO, 3, 1, 10, 2, 5, 5))
-                .repeat(50)
+                .addScenarios(createScenariosWithMoreDrones(MAX_TIME_SCENARIO, 15, 1, 10, 2, 5, 5))
+                .repeat(2)
                 .withRandomSeed(RANDOM_SEED)
-                .withThreads(8)
+                .withThreads(1)
                 .usePostProcessor(ExperimentPostProcessor())
-                /*
                 .showGui(View.builder()
                         .with(PlaneRoadModelRenderer.builder())
                         .withResolution(800, 800)
@@ -55,7 +54,6 @@ object DroneExperiment {
                                 .withBatteryLevel()
                                 .withProfit())
                         .withTitleAppendix("Experiments DroneWorld"))
-                        */
                 .perform(System.out, *args).get()
 
         for (sr in results.results) {
@@ -91,9 +89,7 @@ object DroneExperiment {
                 //TODO: stop when all drones fully charged at warehouse?
                 .setStopCondition(StopConditions.limitedTime(scenarioLength))
 
-        for (i in 1..nbWarehouses) {
-            builder = builder.addEvent(AddWarehouseEvent())
-        }
+        builder = builder.addEvent(AddWarehousesEvent(nbWarehouses))
         for (i in 1..nbDrones) {
             builder = builder.addEvent(AddDroneEvent())
         }
