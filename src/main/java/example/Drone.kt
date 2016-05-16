@@ -40,6 +40,8 @@ class Drone(position: Point, val rng: RandomGenerator) :
     var crashed: Boolean = false
       private set
 
+    val chargesInWarehouse: Boolean = false
+
     override fun afterTick(timeLapse: TimeLapse?) {
         // we don't need this in this example. This method is called after
         // all TickListener#tick() calls, hence the name.
@@ -160,6 +162,12 @@ class Drone(position: Point, val rng: RandomGenerator) :
         }
     }
     fun chargeUntilMove(time: TimeLapse) {
+        if(!chargesInWarehouse){
+            state = DroneState.DELIVERING
+            doAction(time)
+            return;
+        }
+
         val distanceToClient = Point.distance(currentBid!!.warehouse.position, currentBid!!.order.client.position)
         val lastMomentToLeaveBecauseItsTime= Math.round(Math.floor(currentBid!!.order.endTime - distanceToClient / DRONE_SPEED_PER_MILLISECOND))
 
@@ -245,6 +253,9 @@ class Drone(position: Point, val rng: RandomGenerator) :
      * Import to note that this method can return > 100 %, so keep in mind that result needs to be bound to max 1.0
      */
     private fun extraChargeInWarehouse(warehouse: Warehouse, order: Order, currentTime: Long): Double {
+        if(!chargesInWarehouse)
+            return 0.0;
+
         val distance = Point.distance(realPosition, warehouse.position) + Point.distance(warehouse.position, order.client.position)
         val timeLeft = order.endTime - currentTime - distance / DRONE_SPEED_PER_MILLISECOND
 
@@ -315,7 +326,7 @@ enum class DroneState(private val canBid : Boolean) {
     fun canBid() = canBid
 }
 
-enum class BatteryState(val lowerBound: Double, val upperBound: Double, val failureLambda: Int) {
+enum class BatteryState(val lowerBound: Double, val upperBound: Double, val failureLambda: Double) {
     CRITICAL(Double.NEGATIVE_INFINITY, 0.1, LAMBDA_CRITICAL),
     LOW(0.1, 0.2, LAMBDA_LOW),
     NORMAL(0.2, Double.POSITIVE_INFINITY, LAMBDA_NORMAL);

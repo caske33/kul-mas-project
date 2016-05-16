@@ -7,9 +7,9 @@ val DRONE_SPEED_PER_MILLISECOND = DRONE_SPEED / 3600 / 1000
 val DISTANCE_PER_PERCENTAGE_BATTERY_DRAIN = 10
 //lambda = het verwachte aantal voorvallen per distance unit
 //TODO fail more often
-val LAMBDA_CRITICAL = 1/100
-val LAMBDA_LOW = 1/1000
-val LAMBDA_NORMAL = 1/100000
+val LAMBDA_CRITICAL: Double = 0.1
+val LAMBDA_LOW: Double = 0.01
+val LAMBDA_NORMAL: Double = 0.0001
 
 val PRICE_DRONE = 10000
 
