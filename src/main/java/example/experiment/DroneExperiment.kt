@@ -21,17 +21,12 @@ import example.*
 import example.Warehouse
 
 object DroneExperiment {
-    val MAX_TIME_SCENARIO = 3 * 60 * 60 * 1000
-
-    val NUMBER_WAREHOUSES = 3
-    val NUMBER_DRONES = 3
-    val NUMBER_INITIAL_CLIENTS = 3
-    val NUMBER_EXTRA_CLIENTS = 3
+    val MAX_TIME_SCENARIO: Long = 3 * 60 * 60 * 1000
 
     @JvmStatic fun main(args: Array<String>) {
-        val uiSpeedUp = 4
+        val uiSpeedUp = 16
 
-        val results: Optional<ExperimentResults>
+        val results: ExperimentResults
 
         results = Experiment.builder()
                 .addConfiguration(MASConfiguration.builder()
@@ -39,11 +34,13 @@ object DroneExperiment {
                         .addEventHandler(AddDroneEvent::class.java, AddDroneEventHandler())
                         .addEventHandler(AddWarehouseEvent::class.java, AddWarehouseEventHandler())
                         .addModel(CommModel.builder()).build())
-                .addScenario(createScenario(MAX_TIME_SCENARIO.toLong()))
-                .repeat(2)
+                //.addScenario(createScenario(MAX_TIME_SCENARIO))
+                .addScenarios(createScenariosWithMoreDrones(MAX_TIME_SCENARIO, 3, 1, 10, 2, 5, 5))
+                .repeat(50)
                 .withRandomSeed(RANDOM_SEED)
-                .withThreads(1)
+                .withThreads(8)
                 .usePostProcessor(ExperimentPostProcessor())
+                /*
                 .showGui(View.builder()
                         .with(PlaneRoadModelRenderer.builder())
                         .withResolution(800, 800)
@@ -58,17 +55,21 @@ object DroneExperiment {
                                 .withBatteryLevel()
                                 .withProfit())
                         .withTitleAppendix("Experiments DroneWorld"))
-                .perform(System.out, *args)
+                        */
+                .perform(System.out, *args).get()
 
-        if (results.isPresent) {
-            for (sr in results.get().results) {
-                // The SimulationResult contains all information about a specific
-                // simulation, the result object is the object created by the post
-                // processor, a String in this case.
-                println("${sr.simArgs.randomSeed} ${sr.resultObject}")
-            }
-        } else {
-            throw IllegalStateException("DroneExperiment did not complete.")
+        for (sr in results.results) {
+
+            // The SimulationResult contains all information about a specific
+            // simulation, the result object is the object created by the post
+            // processor, a String in this case.
+            println("${sr.simArgs.randomSeed} ${sr.resultObject}")
+        }
+        results.results.groupBy { it.simArgs.randomSeed }.mapValues { it.value.map { (it.resultObject as ExperimentResult).totalProfit }.average() }.forEach {
+            println("${it.key} averaged € ${it.value} profit")
+        }
+        results.results.groupBy { it.simArgs.scenario }.mapValues { it.value.map { (it.resultObject as ExperimentResult).totalProfit }.average() }.forEach {
+            println("averaged € ${it.value} profit")
         }
     }
 
@@ -79,7 +80,7 @@ object DroneExperiment {
      * algorithm(s) that are used to solve the problem.
      * @return A newly constructed scenario.
      */
-    internal fun createScenario(scenarioLength: Long): Scenario {
+    internal fun createScenario(scenarioLength: Long, nbWarehouses: Int, nbDrones: Int, nbInitialClients: Int, nbExtraClients: Int): Scenario {
         var builder: Scenario.Builder = Scenario.builder()
                 .scenarioLength(scenarioLength)
                 .addModel(RoadModelBuilders.plane()
@@ -90,21 +91,25 @@ object DroneExperiment {
                 //TODO: stop when all drones fully charged at warehouse?
                 .setStopCondition(StopConditions.limitedTime(scenarioLength))
 
-
-        for (i in 0..NUMBER_WAREHOUSES - 1) {
+        for (i in 1..nbWarehouses) {
             builder = builder.addEvent(AddWarehouseEvent())
         }
-        for (i in 0..NUMBER_DRONES - 1) {
+        for (i in 1..nbDrones) {
             builder = builder.addEvent(AddDroneEvent())
         }
-        for (i in 0..NUMBER_INITIAL_CLIENTS - 1) {
+        for (i in 1..nbInitialClients) {
             builder = builder.addEvent(AddClientEvent(0))
         }
-        for (i in 0..NUMBER_EXTRA_CLIENTS - 1) {
-            val time = (i + 1) * (scenarioLength / 2) / NUMBER_EXTRA_CLIENTS
+        for (i in 1..nbExtraClients) {
+            val time = i * (scenarioLength / 2) / nbExtraClients
             builder = builder.addEvent(AddClientEvent(time))
         }
-
         return builder.build()
+    }
+
+    internal fun createScenariosWithMoreDrones(scenarioLength: Long, nbWarehouses: Int,
+                                               nbDronesMin: Int, nbDronesMax: Int, nbDronesStep: Int,
+                                               nbInitialClients: Int, nbExtraClients: Int): List<Scenario> {
+        return (nbDronesMin..nbDronesMax step nbDronesStep).map { createScenario(scenarioLength, nbWarehouses, it, nbInitialClients, nbExtraClients) }
     }
 }
