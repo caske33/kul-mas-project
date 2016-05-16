@@ -39,6 +39,9 @@ class Drone(position: Point, val rng: RandomGenerator) :
       private set
     var totalProfit: Double = 0.0
       private set
+    var totalEstimatedProfit: Double = 0.0
+        private set
+    var totalEstimatedCrashes: Double = 0.0
     var totalDistanceTravelled: Double = 0.0
       private set
     var nbOrdersDelivered: Int = 0
@@ -88,8 +91,9 @@ class Drone(position: Point, val rng: RandomGenerator) :
         val startBatteryLevel = batteryLevel
         batteryLevel -= moveProgress.distance().value / DISTANCE_PER_PERCENTAGE_BATTERY_DRAIN
 
-        if(batteryLevel < 0)
-            crash()
+        if(batteryLevel < 0) {
+            throw IllegalStateException("Battery empty")
+        }
 
         val probabilityToCrash = calculateProbabilityToCrash(startBatteryLevel, batteryLevel, moveProgress.distance().value)
         if(rng.nextDouble() <= probabilityToCrash){
@@ -216,9 +220,10 @@ class Drone(position: Point, val rng: RandomGenerator) :
 
                 val warehouse: Warehouse? = getCheapestWarehouse(order, time)
                 if(warehouse != null) {
-                    val cost = -order.price + estimatedCostWarehouse(warehouse, order, time.startTime)
+                    val costPair = estimatedCostWarehouse(warehouse, order, time.startTime)
+                    val cost = -order.price + costPair.first
                     if(cost < order.fine) // Otherwise beter om order te laten vervallen
-                        device?.send(BidOnOrder(Bid(order, cost, warehouse)), message.sender)
+                        device?.send(BidOnOrder(Bid(order, cost, warehouse, costPair.second)), message.sender)
                 }
             }
         }
@@ -232,6 +237,9 @@ class Drone(position: Point, val rng: RandomGenerator) :
             device?.send(ConfirmOrder(winningOrder.contents as AcceptOrder), winningOrder.sender)
             state = DroneState.PICKING_UP
             currentBid = (winningOrder.contents as AcceptOrder).bid
+
+            totalEstimatedProfit += -currentBid!!.bidValue
+            totalEstimatedCrashes += currentBid!!.estimatedProbabilityFailure
 
             // cancel other orders
             acceptOrderMessages.filter { message -> message != winningOrder }.forEach { message ->
@@ -258,7 +266,7 @@ class Drone(position: Point, val rng: RandomGenerator) :
 
             canGetInTime && endBatteryLevel > 0 && batteryBeforeWarehouse > 0
         }.minBy { warehouse ->
-            estimatedCostWarehouse(warehouse, order, time.startTime)
+            estimatedCostWarehouse(warehouse, order, time.startTime).first
         }
     }
 
@@ -275,7 +283,7 @@ class Drone(position: Point, val rng: RandomGenerator) :
         return timeLeft * BATTERY_CHARGING_RATE
     }
 
-    private fun estimatedCostWarehouse(warehouse: Warehouse, order: Order, currentTime: Long): Double {
+    private fun estimatedCostWarehouse(warehouse: Warehouse, order: Order, currentTime: Long): Pair<Double, Double> {
         val type = order.type
         val client = order.client
 
@@ -291,8 +299,13 @@ class Drone(position: Point, val rng: RandomGenerator) :
         newBatteryLevel = Math.min(newBatteryLevel, 1.0)
 
         val probabilityToCrashAfterWarehouse = calculateProbabilityToCrash(newBatteryLevel,  warehouse.position, client.position)
+        val probabilityToCrashAfterClient = calculateProbabilityToCrash(newBatteryLevel - batteryDrainTrajectory(warehouse.position, client.position),
+                client.position, getClosestWarehouse(client.position).position)
 
-        return fixedCost + (1-probabilityToCrashBeforeWarehouse) * probabilityToCrashAfterWarehouse * (PRICE_DRONE+type.marketPrice)
+        return Pair(
+                fixedCost + (1-probabilityToCrashBeforeWarehouse) * (probabilityToCrashAfterWarehouse * (PRICE_DRONE+type.marketPrice) + (1-probabilityToCrashAfterWarehouse) * probabilityToCrashAfterClient * PRICE_DRONE ),
+                probabilityToCrashBeforeWarehouse + (1-probabilityToCrashBeforeWarehouse) * (probabilityToCrashAfterWarehouse + (1-probabilityToCrashAfterWarehouse) * probabilityToCrashAfterClient)
+        )
     }
 
     private fun costForEnergyOnTrajectory(p1: Point, p2: Point)

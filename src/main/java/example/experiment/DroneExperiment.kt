@@ -59,7 +59,7 @@ object DroneExperiment {
         } else {
             builder = builder
                     .withThreads(8)
-                    .repeat(50)
+                    .repeat(50*2)
         }
 
         val results = builder.perform(System.out, *args).get()
@@ -77,6 +77,25 @@ object DroneExperiment {
         results.results.groupBy { it.simArgs.scenario }.mapValues { it.value.map { (it.resultObject as ExperimentResult).totalProfit }.average() }.forEach {
             println("averaged € ${it.value} profit")
         }
+        println(results.results.map { (it.resultObject as ExperimentResult).estimatedTotalProfit  }.sum())
+        println(results.results.map { (it.resultObject as ExperimentResult).totalProfit  }.sum())
+        println(results.results.map { (it.resultObject as ExperimentResult).nbCrashes }.sum())
+        println(results.results.map { (it.resultObject as ExperimentResult).estimatedNbCrashes }.sum())
+        results.results.groupBy { it.simArgs.scenario }.mapValues { listOf<Double>(
+                it.value.map { (it.resultObject as ExperimentResult).estimatedTotalProfit  }.sum(),
+                it.value.map { (it.resultObject as ExperimentResult).totalProfit  }.sum(),
+                it.value.map { (it.resultObject as ExperimentResult).nbCrashes }.sum().toDouble(),
+                it.value.map { (it.resultObject as ExperimentResult).estimatedNbCrashes }.sum(),
+                it.value.map { (it.resultObject as ExperimentResult).averageDistanceTravelledPerDrone }.sum()
+        ) }.forEach {
+            println("scenario ${it.value}")
+        }
+                /*
+        results.results.groupBy { it.simArgs.scenario }.mapValues { it.value.map { listOf<Double>(
+                0.0
+        ) }.forEach {
+            println("averaged € ${it} profit")
+        }*/
     }
 
     /**
