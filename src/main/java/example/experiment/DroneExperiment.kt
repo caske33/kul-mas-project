@@ -59,36 +59,37 @@ object DroneExperiment {
         } else {
             builder = builder
                     .withThreads(8)
-                    .repeat(50*2)
+                    .repeat(50)
         }
 
-        val results = builder.perform(System.out, *args).get()
+        val results_: Set<SimulationResult> = builder.perform(System.out, *args).get().results
+        val results = results_.map { SimulationExperimentResult(it.simArgs, it.resultObject as ExperimentResult) }
 
+        /*
         for (sr in results.results) {
-
-            // The SimulationResult contains all information about a specific
-            // simulation, the result object is the object created by the post
-            // processor, a String in this case.
             println("${sr.simArgs.randomSeed} ${sr.resultObject}")
         }
-        results.results.groupBy { it.simArgs.randomSeed }.mapValues { it.value.map { (it.resultObject as ExperimentResult).totalProfit }.average() }.forEach {
+        */
+        results.groupBy { it.simArgs.randomSeed }.mapValues { averageFromResults(it.value) }.forEach {
             println("${it.key} averaged € ${it.value} profit")
         }
-        results.results.groupBy { it.simArgs.scenario }.mapValues { it.value.map { (it.resultObject as ExperimentResult).totalProfit }.average() }.forEach {
+        results.groupBy { it.simArgs.scenario }.mapValues { averageFromResults(it.value) }.forEach {
             println("averaged € ${it.value} profit")
         }
-        println(results.results.map { (it.resultObject as ExperimentResult).estimatedTotalProfit  }.sum())
-        println(results.results.map { (it.resultObject as ExperimentResult).totalProfit  }.sum())
-        println(results.results.map { (it.resultObject as ExperimentResult).nbCrashes }.sum())
-        println(results.results.map { (it.resultObject as ExperimentResult).estimatedNbCrashes }.sum())
-        results.results.groupBy { it.simArgs.scenario }.mapValues { listOf<Double>(
-                it.value.map { (it.resultObject as ExperimentResult).estimatedTotalProfit  }.sum(),
-                it.value.map { (it.resultObject as ExperimentResult).totalProfit  }.sum(),
-                it.value.map { (it.resultObject as ExperimentResult).nbCrashes }.sum().toDouble(),
-                it.value.map { (it.resultObject as ExperimentResult).estimatedNbCrashes }.sum(),
-                it.value.map { (it.resultObject as ExperimentResult).averageDistanceTravelledPerDrone }.sum()
+        val aggregated = sumFromResults(results)
+        println(aggregated.estimatedTotalProfit)
+        println(aggregated.totalProfit)
+        println(aggregated.estimatedNbCrashes)
+        println(aggregated.nbCrashes)
+        results.groupBy { it.simArgs.scenario }.mapValues {
+            val aggregated = sumFromResults(it.value)
+            listOf<Double>(
+                    aggregated.estimatedTotalProfit,
+                    aggregated.totalProfit,
+                    aggregated.estimatedNbCrashes,
+                    aggregated.nbCrashes
         ) }.forEach {
-            println("scenario ${it.value}")
+            println("per scenario: ${it.value}")
         }
                 /*
         results.results.groupBy { it.simArgs.scenario }.mapValues { it.value.map { listOf<Double>(

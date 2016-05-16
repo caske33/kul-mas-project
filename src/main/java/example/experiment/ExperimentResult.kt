@@ -1,5 +1,9 @@
 package example.experiment
 
+import com.github.rinde.rinsim.experiment.Experiment
+
+data class SimulationExperimentResult(val simArgs: Experiment.SimArgs, val resultObject: ExperimentResult)
+
 data class ExperimentResult(val nbCrashes: Int,
                             val totalProfit: Double,
                             val nbClients: Int,
@@ -11,3 +15,39 @@ data class ExperimentResult(val nbCrashes: Int,
                             val averageNbOrdersPerDrone: Double,
                             val estimatedTotalProfit: Double,
                             val estimatedNbCrashes: Double);
+
+fun aggregateFromResults(results: List<SimulationExperimentResult>, f: (List<Double>) -> Double): AggregateExperimentResult {
+  val results_ = results.map { it.resultObject }
+  return AggregateExperimentResult(
+          results_.map { it.nbCrashes.toDouble() }.let(f),
+          results_.map { it.totalProfit }.let(f),
+          results_.map { it.nbClients.toDouble() }.let(f),
+          results_.map { it.nbClientsDelivered.toDouble() }.let(f),
+          results_.map { it.nbClientsNotDelivered.toDouble() }.let(f),
+          results_.map { it.averageDeliveryTime }.let(f),
+          results_.map { it.nbDrones.toDouble() }.let(f),
+          results_.map { it.averageDistanceTravelledPerDrone.toDouble() }.let(f),
+          results_.map { it.averageNbOrdersPerDrone }.let(f),
+          results_.map { it.estimatedTotalProfit }.let(f),
+          results_.map { it.estimatedNbCrashes }.let(f)
+  )
+}
+fun averageFromResults(results: List<SimulationExperimentResult>) = aggregateFromResults(results, List<Double>::average)
+fun sumFromResults(results: List<SimulationExperimentResult>) = aggregateFromResults(results, List<Double>::sum)
+fun minFromResults(results: List<SimulationExperimentResult>) = aggregateFromResults(results, {it.min()!!})
+fun maxFromResults(results: List<SimulationExperimentResult>) = aggregateFromResults(results, {it.max()!!})
+
+data class AggregateExperimentResult(
+        val nbCrashes: Double,
+        val totalProfit: Double,
+        val nbClients: Double,
+        val nbClientsDelivered: Double,
+        val nbClientsNotDelivered: Double,
+        val averageDeliveryTime: Double,
+        val nbDrones: Double,
+        val averageDistanceTravelledPerDrone: Double,
+        val averageNbOrdersPerDrone: Double,
+        val estimatedTotalProfit: Double,
+        val estimatedNbCrashes: Double) {
+}
+

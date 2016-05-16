@@ -16,7 +16,6 @@ import org.apache.commons.math3.random.RandomGenerator
 
 //TODO: Dynamisch contract-net
 //TODO: DroneExperiment scenario's uitdenken
-//TODO: Experiment: average meerdere ExperimentResult
 //TODO: Exerpiment: betere "rapporten"
 //TODO: Experiment: export to csv for raw results
 class Drone(position: Point, val rng: RandomGenerator) :
