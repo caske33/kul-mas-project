@@ -31,7 +31,8 @@ class ExperimentPostProcessor() : PostProcessor<ExperimentResult> {
                 clients.filter { it.order!!.isDelivered }.map { it.order!!.deliveryTime - it.order!!.startTime }.average(),
                 drones.size,
                 drones.map { it.totalDistanceTravelled }.average(),
-                drones.map { it.nbOrdersDelivered }.average()
+                drones.map { it.nbOrdersDelivered }.average(),
+                drones.map { it.totalEstimatedProfit }.sum() - undeliveredClients.filter { it.order!!.hasExpired }.map { it.order!!.fine } .sum()
         )
     }
 

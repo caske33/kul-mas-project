@@ -39,6 +39,8 @@ class Drone(position: Point, val rng: RandomGenerator) :
       private set
     var totalProfit: Double = 0.0
       private set
+    var totalEstimatedProfit: Double = 0.0
+        private set
     var totalDistanceTravelled: Double = 0.0
       private set
     var nbOrdersDelivered: Int = 0
@@ -232,6 +234,8 @@ class Drone(position: Point, val rng: RandomGenerator) :
             device?.send(ConfirmOrder(winningOrder.contents as AcceptOrder), winningOrder.sender)
             state = DroneState.PICKING_UP
             currentBid = (winningOrder.contents as AcceptOrder).bid
+
+            totalEstimatedProfit += -currentBid!!.bidValue
 
             // cancel other orders
             acceptOrderMessages.filter { message -> message != winningOrder }.forEach { message ->

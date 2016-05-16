@@ -59,7 +59,7 @@ object DroneExperiment {
         } else {
             builder = builder
                     .withThreads(8)
-                    .repeat(50)
+                    .repeat(50*2)
         }
 
         val results = builder.perform(System.out, *args).get()
@@ -77,6 +77,9 @@ object DroneExperiment {
         results.results.groupBy { it.simArgs.scenario }.mapValues { it.value.map { (it.resultObject as ExperimentResult).totalProfit }.average() }.forEach {
             println("averaged € ${it.value} profit")
         }
+        println(results.results.map { (it.resultObject as ExperimentResult).estimatedTotalProfit  }.sum())
+        println(results.results.map { (it.resultObject as ExperimentResult).totalProfit  }.sum())
+        println(results.results.map { (it.resultObject as ExperimentResult).nbCrashes  }.sum())
     }
 
     /**
