@@ -191,18 +191,18 @@ class Drone(position: Point, val rng: RandomGenerator) :
                 batteryDrainTrajectory(positionClient, getClosestWarehouse(positionClient).position)
         // canLeaveBecauseSufficientlyCharged: zal met >= 20% battery bij dichtste warehouse vanaf klant aankomen
         val highestLevel = BatteryState.values().maxBy { state -> state.lowerBound }!!.lowerBound
-        val canLeaveBecauseSufficientlyCharged = Math.round(Math.ceil(time.startTime + (highestLevel - batteryLevelAtWarehouseAfterClientWithoutCharging) / BATTERY_CHARGING_RATE))
+        val canLeaveBecauseSufficientlyCharged = Math.round(Math.ceil(time.startTime + time.timeConsumed + (highestLevel - batteryLevelAtWarehouseAfterClientWithoutCharging) / BATTERY_CHARGING_RATE))
 
 
         val leaveTime: Long = Math.min(lastMomentToLeaveBecauseItsTime, canLeaveBecauseSufficientlyCharged)
 
-        if(leaveTime <= time.startTime || batteryLevel == 1.0) {
+        if(leaveTime <= time.startTime + time.timeConsumed || batteryLevel == 1.0) {
             state = DroneState.DELIVERING
             doAction(time)
         } else if(leaveTime > time.endTime) {
             charge(time)
         } else {
-            charge(time, leaveTime - time.startTime)
+            charge(time, leaveTime - time.startTime - time.timeConsumed)
             state = DroneState.DELIVERING
             doAction(time)
         }
