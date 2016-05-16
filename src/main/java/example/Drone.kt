@@ -15,7 +15,7 @@ import com.google.common.base.Optional
 import org.apache.commons.math3.random.RandomGenerator
 
 //TODO: Dynamisch contract-net
-//TODO: Experiment
+//TODO: DroneExperiment
 class Drone(position: Point, val rng: RandomGenerator) :
         Vehicle(
                 VehicleDTO.builder()
@@ -36,10 +36,15 @@ class Drone(position: Point, val rng: RandomGenerator) :
       private set
     var totalProfit: Double = 0.0
       private set
+    var totalDistanceTravelled: Double = 0.0
+      private set
+    var nbOrdersDelivered: Int = 0
+      private set
 
     var crashed: Boolean = false
       private set
 
+    //TODO experiment on influence of this
     val chargesInWarehouse: Boolean = true
 
     override fun afterTick(timeLapse: TimeLapse?) {
@@ -75,6 +80,8 @@ class Drone(position: Point, val rng: RandomGenerator) :
 
     private fun moveTo(endPosition: RoadUser, time: TimeLapse) {
         val moveProgress = roadModel.moveTo(this, endPosition, time)
+        totalDistanceTravelled += moveProgress.distance().value
+
         val startBatteryLevel = batteryLevel
         batteryLevel -= moveProgress.distance().value / DISTANCE_PER_PERCENTAGE_BATTERY_DRAIN
 
@@ -156,10 +163,14 @@ class Drone(position: Point, val rng: RandomGenerator) :
 
         if(realPosition.equals(client.position)){
             state = DroneState.IDLE
-            totalProfit += client.deliverOrder(time.startTime + time.timeConsumed, currentBid!!.order)
-            currentBid = null
+            deliver(time.startTime + time.timeConsumed)
             doAction(time)
         }
+    }
+    fun deliver(time: Long) {
+        totalProfit += currentBid!!.order.client.deliverOrder(time, currentBid!!.order)
+        currentBid = null
+        nbOrdersDelivered++
     }
     fun chargeUntilMove(time: TimeLapse) {
         if(!chargesInWarehouse){

@@ -36,7 +36,7 @@ class Client(val position: Point, val rng: RandomGenerator, val sim: Simulator) 
         val price = (MAX_CLIENT_PRICE - (MAX_CLIENT_PRICE-MIN_CLIENT_PRICE)*percent)*type.marketPrice
         val fine = FINE_PERCENTAGE * type.marketPrice
 
-        order = Order(type, this, Math.round(sim.currentTime + windowLength), price, fine)
+        order = Order(type, this, sim.currentTime, Math.round(sim.currentTime + windowLength), price, fine)
     }
 
     override fun afterTick(timeLapse: TimeLapse?) {
@@ -45,6 +45,8 @@ class Client(val position: Point, val rng: RandomGenerator, val sim: Simulator) 
 
     override fun tick(timeLapse: TimeLapse?) {
         val messages = device?.unreadMessages!!
+
+        val hasOrder = ! order!!.isDelivered;
 
         // CancelOrder
         messages.filter { message -> message.contents is CancelOrder }.forEach { message ->
@@ -65,7 +67,7 @@ class Client(val position: Point, val rng: RandomGenerator, val sim: Simulator) 
         }
 
         //Send DeclareOrder
-        if(order != null && drone == null) {
+        if(hasOrder && drone == null) {
             device?.broadcast(DeclareOrder(order!!))
         }
 
@@ -73,12 +75,9 @@ class Client(val position: Point, val rng: RandomGenerator, val sim: Simulator) 
         // do nothing until DynamicCNET
 
 
-        if(order != null && timeLapse!!.startTime > order!!.endTime){
-            //order = null
-            //TODO fine moet betaald worden (zie deliverOrder)
-            //TODO what if client later toekomt
+        if(hasOrder && timeLapse!!.startTime > order!!.endTime){
+            order!!.hasExpired = true
         }
-
     }
 
     override fun setCommDevice(builder: CommDeviceBuilder?) {
@@ -91,7 +90,7 @@ class Client(val position: Point, val rng: RandomGenerator, val sim: Simulator) 
 
     fun deliverOrder(deliverTime: Long, order: Order): Double {
         if(order == this.order){
-            this.order = null
+            order.deliveryTime = deliverTime;
 
             if(deliverTime < order.endTime)
                 return order.price

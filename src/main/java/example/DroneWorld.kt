@@ -10,10 +10,21 @@ import com.github.rinde.rinsim.ui.View
 import com.github.rinde.rinsim.ui.renderers.PlaneRoadModelRenderer
 import com.github.rinde.rinsim.ui.renderers.RoadUserRenderer
 import com.github.rinde.rinsim.core.model.pdp.*
+import com.github.rinde.rinsim.core.model.time.TickListener
+import com.github.rinde.rinsim.core.model.time.TimeLapse
 import com.github.rinde.rinsim.ui.renderers.DroneCommRenderer
+import com.github.rinde.rinsim.ui.renderers.PDPModelRenderer
 import javax.measure.unit.SI
 
 object DroneWorld {
+    val NUM_DRONES = 5
+
+    val TEST_SPEEDUP = 1
+    val TEST_STOP_TIME = 10 * 60 * 1000.toLong()
+    val NEW_CUSTOMER_PROB = .03141567841510015464654654654
+
+    val NUM_HUBS = 8
+    val NUM_INITIAL_CLIENTS = 50
 
 
     /**
@@ -36,7 +47,6 @@ object DroneWorld {
         var viewBuilder: View.Builder = View.builder().with(PlaneRoadModelRenderer.builder())
                 .with(RoadUserRenderer.builder()
                     .withImageAssociation(Drone::class.java, "/graphics/perspective/semi-truck-32.png")
-                    .withImageAssociation(Order::class.java, "/graphics/perspective/deliverypackage.png")
                     .withImageAssociation(Client::class.java, "/graphics/flat/deliverylocation.png")
                     .withImageAssociation(Warehouse::class.java, "/graphics/flat/warehouse-32.png"))
                 .with(DroneCommRenderer.builder()
@@ -83,7 +93,7 @@ object DroneWorld {
             sim.register(Client(roadModel.getRandomPosition(rng), rng, sim))
         }
 
-        /*sim.addTickListener(object : TickListener {
+        sim.addTickListener(object : TickListener {
             override fun tick(time: TimeLapse) {
                 if (time.startTime > Integer.MAX_VALUE) {
                     sim.stop()
@@ -94,7 +104,7 @@ object DroneWorld {
 
             override fun afterTick(timeLapse: TimeLapse) {
             }
-        })*/
+        })
 
         // if a GUI is added, it starts it, if no GUI is specified it will
         // run the simulation without visualization.

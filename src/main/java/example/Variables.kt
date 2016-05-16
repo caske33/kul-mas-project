@@ -15,11 +15,11 @@ val PRICE_DRONE = 10000
 
 val COST_FOR_ENERGY_PER_DISTANCE_UNIT = 2 // in euros
 
-val MIN_WINDOW_LENGTH = 1000000
-val MAX_WINDOW_LENGTH = 10000000
+val MIN_WINDOW_LENGTH = 1000 * 1000
+val MAX_WINDOW_LENGTH = 10000 * 1000
 val MIN_CLIENT_PRICE = 1.2 // relative tov marketPrice
 val MAX_CLIENT_PRICE = 1.3 // relative tov marketPrice
-val FINE_PERCENTAGE = 0.5
+val FINE_PERCENTAGE = 0.5 // percentage of marketPrice for fine
 
 val BATTERY_CHARGING_RATE = 0.000001 // percentage per time unit
 
@@ -28,11 +28,4 @@ val TICK_LENGTH = 1000L
 val MIN_POINT = Point(0.0, 0.0)
 val MAX_POINT = Point(10.0, 10.0)
 val RANDOM_SEED = 123L
-val NUM_DRONES = 5
 
-val TEST_SPEEDUP = 1
-val TEST_STOP_TIME = 10 * 60 * 1000.toLong()
-val NEW_CUSTOMER_PROB = .03141567841510015464654654654
-
-val NUM_HUBS = 8
-val NUM_INITIAL_CLIENTS = 50
