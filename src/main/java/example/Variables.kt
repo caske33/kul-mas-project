@@ -2,6 +2,7 @@ package example
 
 import com.github.rinde.rinsim.geom.Point
 
+//TODO: All variables reasonable?
 val DRONE_SPEED = 50.0
 val DRONE_SPEED_PER_MILLISECOND = DRONE_SPEED / 3600 / 1000
 val DISTANCE_PER_PERCENTAGE_BATTERY_DRAIN = 10
