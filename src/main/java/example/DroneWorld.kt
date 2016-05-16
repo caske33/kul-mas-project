@@ -40,7 +40,6 @@ object DroneWorld {
                     .withImageAssociation(Client::class.java, "/graphics/flat/deliverylocation.png")
                     .withImageAssociation(Warehouse::class.java, "/graphics/flat/warehouse-32.png"))
                 .with(DroneCommRenderer.builder()
-                        .withMessageCount()
                         .withBatteryLevel()
                         .withProfit())
 

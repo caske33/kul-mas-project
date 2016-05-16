@@ -40,7 +40,7 @@ class Drone(position: Point, val rng: RandomGenerator) :
     var crashed: Boolean = false
       private set
 
-    val chargesInWarehouse: Boolean = false
+    val chargesInWarehouse: Boolean = true
 
     override fun afterTick(timeLapse: TimeLapse?) {
         // we don't need this in this example. This method is called after

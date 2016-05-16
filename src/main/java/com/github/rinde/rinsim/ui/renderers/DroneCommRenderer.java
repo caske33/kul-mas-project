@@ -10,6 +10,7 @@ import java.util.Set;
 
 import javax.annotation.CheckReturnValue;
 
+import com.github.rinde.rinsim.geom.Point;
 import example.BatteryState;
 import example.Client;
 import example.Drone;
@@ -211,16 +212,12 @@ public final class DroneCommRenderer extends AbstractTypedCanvasRenderer<CommUse
             }
             if (viewOptions.contains(ViewOptions.PROFIT)) {
                 if (user instanceof Drone){
-                    sb.append(" \uD83D\uDCB0 ")
-                            .append(String.format("%.2f", ((Drone) user).getTotalProfit()))
-                            .append(" $");
+                    helper.drawString("€ "+String.format("%.2f", ((Drone) user).getTotalProfit()), Point.diff(user.getPosition().get(), new Point(-0.3, 0.25)), true);
                 }
             }
             if (viewOptions.contains(ViewOptions.BATTERY_LEVEL)) {
                 if (user instanceof Drone){
-                    sb.append(" ⚡ ")
-                            .append(String.format("%.0f", 100*((Drone) user).getBatteryLevel()))
-                            .append(" %");
+                    helper.drawString("⚡"+String.format("%.0f", 100*((Drone) user).getBatteryLevel())+"%", Point.diff(user.getPosition().get(), new Point(-0.3, 0)), true);
                 }
             }
             if (sb.length() > 0) {
