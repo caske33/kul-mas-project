@@ -222,11 +222,12 @@ class Drone(position: Point, val rng: RandomGenerator) :
     private fun getCheapestWarehouse(order: Order, time: TimeLapse): Warehouse? {
         return roadModel.getObjectsOfType(Warehouse::class.java).filter { warehouse ->
             val distance = Point.distance(realPosition, warehouse.position) + Point.distance(warehouse.position, order.client.position)
-            val traveltime = distance / DRONE_SPEED
+            val traveltime = distance / DRONE_SPEED_PER_MILLISECOND
             val canGetInTime = time.startTime + traveltime < order.endTime
 
-            var batteryLevelAtWarehouse = batteryLevel -
-                    batteryDrainTrajectory(realPosition, warehouse.position) +
+            val batteryBeforeWarehouse = batteryLevel -
+                    batteryDrainTrajectory(realPosition, warehouse.position)
+            var batteryLevelAtWarehouse = batteryBeforeWarehouse +
                     extraChargeInWarehouse(warehouse, order, time.startTime)
             batteryLevelAtWarehouse = Math.min(1.0, batteryLevelAtWarehouse)
 
@@ -234,7 +235,7 @@ class Drone(position: Point, val rng: RandomGenerator) :
                                   batteryDrainTrajectory(warehouse.position, order.client.position) -
                                   batteryDrainTrajectory(order.client.position, getClosestWarehouse(order.client.position).position)
 
-            canGetInTime && endBatteryLevel > 0
+            canGetInTime && endBatteryLevel > 0 && batteryBeforeWarehouse > 0
         }.minBy { warehouse ->
             estimatedCostWarehouse(warehouse, order, time.startTime)
         }
@@ -245,7 +246,7 @@ class Drone(position: Point, val rng: RandomGenerator) :
      */
     private fun extraChargeInWarehouse(warehouse: Warehouse, order: Order, currentTime: Long): Double {
         val distance = Point.distance(realPosition, warehouse.position) + Point.distance(warehouse.position, order.client.position)
-        val timeLeft = order.endTime - currentTime - distance / DRONE_SPEED
+        val timeLeft = order.endTime - currentTime - distance / DRONE_SPEED_PER_MILLISECOND
 
         return timeLeft * BATTERY_CHARGING_RATE
     }

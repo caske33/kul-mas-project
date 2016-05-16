@@ -1,5 +1,7 @@
 package example
 
+import com.github.rinde.rinsim.geom.Point
+
 val DRONE_SPEED = 50.0
 val DRONE_SPEED_PER_MILLISECOND = DRONE_SPEED / 3600 / 1000
 val DISTANCE_PER_PERCENTAGE_BATTERY_DRAIN = 10
@@ -22,3 +24,15 @@ val FINE_PERCENTAGE = 0.5
 val BATTERY_CHARGING_RATE = 0.000001 // percentage per time unit
 
 val TICK_LENGTH = 1000L
+
+val MIN_POINT = Point(0.0, 0.0)
+val MAX_POINT = Point(10.0, 10.0)
+val RANDOM_SEED = 123L
+val NUM_DRONES = 5
+
+val TEST_SPEEDUP = 1
+val TEST_STOP_TIME = 10 * 60 * 1000.toLong()
+val NEW_CUSTOMER_PROB = .03141567841510015464654654654
+
+val NUM_HUBS = 8
+val NUM_INITIAL_CLIENTS = 50

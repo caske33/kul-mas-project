@@ -15,22 +15,6 @@ import javax.measure.unit.SI
 
 object DroneWorld {
 
-    //TODO move to Variables
-    internal val MIN_POINT = Point(0.0, 0.0)
-    internal val MAX_POINT = Point(10.0, 10.0)
-    internal val RANDOM_SEED = 123L
-    internal val NUM_DRONES = 3
-
-    internal val TEST_SPEEDUP = 1
-    internal val TEST_STOP_TIME = 10 * 60 * 1000.toLong()
-    private val NUM_PACKAGES = 1
-    private val SERVICE_DURATION: Long = 60000
-    private val MAX_CAPACITY = 5
-    private val NEW_CUSTOMER_PROB = .03141567841510015464654654654
-
-    private val NUM_HUBS = 4
-    private val NUM_INITIAL_CLIENTS = 4
-
 
     /**
      * Starts the example.
