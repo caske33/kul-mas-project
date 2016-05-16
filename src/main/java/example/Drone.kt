@@ -202,7 +202,6 @@ class Drone(position: Point, val rng: RandomGenerator) :
 
                 val warehouse: Warehouse? = getCheapestWarehouse(order, time)
                 if(warehouse != null) {
-                    //TODO: price should be multiplied with (1-p_failing) because that's the chance of succeeding
                     val cost = -order.price + estimatedCostWarehouse(warehouse, order, time.startTime)
                     if(cost < order.fine) // Otherwise beter om order te laten vervallen
                         device?.send(BidOnOrder(Bid(order, cost, warehouse)), message.sender)
@@ -288,14 +287,6 @@ class Drone(position: Point, val rng: RandomGenerator) :
     private fun calculateProbabilityToCrash(batteryLevel: Double, p1: Point, p2: Point): Double {
         val endBatteryLevel = batteryLevel - batteryDrainTrajectory(p1, p2)
         return calculateProbabilityToCrash(batteryLevel, endBatteryLevel, Point.distance(p1, p2))
-    }
-
-    private fun middlePoint(p1: Point, p2: Point, distance: Double): Point{
-        val totalDistance = Point.distance(p1, p2)
-        val percentage = distance / totalDistance
-
-        // TODO: fix after release of https://github.com/rinde/RinSim/pull/33
-        return Point.diff(Point.divide(Point.diff(p2, p1), 1 / percentage), Point.divide(p1, -1.0))
     }
 
     private fun batteryDrainTrajectory(p1: Point, p2: Point): Double

@@ -52,7 +52,6 @@ object DroneWorld {
         }
 
         // initialize a new Simulator instance
-        //TODO set speed
         val sim = Simulator.builder()
                 .setTickLength(TICK_LENGTH)
                 .setRandomSeed(RANDOM_SEED)
