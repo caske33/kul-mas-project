@@ -15,7 +15,10 @@ import com.google.common.base.Optional
 import org.apache.commons.math3.random.RandomGenerator
 
 //TODO: Dynamisch contract-net
-//TODO: DroneExperiment
+//TODO: DroneExperiment scenario's uitdenken
+//TODO: Experiment: average meerdere ExperimentResult
+//TODO: Exerpiment: betere "rapporten"
+//TODO: Experiment: export to csv for raw results
 class Drone(position: Point, val rng: RandomGenerator) :
         Vehicle(
                 VehicleDTO.builder()
@@ -112,7 +115,7 @@ class Drone(position: Point, val rng: RandomGenerator) :
     }
 
     fun crash() {
-        //TODO: client: wat doen bij crash?
+        //TODO: client: wat doen bij crash? => pinging to Drone + renew contract?
         totalProfit -= PRICE_DRONE
 
         crashed = true
