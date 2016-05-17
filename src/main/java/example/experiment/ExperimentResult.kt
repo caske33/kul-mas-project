@@ -12,7 +12,7 @@ data class ExperimentResult(val nbCrashes: Int,
                             val averageDeliveryTime: Double,
                             val nbDrones: Int,
                             val averageDistanceTravelledPerDrone: Double,
-                            val averageNbOrdersPerDrone: Double,
+                            val maximumNbOrdersPerDrone: Int,
                             val estimatedTotalProfit: Double,
                             val estimatedNbCrashes: Double);
 
@@ -27,7 +27,7 @@ fun aggregateFromResults(results: List<SimulationExperimentResult>, f: (List<Dou
           results_.map { it.averageDeliveryTime }.let(f),
           results_.map { it.nbDrones.toDouble() }.let(f),
           results_.map { it.averageDistanceTravelledPerDrone.toDouble() }.let(f),
-          results_.map { it.averageNbOrdersPerDrone }.let(f),
+          results_.map { it.maximumNbOrdersPerDrone.toDouble() }.let(f),
           results_.map { it.estimatedTotalProfit }.let(f),
           results_.map { it.estimatedNbCrashes }.let(f)
   )
@@ -46,7 +46,7 @@ data class AggregateExperimentResult(
         val averageDeliveryTime: Double,
         val nbDrones: Double,
         val averageDistanceTravelledPerDrone: Double,
-        val averageNbOrdersPerDrone: Double,
+        val maximumNbOrdersPerDrone: Double,
         val estimatedTotalProfit: Double,
         val estimatedNbCrashes: Double) {
 }

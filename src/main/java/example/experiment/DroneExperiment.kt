@@ -24,8 +24,8 @@ object DroneExperiment {
     val MAX_TIME_SCENARIO: Long = 2 * 60 * 60 * 1000
 
     @JvmStatic fun main(args: Array<String>) {
-        val uiSpeedUp = 1
-        val withGui: Boolean = true
+        val uiSpeedUp = 32
+        val withGui: Boolean = false
 
         var builder = Experiment.builder()
                 .addConfiguration(MASConfiguration.builder()
@@ -34,8 +34,9 @@ object DroneExperiment {
                         .addEventHandler(AddWarehousesEvent::class.java, AddWarehouseEventHandler())
                         .addModel(CommModel.builder()).build())
                 //.addScenarios(createScenariosWithMoreDrones(MAX_TIME_SCENARIO, 15, 1, 10, 2, 5, 5))
-                .addScenario(createScenario(MAX_TIME_SCENARIO, true, false, 10, 7, 10, 10))
-                .addScenario(createScenario(MAX_TIME_SCENARIO, true, true, 10, 7, 10, 10))
+                //.addScenario(createScenario(MAX_TIME_SCENARIO, true, false, 3, 3, 10, 10))
+                //.addScenario(createScenario(MAX_TIME_SCENARIO, true, true, 3, 3, 10, 10))
+                .addScenarios(createScenariosWithMoreOfEverything(MAX_TIME_SCENARIO))
                 .withRandomSeed(RANDOM_SEED)
                 .usePostProcessor(ExperimentPostProcessor())
 
@@ -61,12 +62,17 @@ object DroneExperiment {
         } else {
             builder = builder
                     .withThreads(8)
-                    .repeat(50*2)
+                    .repeat(1)
         }
 
         val results_: Set<SimulationResult> = builder.perform(System.out, *args).get().results
         val results = results_.map { SimulationExperimentResult(it.simArgs, it.resultObject as ExperimentResult) }
 
+        results.groupBy { (it.simArgs.scenario.problemClass as DroneProblemClass).withDynamicContractNet }.mapValues { averageFromResults(it.value) }.forEach {
+            println("withDynamicContractNet:${it.key} averaged € ${it.value} profit")
+        }
+
+        /*
         for (sr in results) {
             println("${sr.resultObject}")
         }
@@ -91,6 +97,7 @@ object DroneExperiment {
         ) }.forEach {
             println("per scenario: ${it.value}")
         }
+        */
                 /*
         results.results.groupBy { it.simArgs.scenario }.mapValues { it.value.map { listOf<Double>(
                 0.0
@@ -106,7 +113,14 @@ object DroneExperiment {
      * algorithm(s) that are used to solve the problem.
      * @return A newly constructed scenario.
      */
-    internal fun createScenario(lastClientAddTime: Long, chargesInWarehouse: Boolean, withDynamicContractNet: Boolean, nbWarehouses: Int, nbDrones: Int, nbInitialClients: Int, nbExtraClients: Int): Scenario {
+    internal fun createScenario(lastClientAddTime: Long,
+                                chargesInWarehouse: Boolean,
+                                withDynamicContractNet: Boolean,
+                                nbWarehouses: Int,
+                                nbDrones: Int,
+                                clientGroupSize: Int,
+                                nbClientGroups: Int
+    ): Scenario {
         var builder: Scenario.Builder = Scenario.builder()
                 .scenarioLength(lastClientAddTime)
                 .addModel(RoadModelBuilders.plane()
@@ -118,27 +132,45 @@ object DroneExperiment {
                         DronesBackAtWarehouseAndOrdersDoneStopCondition(lastClientAddTime),
                         StopConditions.limitedTime(lastClientAddTime * 10)
                 ))
+                .problemClass(DroneProblemClass(chargesInWarehouse, withDynamicContractNet))
 
         builder = builder.addEvent(AddWarehousesEvent(nbWarehouses))
         for (i in 1..nbDrones) {
             builder = builder.addEvent(AddDroneEvent(chargesInWarehouse, withDynamicContractNet))
         }
-        for (i in 1..nbInitialClients) {
-            builder = builder.addEvent(AddClientEvent(0, withDynamicContractNet))
-        }
-        for (i in 1..nbExtraClients) {
-            val time = i * lastClientAddTime / nbExtraClients
-            builder = builder.addEvent(AddClientEvent(time, withDynamicContractNet))
+        for (i in 0..nbClientGroups-1) {
+            val time = i * lastClientAddTime / nbClientGroups
+            for (j in 1..clientGroupSize){
+                builder = builder.addEvent(AddClientEvent(time, withDynamicContractNet))
+            }
         }
         return builder.build()
     }
 
-    internal fun createScenariosWithMoreDrones(scenarioLength: Long, nbWarehouses: Int,
+    internal fun createScenariosWithMoreDrones(scenarioLength: Long,
+                                               nbWarehouses: Int,
                                                nbDronesMin: Int, nbDronesMax: Int, nbDronesStep: Int,
-                                               nbInitialClients: Int, nbExtraClients: Int): List<Scenario> {
+                                               nbInitialClients: Int,
+                                               nbExtraClients: Int): List<Scenario> {
         //TODO variate with chargesInWarehouse + withDynamicContractNet
         return (nbDronesMin..nbDronesMax step nbDronesStep).map {
             createScenario(scenarioLength, true, false, nbWarehouses, it, nbInitialClients, nbExtraClients)
+        }
+    }
+
+    internal fun createScenariosWithMoreOfEverything(scenarioLength: Long): List<Scenario> {
+        //TODO variate with chargesInWarehouse + withDynamicContractNet
+        return (1..10 step 2).flatMap { nbDrones ->
+            (1..5 step 1).flatMap { nbWarehouses ->
+                (1..50 step 10).flatMap { clientGroupSize ->
+                    (5..10 step 1).flatMap { nbClientGroups ->
+                        listOf(
+                                createScenario(scenarioLength, true, false, nbWarehouses, nbDrones, clientGroupSize, nbClientGroups),
+                                createScenario(scenarioLength, true, true, nbWarehouses, nbDrones, clientGroupSize, nbClientGroups)
+                        )
+                    }
+                }
+            }
         }
     }
 }
