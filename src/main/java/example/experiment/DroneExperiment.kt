@@ -21,11 +21,11 @@ import example.*
 import example.Warehouse
 
 object DroneExperiment {
-    val MAX_TIME_SCENARIO: Long = 3 * 60 * 60 * 1000
+    val MAX_TIME_SCENARIO: Long = 2 * 60 * 60 * 1000
 
     @JvmStatic fun main(args: Array<String>) {
         val uiSpeedUp = 16
-        val testing: Boolean = false
+        val withGui: Boolean = true
 
         var builder = Experiment.builder()
                 .addConfiguration(MASConfiguration.builder()
@@ -37,7 +37,7 @@ object DroneExperiment {
                 .withRandomSeed(RANDOM_SEED)
                 .usePostProcessor(ExperimentPostProcessor())
 
-        if(testing){
+        if(withGui){
             builder = builder
                     .withThreads(1)
                     .repeat(2)
@@ -106,16 +106,15 @@ object DroneExperiment {
      * algorithm(s) that are used to solve the problem.
      * @return A newly constructed scenario.
      */
-    internal fun createScenario(scenarioLength: Long, nbWarehouses: Int, nbDrones: Int, nbInitialClients: Int, nbExtraClients: Int): Scenario {
+    internal fun createScenario(lastClientAddTime: Long, nbWarehouses: Int, nbDrones: Int, nbInitialClients: Int, nbExtraClients: Int): Scenario {
         var builder: Scenario.Builder = Scenario.builder()
-                .scenarioLength(scenarioLength)
+                .scenarioLength(lastClientAddTime)
                 .addModel(RoadModelBuilders.plane()
                         .withMinPoint(MIN_POINT)
                         .withMaxPoint(MAX_POINT)
                         .withMaxSpeed(DRONE_SPEED))
                 .addModel(DefaultPDPModel.builder())
-                //TODO: stop when all drones fully charged at warehouse?
-                .setStopCondition(StopConditions.limitedTime(scenarioLength))
+                .setStopCondition(DronesBackAtWarehouseAndOrdersDoneStopCondition(lastClientAddTime))
 
         builder = builder.addEvent(AddWarehousesEvent(nbWarehouses))
         for (i in 1..nbDrones) {
@@ -125,7 +124,7 @@ object DroneExperiment {
             builder = builder.addEvent(AddClientEvent(0))
         }
         for (i in 1..nbExtraClients) {
-            val time = i * (scenarioLength / 2) / nbExtraClients
+            val time = i * lastClientAddTime / nbExtraClients
             builder = builder.addEvent(AddClientEvent(time))
         }
         return builder.build()
