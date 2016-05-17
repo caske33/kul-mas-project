@@ -13,6 +13,7 @@ import com.github.rinde.rinsim.core.model.time.TimeLapse
 import com.github.rinde.rinsim.geom.Point
 import com.google.common.base.Optional
 import org.apache.commons.math3.random.RandomGenerator
+import java.util.*
 
 //TODO: DroneExperiment scenario's uitdenken
 //TODO: Exerpiment: betere "rapporten"
@@ -48,6 +49,8 @@ class Drone(position: Point, val rng: RandomGenerator, val chargesInWarehouse: B
 
     var crashed: Boolean = false
       private set
+
+    val cachedBids: HashMap<Order, Bid?> = HashMap<Order, Bid?>()
 
     override fun afterTick(timeLapse: TimeLapse?) {
         // we don't need this in this example. This method is called after
@@ -95,6 +98,8 @@ class Drone(position: Point, val rng: RandomGenerator, val chargesInWarehouse: B
         if(rng.nextDouble() <= probabilityToCrash){
             crash()
         }
+
+        cachedBids.clear()
     }
 
     private fun calculateProbabilityToCrash(startBatteryLevel: Double, endBatteryLevel: Double, distance: Double): Double {
@@ -159,6 +164,8 @@ class Drone(position: Point, val rng: RandomGenerator, val chargesInWarehouse: B
         if(batteryLevel >= 1.0){
             batteryLevel = 1.0
         }
+
+        cachedBids.clear()
     }
     fun moveToClient(time: TimeLapse) {
         val client = currentBid!!.order.client
@@ -227,12 +234,27 @@ class Drone(position: Point, val rng: RandomGenerator, val chargesInWarehouse: B
             messages.filter { message -> message.contents is DeclareOrder }.forEach { message ->
                 val order: Order = (message.contents as DeclareOrder).order
 
-                val warehouse: Warehouse? = getCheapestWarehouse(order, time)
-                if(warehouse != null) {
-                    val costPair = estimatedCostWarehouse(warehouse, order, time.startTime)
-                    val cost = -order.price + costPair.first
-                    if(cost < order.fine) // Otherwise beter om order te laten vervallen
-                        device?.send(BidOnOrder(Bid(order, cost, warehouse, costPair.second)), message.sender)
+                if(cachedBids.containsKey(order)){
+                    val bid: Bid? = cachedBids.get(order)
+                    if(bid != null){
+                        device?.send(BidOnOrder(cachedBids[order]!!), message.sender)
+                    }
+                } else {
+                    val warehouse: Warehouse? = getCheapestWarehouse(order, time)
+                    if(warehouse != null) {
+                        val costPair = estimatedCostWarehouse(warehouse, order, time.startTime)
+                        val cost = -order.price + costPair.first
+                        if(cost < order.fine) {
+                            // Otherwise beter om order te laten vervallen
+                            val bid = Bid(order, cost, warehouse, costPair.second)
+                            device?.send(BidOnOrder(bid), message.sender)
+                            cachedBids.put(order, bid)
+                        } else {
+                            cachedBids.put(order, null)
+                        }
+                    } else {
+                        cachedBids.put(order, null)
+                    }
                 }
             }
         }
