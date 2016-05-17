@@ -194,6 +194,8 @@ public final class DroneCommRenderer extends AbstractTypedCanvasRenderer<CommUse
                 }
                 gc.setBackground(new Color(gc.getDevice(), rgb));
                 helper.fillCircle(user.getPosition().get(), DOT_RADIUS*10);
+                gc.setAlpha(OPAQUE);
+                helper.drawString(getNameOfClient(client), user.getPosition().get(), true);
             }
             gc.setAlpha(OPAQUE);
             helper.fillCircle(user.getPosition().get(), DOT_RADIUS);
@@ -206,22 +208,17 @@ public final class DroneCommRenderer extends AbstractTypedCanvasRenderer<CommUse
                         .append(device.getUnreadCount())
                         .append(')');
             }
-            if (viewOptions.contains(ViewOptions.RELIABILITY_PERC)) {
-                sb.append(" rel:")
-                        .append(String.format("%.2f", device.getReliability()));
-            }
-            if (viewOptions.contains(ViewOptions.PROFIT)) {
-                if (user instanceof Drone){
-                    helper.drawString("€ "+String.format("%.2f", ((Drone) user).getTotalProfit()), Point.diff(user.getPosition().get(), new Point(-0.3, 0.25)), true);
-                }
-            }
-            if (viewOptions.contains(ViewOptions.BATTERY_LEVEL)) {
-                if (user instanceof Drone){
-                    helper.drawString("⚡"+String.format("%.0f", 100*((Drone) user).getBatteryLevel())+"%", Point.diff(user.getPosition().get(), new Point(-0.3, 0)), true);
-                }
-            }
             if (sb.length() > 0) {
                 helper.drawString(sb.toString(), user.getPosition().get(), true);
+            }
+            if (user instanceof Drone){
+                Drone drone = (Drone) user;
+
+                if(drone.getCurrentBid() != null){
+                    helper.drawString("C " + getNameOfClient(drone.getCurrentBid().getOrder().getClient()), Point.diff(user.getPosition().get(), new Point(-0.3, -0.25)), true);
+                }
+                helper.drawString("⚡"+String.format("%.0f", 100*drone.getBatteryLevel())+"%", Point.diff(user.getPosition().get(), new Point(-0.3, 0)), true);
+                helper.drawString("€ "+String.format("%.2f", drone.getTotalProfit()), Point.diff(user.getPosition().get(), new Point(-0.3, 0.25)), true);
             }
         }
 
@@ -229,6 +226,10 @@ public final class DroneCommRenderer extends AbstractTypedCanvasRenderer<CommUse
             if (color.isPresent()) {
                 color.get().dispose();
             }
+        }
+
+        private String getNameOfClient(Client client) {
+            return Integer.toString(client.hashCode()).substring(0, 3);
         }
     }
 

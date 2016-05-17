@@ -8,12 +8,15 @@ class BidOnOrder(val bid: Bid) : MessageContents
 
 class AcceptOrder(val bid: Bid) : MessageContents
 
-class ConfirmOrder(val acceptOrder: AcceptOrder) : MessageContents{
+class ConfirmOrder(val bid: Bid) : MessageContents{
     val order: Order
-        get() = acceptOrder.bid.order
+        get() = bid.order
 }
-class CancelOrder(val acceptOrder: AcceptOrder) : MessageContents{
+class CancelOrder(val bid: Bid) : MessageContents{
     val order: Order
-        get() = acceptOrder.bid.order
+        get() = bid.order
 }
+
+//TODO implement in Drone
+class GotBetterOffer(val orderThatIsLost: Order) : MessageContents
 

@@ -18,7 +18,7 @@ import org.apache.commons.math3.random.RandomGenerator
 //TODO: DroneExperiment scenario's uitdenken
 //TODO: Exerpiment: betere "rapporten"
 //TODO: Experiment: export to csv for raw results
-class Drone(position: Point, val rng: RandomGenerator, val chargesInWarehouse: Boolean) :
+class Drone(position: Point, val rng: RandomGenerator, val chargesInWarehouse: Boolean, val usesDynamicContractNet: Boolean) :
         Vehicle(
                 VehicleDTO.builder()
                         .capacity(1)
@@ -31,8 +31,10 @@ class Drone(position: Point, val rng: RandomGenerator, val chargesInWarehouse: B
     // to keep track of time. The RandomUser interface indicates that this class
     // wants to get access to a random generator
 
-    private var currentBid: Bid? = null
+    var currentBid: Bid? = null
+      private set
     private var device: CommDevice? = null
+    //TODO state in functie van andere variabelen?
     private var state: DroneState = DroneState.IDLE
     var batteryLevel: Double = 1.0
       private set
@@ -142,7 +144,6 @@ class Drone(position: Point, val rng: RandomGenerator, val chargesInWarehouse: B
         moveTo(warehouse, time)
 
         if(realPosition.equals(warehouse.position)){
-            totalProfit -= warehouse.getPriceFor(currentBid!!.order.type)
             state = DroneState.CHARGING_FOR_CONTRACT
             doAction(time)
         }
@@ -177,8 +178,7 @@ class Drone(position: Point, val rng: RandomGenerator, val chargesInWarehouse: B
     }
     fun chargeUntilMove(time: TimeLapse) {
         if(!chargesInWarehouse){
-            state = DroneState.DELIVERING
-            doAction(time)
+            startDelivering(time)
             return;
         }
 
@@ -197,20 +197,34 @@ class Drone(position: Point, val rng: RandomGenerator, val chargesInWarehouse: B
         val leaveTime: Long = Math.min(lastMomentToLeaveBecauseItsTime, canLeaveBecauseSufficientlyCharged)
 
         if(leaveTime <= time.startTime + time.timeConsumed || batteryLevel == 1.0) {
-            state = DroneState.DELIVERING
-            doAction(time)
+            startDelivering(time)
         } else if(leaveTime > time.endTime) {
             charge(time)
         } else {
             charge(time, leaveTime - time.startTime - time.timeConsumed)
-            state = DroneState.DELIVERING
-            doAction(time)
+            startDelivering(time)
         }
     }
 
+    fun startDelivering(time: TimeLapse) {
+        //TODO: bepaal prijs als echt vertrekt
+        totalProfit -= currentBid!!.warehouse.getPriceFor(currentBid!!.order.type)
+
+        state = DroneState.DELIVERING
+        doAction(time)
+    }
+
     fun handleMessages(time: TimeLapse, messages: List<Message>) {
+        // GotBetterOffer
+        messages.filter { message -> message.contents is GotBetterOffer }.forEach { message ->
+            if(currentBid != null && (message.contents as GotBetterOffer).orderThatIsLost == currentBid!!.order) {
+                currentBid = null;
+                state = DroneState.IDLE
+            }
+        }
+
         // DeclareOrder
-        if(state.canBid()){
+        if(canNegotiate()){
             messages.filter { message -> message.contents is DeclareOrder }.forEach { message ->
                 val order: Order = (message.contents as DeclareOrder).order
 
@@ -226,20 +240,26 @@ class Drone(position: Point, val rng: RandomGenerator, val chargesInWarehouse: B
 
         // AcceptOrder
         val acceptOrderMessages = messages.filter { message -> message.contents is AcceptOrder }
-        if(acceptOrderMessages.size > 0){
+        if(canNegotiate() && acceptOrderMessages.size > 0){
 
             // accept order with lowest (estimated) cost
-            val winningOrder: Message = acceptOrderMessages.minBy { message -> (message.contents as AcceptOrder).bid.bidValue }!!
-            device?.send(ConfirmOrder(winningOrder.contents as AcceptOrder), winningOrder.sender)
+            val winningOrderMessage: Message = acceptOrderMessages.minBy { message -> (message.contents as AcceptOrder).bid.bidValue }!!
+            val winningBid = (winningOrderMessage.contents as AcceptOrder).bid
+
+            if(currentBid != null && currentBid!!.order != winningBid.order) {
+                device?.send(CancelOrder(currentBid!!), currentBid!!.order.client)
+            }
+
+            device?.send(ConfirmOrder(winningBid), winningOrderMessage.sender)
             state = DroneState.PICKING_UP
-            currentBid = (winningOrder.contents as AcceptOrder).bid
+            currentBid = winningBid
 
             totalEstimatedProfit += -currentBid!!.bidValue
             totalEstimatedCrashes += currentBid!!.estimatedProbabilityFailure
 
             // cancel other orders
-            acceptOrderMessages.filter { message -> message != winningOrder }.forEach { message ->
-                device?.send(CancelOrder(message.contents as AcceptOrder), message.sender)
+            acceptOrderMessages.filter { message -> message != winningOrderMessage }.forEach { message ->
+                device?.send(CancelOrder((message.contents as AcceptOrder).bid), message.sender)
             }
         }
     }
@@ -256,7 +276,7 @@ class Drone(position: Point, val rng: RandomGenerator, val chargesInWarehouse: B
                     extraChargeInWarehouse(warehouse, order, time.startTime)
             batteryLevelAtWarehouse = Math.min(1.0, batteryLevelAtWarehouse)
 
-            var endBatteryLevel = batteryLevelAtWarehouse -
+            val endBatteryLevel = batteryLevelAtWarehouse -
                                   batteryDrainTrajectory(warehouse.position, order.client.position) -
                                   batteryDrainTrajectory(order.client.position, getClosestWarehouse(order.client.position).position)
 
@@ -328,16 +348,19 @@ class Drone(position: Point, val rng: RandomGenerator, val chargesInWarehouse: B
     override fun setCommDevice(builder: CommDeviceBuilder) {
         device = builder.setReliability(1.0).build()
     }
+
+    fun canNegotiate() = state.canNegotiate(usesDynamicContractNet)
 }
 
-enum class DroneState(private val canBid : Boolean) {
+enum class DroneState(private val canNegotiate: Boolean,
+                      private val canNegotiateDynamic: Boolean = canNegotiate) {
     IDLE(true),
-    PICKING_UP(false),
+    PICKING_UP(false, true),
     CHARGING(true),
     DELIVERING(false),
-    CHARGING_FOR_CONTRACT(false);
+    CHARGING_FOR_CONTRACT(false, true);
 
-    fun canBid() = canBid
+    fun canNegotiate(dynamic: Boolean) = if (dynamic) canNegotiateDynamic else canNegotiate
 }
 
 enum class BatteryState(val lowerBound: Double, val upperBound: Double, val failureLambda: Double) {

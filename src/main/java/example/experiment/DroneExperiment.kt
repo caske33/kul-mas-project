@@ -24,7 +24,7 @@ object DroneExperiment {
     val MAX_TIME_SCENARIO: Long = 2 * 60 * 60 * 1000
 
     @JvmStatic fun main(args: Array<String>) {
-        val uiSpeedUp = 16
+        val uiSpeedUp = 1
         val withGui: Boolean = true
 
         var builder = Experiment.builder()
@@ -34,15 +34,15 @@ object DroneExperiment {
                         .addEventHandler(AddWarehousesEvent::class.java, AddWarehouseEventHandler())
                         .addModel(CommModel.builder()).build())
                 //.addScenarios(createScenariosWithMoreDrones(MAX_TIME_SCENARIO, 15, 1, 10, 2, 5, 5))
-                .addScenario(createScenario(MAX_TIME_SCENARIO, true, 10, 7, 10, 10))
-                .addScenario(createScenario(MAX_TIME_SCENARIO, false, 10, 7, 10, 10))
+                .addScenario(createScenario(MAX_TIME_SCENARIO, true, false, 10, 7, 10, 10))
+                .addScenario(createScenario(MAX_TIME_SCENARIO, true, true, 10, 7, 10, 10))
                 .withRandomSeed(RANDOM_SEED)
                 .usePostProcessor(ExperimentPostProcessor())
 
         if(withGui){
             builder = builder
                     .withThreads(1)
-                    .repeat(2)
+                    .repeat(1)
                     .showGui(View.builder()
                             .with(PlaneRoadModelRenderer.builder())
                             .withResolution(800, 800)
@@ -106,7 +106,7 @@ object DroneExperiment {
      * algorithm(s) that are used to solve the problem.
      * @return A newly constructed scenario.
      */
-    internal fun createScenario(lastClientAddTime: Long, chargesInWarehouse: Boolean, nbWarehouses: Int, nbDrones: Int, nbInitialClients: Int, nbExtraClients: Int): Scenario {
+    internal fun createScenario(lastClientAddTime: Long, chargesInWarehouse: Boolean, withDynamicContractNet: Boolean, nbWarehouses: Int, nbDrones: Int, nbInitialClients: Int, nbExtraClients: Int): Scenario {
         var builder: Scenario.Builder = Scenario.builder()
                 .scenarioLength(lastClientAddTime)
                 .addModel(RoadModelBuilders.plane()
@@ -121,14 +121,14 @@ object DroneExperiment {
 
         builder = builder.addEvent(AddWarehousesEvent(nbWarehouses))
         for (i in 1..nbDrones) {
-            builder = builder.addEvent(AddDroneEvent(chargesInWarehouse))
+            builder = builder.addEvent(AddDroneEvent(chargesInWarehouse, withDynamicContractNet))
         }
         for (i in 1..nbInitialClients) {
-            builder = builder.addEvent(AddClientEvent(0))
+            builder = builder.addEvent(AddClientEvent(0, withDynamicContractNet))
         }
         for (i in 1..nbExtraClients) {
             val time = i * lastClientAddTime / nbExtraClients
-            builder = builder.addEvent(AddClientEvent(time))
+            builder = builder.addEvent(AddClientEvent(time, withDynamicContractNet))
         }
         return builder.build()
     }
@@ -136,8 +136,9 @@ object DroneExperiment {
     internal fun createScenariosWithMoreDrones(scenarioLength: Long, nbWarehouses: Int,
                                                nbDronesMin: Int, nbDronesMax: Int, nbDronesStep: Int,
                                                nbInitialClients: Int, nbExtraClients: Int): List<Scenario> {
+        //TODO variate with chargesInWarehouse + withDynamicContractNet
         return (nbDronesMin..nbDronesMax step nbDronesStep).map {
-            createScenario(scenarioLength, true, nbWarehouses, it, nbInitialClients, nbExtraClients)
+            createScenario(scenarioLength, true, false, nbWarehouses, it, nbInitialClients, nbExtraClients)
         }
     }
 }

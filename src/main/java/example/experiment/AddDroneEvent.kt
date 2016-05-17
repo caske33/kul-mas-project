@@ -6,11 +6,13 @@ import example.Drone
 import example.Warehouse
 import org.apache.commons.math3.random.RandomGenerator
 
-class AddDroneEvent(val chargesInWarehouse: Boolean) : DroneWorldEvent(0);
+class AddDroneEvent(val chargesInWarehouse: Boolean,
+                    val withDynamicContractNet: Boolean
+) : DroneWorldEvent(0);
 
 class AddDroneEventHandler() : DroneWorldEventHandler<AddDroneEvent>() {
     override fun handleDroneTimedEvent(event: AddDroneEvent, simulator: Simulator, roadModel: RoadModel, rng: RandomGenerator) {
-        simulator.register(Drone(roadModel.getRandomPosition(rng), rng, event.chargesInWarehouse))
+        simulator.register(Drone(roadModel.getRandomPosition(rng), rng, event.chargesInWarehouse, event.withDynamicContractNet))
     }
 }
 
