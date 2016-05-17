@@ -19,3 +19,4 @@ class CancelOrder(val bid: Bid) : MessageContents{
 
 class GotBetterOffer(val orderThatIsLost: Order) : MessageContents
 
+class DroneCrashMessage() : MessageContents

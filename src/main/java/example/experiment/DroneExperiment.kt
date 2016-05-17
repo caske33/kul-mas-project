@@ -24,8 +24,8 @@ object DroneExperiment {
     val MAX_TIME_SCENARIO: Long = 2 * 60 * 60 * 1000
 
     @JvmStatic fun main(args: Array<String>) {
-        val uiSpeedUp = 32
-        val withGui: Boolean = false
+        val uiSpeedUp = 1
+        val withGui: Boolean = true
 
         var builder = Experiment.builder()
                 .addConfiguration(MASConfiguration.builder()
@@ -34,9 +34,9 @@ object DroneExperiment {
                         .addEventHandler(AddWarehousesEvent::class.java, AddWarehouseEventHandler())
                         .addModel(CommModel.builder()).build())
                 //.addScenarios(createScenariosWithMoreDrones(MAX_TIME_SCENARIO, 15, 1, 10, 2, 5, 5))
-                //.addScenario(createScenario(MAX_TIME_SCENARIO, true, false, 3, 3, 10, 10))
-                //.addScenario(createScenario(MAX_TIME_SCENARIO, true, true, 3, 3, 10, 10))
-                .addScenarios(createScenariosWithMoreOfEverything(MAX_TIME_SCENARIO))
+                .addScenario(createScenario(MAX_TIME_SCENARIO, false, false, 3, 3, 2, 10))
+                .addScenario(createScenario(MAX_TIME_SCENARIO, false, true, 3, 3, 2, 10))
+                //.addScenarios(createScenariosWithMoreOfEverything(MAX_TIME_SCENARIO))
                 .withRandomSeed(RANDOM_SEED)
                 .usePostProcessor(ExperimentPostProcessor())
 
@@ -152,7 +152,6 @@ object DroneExperiment {
                                                nbDronesMin: Int, nbDronesMax: Int, nbDronesStep: Int,
                                                nbInitialClients: Int,
                                                nbExtraClients: Int): List<Scenario> {
-        //TODO variate with chargesInWarehouse + withDynamicContractNet
         return (nbDronesMin..nbDronesMax step nbDronesStep).map {
             createScenario(scenarioLength, true, false, nbWarehouses, it, nbInitialClients, nbExtraClients)
         }

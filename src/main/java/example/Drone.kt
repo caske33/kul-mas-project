@@ -14,7 +14,6 @@ import com.github.rinde.rinsim.geom.Point
 import com.google.common.base.Optional
 import org.apache.commons.math3.random.RandomGenerator
 
-//TODO: Dynamisch contract-net
 //TODO: DroneExperiment scenario's uitdenken
 //TODO: Exerpiment: betere "rapporten"
 //TODO: Experiment: export to csv for raw results
@@ -34,7 +33,6 @@ class Drone(position: Point, val rng: RandomGenerator, val chargesInWarehouse: B
     var currentBid: Bid? = null
       private set
     private var device: CommDevice? = null
-    //TODO state in functie van andere variabelen?
     private var state: DroneState = DroneState.IDLE
     var batteryLevel: Double = 1.0
       private set
@@ -117,10 +115,12 @@ class Drone(position: Point, val rng: RandomGenerator, val chargesInWarehouse: B
     }
 
     fun crash() {
-        //TODO: client: wat doen bij crash? => pinging to Drone + renew contract?
         totalProfit -= PRICE_DRONE
 
         crashed = true
+
+        if(currentBid != null)
+            device?.send(DroneCrashMessage(), currentBid!!.order.client)
 
         throw DroneCrashException()
     }

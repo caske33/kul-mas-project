@@ -67,7 +67,7 @@ class Client(val position: Point, val rng: RandomGenerator, val sim: Simulator, 
         val messages = device?.unreadMessages!!
 
         // CancelOrder
-        messages.filter { message -> message.contents is CancelOrder }.forEach { message ->
+        messages.filter { message -> message.contents is CancelOrder  || message.contents is DroneCrashMessage }.forEach { message ->
             if(message.sender == drone)
                 drone = null
         }
@@ -92,8 +92,6 @@ class Client(val position: Point, val rng: RandomGenerator, val sim: Simulator, 
         }
 
         // ConfirmOrder: neglect, doesn't matter because 100% reliability
-
-        //TODO ping drone crash
 
         if(timeLapse!!.startTime > order!!.endTime && (!order!!.isDelivered)){
             order!!.hasExpired = true
