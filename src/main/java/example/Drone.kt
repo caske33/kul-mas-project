@@ -18,7 +18,7 @@ import org.apache.commons.math3.random.RandomGenerator
 //TODO: DroneExperiment scenario's uitdenken
 //TODO: Exerpiment: betere "rapporten"
 //TODO: Experiment: export to csv for raw results
-class Drone(position: Point, val rng: RandomGenerator) :
+class Drone(position: Point, val rng: RandomGenerator, val chargesInWarehouse: Boolean) :
         Vehicle(
                 VehicleDTO.builder()
                         .capacity(1)
@@ -48,9 +48,6 @@ class Drone(position: Point, val rng: RandomGenerator) :
 
     var crashed: Boolean = false
       private set
-
-    //TODO experiment on influence of this
-    val chargesInWarehouse: Boolean = true
 
     override fun afterTick(timeLapse: TimeLapse?) {
         // we don't need this in this example. This method is called after

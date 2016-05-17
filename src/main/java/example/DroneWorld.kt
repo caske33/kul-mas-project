@@ -82,7 +82,7 @@ object DroneWorld {
 
         // add a number of drones on the road
         for (i in 0..NUM_DRONES - 1) {
-            sim.register(Drone(roadModel.getRandomPosition(rng), rng))
+            sim.register(Drone(roadModel.getRandomPosition(rng), rng, true))
         }
 
         for (i in 0..NUM_HUBS - 1) {
