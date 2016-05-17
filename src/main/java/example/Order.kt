@@ -8,8 +8,6 @@ class Order(
         val price : Double,
         val fine : Double
 ){
-    //TODO: isPickedup? (voor DynCNET)
-    var isPickedUp = false
     var hasExpired = false
     var warehouse: Warehouse? = null
     var drone: Drone? = null

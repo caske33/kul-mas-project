@@ -17,6 +17,5 @@ class CancelOrder(val bid: Bid) : MessageContents{
         get() = bid.order
 }
 
-//TODO implement in Drone
 class GotBetterOffer(val orderThatIsLost: Order) : MessageContents
 

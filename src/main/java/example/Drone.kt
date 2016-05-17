@@ -207,7 +207,6 @@ class Drone(position: Point, val rng: RandomGenerator, val chargesInWarehouse: B
     }
 
     fun startDelivering(time: TimeLapse) {
-        //TODO: bepaal prijs als echt vertrekt
         totalProfit -= currentBid!!.warehouse.getPriceFor(currentBid!!.order.type)
 
         state = DroneState.DELIVERING

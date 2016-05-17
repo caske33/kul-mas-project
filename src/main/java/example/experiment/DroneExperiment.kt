@@ -20,7 +20,7 @@ import example.Drone
 import example.*
 import example.Warehouse
 
-object DroneExperiment {
+class DroneExperiment {
     val MAX_TIME_SCENARIO: Long = 2 * 60 * 60 * 1000
 
     @JvmStatic fun main(args: Array<String>) {
