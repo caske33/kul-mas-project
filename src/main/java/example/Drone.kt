@@ -165,7 +165,8 @@ class Drone(position: Point, val rng: RandomGenerator, val chargesInWarehouse: B
             batteryLevel = 1.0
         }
 
-        cachedBids.clear()
+        if (oldBatteryLevel != batteryLevel)
+            cachedBids.clear()
     }
     fun moveToClient(time: TimeLapse) {
         val client = currentBid!!.order.client
