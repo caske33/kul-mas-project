@@ -52,6 +52,8 @@ class Drone(position: Point, val rng: RandomGenerator, val chargesInWarehouse: B
 
     val cachedBids: HashMap<Order, Bid?> = HashMap<Order, Bid?>()
 
+    var warehouses_: Set<Warehouse>? = null
+
     override fun afterTick(timeLapse: TimeLapse?) {
         // we don't need this in this example. This method is called after
         // all TickListener#tick() calls, hence the name.
@@ -140,8 +142,13 @@ class Drone(position: Point, val rng: RandomGenerator, val chargesInWarehouse: B
             doAction(time)
         }
     }
+    private fun getWarehouses(): Set<Warehouse> {
+        if(warehouses_ == null)
+            warehouses_ = roadModel.getObjectsOfType(Warehouse::class.java)
+        return warehouses_!!
+    }
     private fun getClosestWarehouse(p1: Point): Warehouse {
-        return roadModel.getObjectsOfType(Warehouse::class.java).minBy { warehouse ->
+        return getWarehouses().minBy { warehouse ->
             Point.distance(p1, warehouse.position)
         }!!
     }
@@ -287,7 +294,7 @@ class Drone(position: Point, val rng: RandomGenerator, val chargesInWarehouse: B
     }
 
     private fun getCheapestWarehouse(order: Order, time: TimeLapse): Warehouse? {
-        return roadModel.getObjectsOfType(Warehouse::class.java).filter { warehouse ->
+        return getWarehouses().filter { warehouse ->
             val distance = Point.distance(realPosition, warehouse.position) + Point.distance(warehouse.position, order.client.position)
             val traveltime = distance / DRONE_SPEED_PER_MILLISECOND
             val canGetInTime = time.startTime + traveltime < order.endTime
