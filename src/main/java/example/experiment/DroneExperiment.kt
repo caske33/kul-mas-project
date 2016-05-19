@@ -22,11 +22,11 @@ import example.Warehouse
 //TODO: Exerpiment: betere "rapporten"
 //TODO: Experiment: export to csv for raw results
 object DroneExperiment {
-    val MAX_TIME_SCENARIO: Long = 2 * 60 * 60 * 1000
+    val MAX_TIME_SCENARIO: Long = 1 * 60 * 60 * 1000
 
     @JvmStatic fun main(args: Array<String>) {
         val uiSpeedUp = 1
-        val withGui: Boolean = false
+        val withGui: Boolean = true
 
         var builder = Experiment.builder()
                 .addConfiguration(MASConfiguration.builder()

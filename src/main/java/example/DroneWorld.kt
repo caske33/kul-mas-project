@@ -21,10 +21,10 @@ object DroneWorld {
 
     val TEST_SPEEDUP = 1
     val TEST_STOP_TIME = 10 * 60 * 1000.toLong()
-    val NEW_CUSTOMER_PROB = .03141567841510015464654654654
+    val NEW_CUSTOMER_PROB = .03141567841510015464654654654*0
 
     val NUM_HUBS = 8
-    val NUM_INITIAL_CLIENTS = 50
+    val NUM_INITIAL_CLIENTS = 10
 
 
     /**
@@ -50,6 +50,7 @@ object DroneWorld {
                     .withImageAssociation(Client::class.java, "/graphics/flat/deliverylocation.png")
                     .withImageAssociation(Warehouse::class.java, "/graphics/flat/warehouse-32.png"))
                 .with(DroneCommRenderer.builder()
+                        .withMessageCount()
                         .withBatteryLevel()
                         .withProfit())
 

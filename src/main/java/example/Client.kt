@@ -33,6 +33,8 @@ class Client(val position: Point,
 
     private var nbTicksToWaitBeforeNextCfp: Long = 0
 
+    var nbCallsForProposals: Int = 0
+
     val state: ClientState
       get() {
           if(order == null)
@@ -116,9 +118,10 @@ class Client(val position: Point,
             }
         }
 
-        //Send DeclareOrder
+        //Send CallForProposal
         if(canNegotiate() && nbTicksToWaitBeforeNextCfp == 0L) {
             device?.broadcast(CallForProposal(order!!))
+            nbCallsForProposals++
         } else if(nbTicksToWaitBeforeNextCfp > 0) {
             nbTicksToWaitBeforeNextCfp--
         }
