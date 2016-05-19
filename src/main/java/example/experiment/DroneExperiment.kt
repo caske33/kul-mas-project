@@ -118,7 +118,8 @@ object DroneExperiment {
                                 protocolType: ProtocolType,
                                 nbWarehouses: Int,
                                 nbDrones: Int,
-                                nbClients: Int
+                                nbInitialClients: Int,
+                                nbDynamicClients: Int
     ): Scenario {
         var builder: Scenario.Builder = Scenario.builder()
                 .scenarioLength(lastClientAddTime)
@@ -137,7 +138,7 @@ object DroneExperiment {
         for (i in 1..nbDrones) {
             builder = builder.addEvent(AddDroneEvent(chargesInWarehouse, protocolType))
         }
-        builder = builder.addEvent(AddClientsEvent(nbClients, lastClientAddTime, protocolType))
+        builder = builder.addEvent(AddClientsEvent(nbInitialClients, nbDynamicClients, lastClientAddTime, protocolType))
         return builder.build()
     }
 
@@ -157,11 +158,13 @@ object DroneExperiment {
         //TODO variate with chargesInWarehouse + withDynamicContractNet
         return (1..10 step 2).flatMap { nbDrones ->
             (7..10 step 1).flatMap { nbWarehouses ->
-                (1..50 step 10).flatMap { nbClients ->
-                    listOf(
-                            createScenario(scenarioLength, true, ProtocolType.CONTRACT_NET, nbWarehouses, nbDrones, nbClients),
-                            createScenario(scenarioLength, true, ProtocolType.DYNAMIC_CONTRACT_NET, nbWarehouses, nbDrones, nbClients)
-                    )
+                (5..50 step 10).flatMap { nbInitialClients ->
+                    (1..50 step 10).flatMap { nbDynamicClients ->
+                        listOf(
+                                createScenario(scenarioLength, true, ProtocolType.CONTRACT_NET, nbWarehouses, nbDrones, nbInitialClients, nbDynamicClients),
+                                createScenario(scenarioLength, true, ProtocolType.DYNAMIC_CONTRACT_NET, nbWarehouses, nbDrones, nbInitialClients, nbDynamicClients)
+                        )
+                    }
                 }
             }
         }

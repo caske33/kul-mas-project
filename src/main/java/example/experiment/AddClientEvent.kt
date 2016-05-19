@@ -10,14 +10,19 @@ import example.ProtocolType
 import example.Warehouse
 import org.apache.commons.math3.random.RandomGenerator
 
-class AddClientsEvent(val nbClients: Int,
+class AddClientsEvent(val nbInitialClients: Int,
+                      val nbDynamicClients: Int,
                       val maxClientTime: Long,
                       val protocolType: ProtocolType
 ) : DroneWorldEvent(0);
 
 class AddClientsEventHandler() : DroneWorldEventHandler<AddClientsEvent>() {
     override fun handleDroneTimedEvent(event: AddClientsEvent, simulator: Simulator, roadModel: RoadModel, rng: RandomGenerator) {
-        val clientTimes = (1..event.nbClients).map {
+        (1..event.nbInitialClients).forEach {
+            simulator.register(Client(roadModel.getRandomPosition(rng), rng, simulator, event.protocolType))
+        }
+
+        val clientTimes = (1..event.nbDynamicClients).map {
             Math.round(rng.nextDouble() * event.maxClientTime)
         }
         simulator.register(object : TickListener {
