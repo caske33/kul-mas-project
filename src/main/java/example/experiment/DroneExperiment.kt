@@ -23,7 +23,6 @@ import example.Warehouse
 //TODO: DroneExperiment scenario's uitdenken
 //TODO: Exerpiment: betere "rapporten"
 //TODO: Experiment: export to csv for raw results
-//TODO: Experiment values CFP timeout
 object DroneExperiment {
     val MAX_TIME_SCENARIO: Long = 2 * 60 * 60 * 1000
 
@@ -38,9 +37,9 @@ object DroneExperiment {
                         .addEventHandler(AddWarehousesEvent::class.java, AddWarehouseEventHandler())
                         .addModel(CommModel.builder()).build())
                 //.addScenarios(createScenariosWithMoreDrones(MAX_TIME_SCENARIO, 15, 1, 10, 2, 5, 5))
-                .addScenario(createScenario(MAX_TIME_SCENARIO, true, ProtocolType.CONTRACT_NET, 16, 3, 10, 10))
-                .addScenario(createScenario(MAX_TIME_SCENARIO, true, ProtocolType.CONTRACT_NET_CONFIRMATION, 16, 3, 10, 10))
-                .addScenario(createScenario(MAX_TIME_SCENARIO, true, ProtocolType.DYNAMIC_CONTRACT_NET, 16, 3, 10, 10))
+                .addScenario(createScenario(MAX_TIME_SCENARIO, true, ProtocolType.CONTRACT_NET, 4, 3, 10, 10))
+                .addScenario(createScenario(MAX_TIME_SCENARIO, true, ProtocolType.CONTRACT_NET_CONFIRMATION, 4, 3, 10, 10))
+                .addScenario(createScenario(MAX_TIME_SCENARIO, true, ProtocolType.DYNAMIC_CONTRACT_NET, 4, 3, 10, 10))
                 //.addScenarios(createScenariosWithMoreOfEverything(MAX_TIME_SCENARIO))
                 .withRandomSeed(RANDOM_SEED)
                 .usePostProcessor(ExperimentPostProcessor())
@@ -67,7 +66,7 @@ object DroneExperiment {
         } else {
             builder = builder
                     .withThreads(8)
-                    .repeat(100)
+                    .repeat(50)
         }
 
         val results_: Set<SimulationResult> = builder.perform(System.out, *args).get().results
@@ -75,7 +74,10 @@ object DroneExperiment {
 
         println("")
         results.groupBy { (it.simArgs.scenario.problemClass as DroneProblemClass).protocolType }.mapValues { averageFromResults(it.value) }.forEach {
-            println("${it.key} averaged € ${it.value} profit")
+            println("${it.key} averaged € ${it.value.totalProfit} profit, ${it.value.nbClientsNotDelivered} nbClientsNotDelivered, ${it.value.nbMessages/1000}k messages")
+        }
+        results.groupBy { (it.simArgs.scenario.problemClass as DroneProblemClass).protocolType }.mapValues { averageFromResults(it.value) }.forEach {
+            println("${it.key} averaged € ${it.value}")
         }
 
         /*

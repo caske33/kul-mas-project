@@ -24,5 +24,7 @@ val BATTERY_CHARGING_RATE = 0.000002 // battery per time unit
 
 val MIN_POINT = Point(0.0, 0.0)
 val MAX_POINT = Point(10.0, 10.0)
-val RANDOM_SEED = 123L
+val RANDOM_SEED = 1234L
 
+val NB_TICKS_WAITING_BUSY = 0L
+val NB_TICKS_WAITING_INELIGIBLE = 0L

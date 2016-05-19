@@ -20,10 +20,6 @@ class DronesBackAtWarehouseAndOrdersDoneStopCondition(val lastClientTime: Long) 
 
         val roadModel = provider.get(RoadModel::class.java)
 
-        val nbDronesNotInWarehouse = roadModel.getObjectsOfType(Drone::class.java).filter { drone ->
-            roadModel.getObjectsAt(drone, Warehouse::class.java).size == 0
-        }.size
-
         val nbDronesNotFullyCharged = roadModel.getObjectsOfType(Drone::class.java).filterNot {
             it.batteryLevel == 1.0 || it.crashed
         }.size

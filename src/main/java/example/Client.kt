@@ -16,8 +16,11 @@ import com.google.common.collect.ImmutableList
 import org.apache.commons.math3.random.RandomGenerator
 import java.text.FieldPosition
 
-//TODO continue cfp's uitsturen?
-class Client(val position: Point, val rng: RandomGenerator, val sim: Simulator, val protocolType: ProtocolType) : Depot(position), TickListener, CommUser {
+class Client(val position: Point,
+             val rng: RandomGenerator,
+             val sim: Simulator,
+             val protocolType: ProtocolType
+) : Depot(position), TickListener, CommUser {
 
     //private var hasContract: Boolean = false
     //private var messageBroadcast: Boolean = false
@@ -93,7 +96,7 @@ class Client(val position: Point, val rng: RandomGenerator, val sim: Simulator, 
             }
         }
 
-        // BidOnOrder
+        // Propose
         if(canNegotiate()){
             val proposeMessages = messages.filter { message -> message.contents is Propose }
             proposeMessages.minBy { message ->
@@ -114,11 +117,10 @@ class Client(val position: Point, val rng: RandomGenerator, val sim: Simulator, 
         }
 
         //Send DeclareOrder
-        if(canNegotiate()) {
-            if(nbTicksToWaitBeforeNextCfp == 0L)
-                device?.broadcast(CallForProposal(order!!))
-            else
-                nbTicksToWaitBeforeNextCfp--
+        if(canNegotiate() && nbTicksToWaitBeforeNextCfp == 0L) {
+            device?.broadcast(CallForProposal(order!!))
+        } else if(nbTicksToWaitBeforeNextCfp > 0) {
+            nbTicksToWaitBeforeNextCfp--
         }
 
         if(drone == null) {
@@ -127,10 +129,10 @@ class Client(val position: Point, val rng: RandomGenerator, val sim: Simulator, 
             if(refuseMessages.size > 0 && !hasLowRankingRefuse){
                 val anyBusy = refuseMessages.any { (it.contents as Refuse).refuseReason == RefuseReason.BUSY }
                 if(anyBusy)
-                    nbTicksToWaitBeforeNextCfp += 5
+                    nbTicksToWaitBeforeNextCfp += NB_TICKS_WAITING_BUSY
                 else {
                     // all ineligible
-                    nbTicksToWaitBeforeNextCfp += 20
+                    nbTicksToWaitBeforeNextCfp += NB_TICKS_WAITING_INELIGIBLE
                 }
             }
         }
