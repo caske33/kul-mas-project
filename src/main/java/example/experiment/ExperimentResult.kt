@@ -15,7 +15,12 @@ data class ExperimentResult(val nbCrashes: Int,
                             val maximumNbOrdersPerDrone: Int,
                             val estimatedTotalProfit: Double,
                             val estimatedNbCrashes: Double,
-                            val nbMessages: Int);
+                            val nbMessages: Int
+){
+    fun toCSV(): String {
+        return "$nbCrashes;$totalProfit;$nbClients;$nbClientsNotDelivered;$averageDeliveryTime;$nbDrones;$averageDistanceTravelledPerDrone;$maximumNbOrdersPerDrone;$estimatedTotalProfit;$estimatedNbCrashes;$nbMessages"
+    }
+}
 
 fun aggregateFromResults(results: List<SimulationExperimentResult>, f: (List<Double>) -> Double): AggregateExperimentResult {
   val results_ = results.map { it.resultObject }
@@ -52,5 +57,8 @@ data class AggregateExperimentResult(
         val estimatedTotalProfit: Double,
         val estimatedNbCrashes: Double,
         val nbMessages: Double) {
+    fun toCSV(): String {
+        return "$nbCrashes;$totalProfit;$nbClients;$nbClientsNotDelivered;$averageDeliveryTime;$nbDrones;$averageDistanceTravelledPerDrone;$maximumNbOrdersPerDrone;$estimatedTotalProfit;$estimatedNbCrashes;$nbMessages"
+    }
 }
 

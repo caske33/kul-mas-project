@@ -66,7 +66,7 @@ object DroneExperiment {
         } else {
             builder = builder
                     .withThreads(8)
-                    .repeat(50)
+                    .repeat(5)
         }
 
         val results_: Set<SimulationResult> = builder.perform(System.out, *args).get().results
@@ -78,6 +78,9 @@ object DroneExperiment {
         }
         results.groupBy { (it.simArgs.scenario.problemClass as DroneProblemClass).protocolType }.mapValues { averageFromResults(it.value) }.forEach {
             println("${it.key} averaged € ${it.value}")
+        }
+        for(r in results){
+            println("${(r.simArgs.scenario.problemClass as DroneProblemClass).toCSV()};${r.resultObject.toCSV()}")
         }
 
         /*
