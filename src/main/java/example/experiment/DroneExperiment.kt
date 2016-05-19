@@ -20,6 +20,9 @@ import example.Drone
 import example.*
 import example.Warehouse
 
+//TODO: DroneExperiment scenario's uitdenken
+//TODO: Exerpiment: betere "rapporten"
+//TODO: Experiment: export to csv for raw results
 object DroneExperiment {
     val MAX_TIME_SCENARIO: Long = 2 * 60 * 60 * 1000
 

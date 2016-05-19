@@ -16,6 +16,7 @@ import com.google.common.collect.ImmutableList
 import org.apache.commons.math3.random.RandomGenerator
 import java.text.FieldPosition
 
+//TODO continue cfp's uitsturen?
 class Client(val position: Point, val rng: RandomGenerator, val sim: Simulator, val protocolType: ProtocolType) : Depot(position), TickListener, CommUser {
 
     //private var hasContract: Boolean = false

@@ -14,9 +14,6 @@ import com.github.rinde.rinsim.geom.Point
 import com.google.common.base.Optional
 import org.apache.commons.math3.random.RandomGenerator
 
-//TODO: DroneExperiment scenario's uitdenken
-//TODO: Exerpiment: betere "rapporten"
-//TODO: Experiment: export to csv for raw results
 class Drone(position: Point, val rng: RandomGenerator, val chargesInWarehouse: Boolean, val protocolType: ProtocolType) :
         Vehicle(
                 VehicleDTO.builder()

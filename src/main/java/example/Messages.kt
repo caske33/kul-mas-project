@@ -13,7 +13,6 @@ enum class RefuseReason {
     LOW_RANKING
 }
 
-//TODO implement RejectProposal (CNET)
 class RejectProposal(val bid: Bid) : MessageContents
 class AcceptProposal(val bid: Bid) : MessageContents
 
