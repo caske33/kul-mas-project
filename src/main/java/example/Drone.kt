@@ -243,6 +243,43 @@ class Drone(position: Point, val rng: RandomGenerator, val chargesInWarehouse: B
             }
         }
 
+        // AcceptProposal
+        //TODO polymorphism?
+        val acceptProposalMessages = messages.filter { message -> message.contents is AcceptProposal }
+        if(protocolType == ProtocolType.CONTRACT_NET){
+            acceptProposalMessages.forEach { message ->
+                val contents = message.contents as AcceptProposal
+                if(contents.bid == currentBid){
+                    state = DroneState.PICKING_UP
+                    totalEstimatedProfit += -currentBid!!.bidValue
+                    totalEstimatedCrashes += currentBid!!.estimatedProbabilityFailure
+                }
+            }
+        } else {
+            if(canNegotiate() && acceptProposalMessages.size > 0){
+
+                // accept order with lowest (estimated) cost
+                val winningOrderMessage: Message = acceptProposalMessages.minBy { message -> (message.contents as AcceptProposal).bid.bidValue }!!
+                val winningBid = (winningOrderMessage.contents as AcceptProposal).bid
+
+                if(currentBid != null && currentBid!!.order != winningBid.order) {
+                    device?.send(Disagree(currentBid!!), currentBid!!.order.client)
+                }
+
+                device?.send(Agree(winningBid), winningOrderMessage.sender)
+                state = DroneState.PICKING_UP
+                currentBid = winningBid
+
+                totalEstimatedProfit += -currentBid!!.bidValue
+                totalEstimatedCrashes += currentBid!!.estimatedProbabilityFailure
+
+                // cancel other orders
+                acceptProposalMessages.filter { message -> message != winningOrderMessage }.forEach { message ->
+                    device?.send(Disagree((message.contents as AcceptProposal).bid), message.sender)
+                }
+            }
+        }
+
         // CallForProposal
         val callForProposals = messages.filter { message -> message.contents is CallForProposal }
         if(!canNegotiate()){
@@ -287,43 +324,6 @@ class Drone(position: Point, val rng: RandomGenerator, val chargesInWarehouse: B
             } else {
                 realBids.forEach { triple ->
                     device?.send(Propose(triple.third!!), triple.first.sender)
-                }
-            }
-        }
-
-        // AcceptProposal
-        //TODO polymorphism?
-        val acceptProposalMessages = messages.filter { message -> message.contents is AcceptProposal }
-        if(protocolType == ProtocolType.CONTRACT_NET){
-            acceptProposalMessages.forEach { message ->
-                val contents = message.contents as AcceptProposal
-                if(contents.bid == currentBid){
-                    state = DroneState.PICKING_UP
-                    totalEstimatedProfit += -currentBid!!.bidValue
-                    totalEstimatedCrashes += currentBid!!.estimatedProbabilityFailure
-                }
-            }
-        } else {
-            if(canNegotiate() && acceptProposalMessages.size > 0){
-
-                // accept order with lowest (estimated) cost
-                val winningOrderMessage: Message = acceptProposalMessages.minBy { message -> (message.contents as AcceptProposal).bid.bidValue }!!
-                val winningBid = (winningOrderMessage.contents as AcceptProposal).bid
-
-                if(currentBid != null && currentBid!!.order != winningBid.order) {
-                    device?.send(Disagree(currentBid!!), currentBid!!.order.client)
-                }
-
-                device?.send(Agree(winningBid), winningOrderMessage.sender)
-                state = DroneState.PICKING_UP
-                currentBid = winningBid
-
-                totalEstimatedProfit += -currentBid!!.bidValue
-                totalEstimatedCrashes += currentBid!!.estimatedProbabilityFailure
-
-                // cancel other orders
-                acceptProposalMessages.filter { message -> message != winningOrderMessage }.forEach { message ->
-                    device?.send(Disagree((message.contents as AcceptProposal).bid), message.sender)
                 }
             }
         }
