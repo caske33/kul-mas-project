@@ -19,7 +19,7 @@ data class ExperimentResult(val nbCrashes: Int,
                             val averageNbCallsForProposals: Double
 ){
     fun toCSV(): String {
-        return "$nbCrashes;$totalProfit;$nbClients;$nbClientsNotDelivered;$averageDeliveryTime;$nbDrones;$averageDistanceTravelledPerDrone;$maximumNbOrdersPerDrone;$estimatedTotalProfit;$estimatedNbCrashes;$nbMessages"
+        return "$nbCrashes;$totalProfit;$nbClients;$nbClientsNotDelivered;$averageDeliveryTime;$nbDrones;$averageDistanceTravelledPerDrone;$maximumNbOrdersPerDrone;$estimatedTotalProfit;$estimatedNbCrashes;$nbMessages;$averageNbCallsForProposals"
     }
 }
 
@@ -61,7 +61,7 @@ data class AggregateExperimentResult(
         val nbMessages: Double,
         val averageNbCallsForProposals: Double) {
     fun toCSV(): String {
-        return "$nbCrashes;$totalProfit;$nbClients;$nbClientsNotDelivered;$averageDeliveryTime;$nbDrones;$averageDistanceTravelledPerDrone;$maximumNbOrdersPerDrone;$estimatedTotalProfit;$estimatedNbCrashes;$nbMessages"
+        return "$nbCrashes;$totalProfit;$nbClients;$nbClientsNotDelivered;$averageDeliveryTime;$nbDrones;$averageDistanceTravelledPerDrone;$maximumNbOrdersPerDrone;$estimatedTotalProfit;$estimatedNbCrashes;$nbMessages;$averageNbCallsForProposals"
     }
 }
 
