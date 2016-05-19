@@ -25,11 +25,11 @@ object DroneExperiment {
 
     @JvmStatic fun main(args: Array<String>) {
         val uiSpeedUp = 1
-        val withGui: Boolean = false
+        val withGui: Boolean = true
 
         var builder = Experiment.builder()
                 .addConfiguration(MASConfiguration.builder()
-                        .addEventHandler(AddClientEvent::class.java, AddClientEventHandler())
+                        .addEventHandler(AddClientsEvent::class.java, AddClientsEventHandler())
                         .addEventHandler(AddDroneEvent::class.java, AddDroneEventHandler())
                         .addEventHandler(AddWarehousesEvent::class.java, AddWarehouseEventHandler())
                         .addModel(CommModel.builder()).build())
@@ -68,8 +68,8 @@ object DroneExperiment {
         val results_: Set<SimulationResult> = builder.perform(System.out, *args).get().results
         val results = results_.map { SimulationExperimentResult(it.simArgs, it.resultObject as ExperimentResult) }
 
-        results.groupBy { (it.simArgs.scenario.problemClass as DroneProblemClass).withDynamicContractNet }.mapValues { averageFromResults(it.value) }.forEach {
-            println("withDynamicContractNet:${it.key} averaged € ${it.value} profit")
+        results.groupBy { (it.simArgs.scenario.problemClass as DroneProblemClass).protocolType }.mapValues { averageFromResults(it.value) }.forEach {
+            println("${it.key} averaged € ${it.value} profit")
         }
 
         /*
@@ -115,11 +115,10 @@ object DroneExperiment {
      */
     internal fun createScenario(lastClientAddTime: Long,
                                 chargesInWarehouse: Boolean,
-                                withDynamicContractNet: Boolean,
+                                protocolType: ProtocolType,
                                 nbWarehouses: Int,
                                 nbDrones: Int,
-                                clientGroupSize: Int,
-                                nbClientGroups: Int
+                                nbClients: Int
     ): Scenario {
         var builder: Scenario.Builder = Scenario.builder()
                 .scenarioLength(lastClientAddTime)
@@ -132,21 +131,17 @@ object DroneExperiment {
                         DronesBackAtWarehouseAndOrdersDoneStopCondition(lastClientAddTime),
                         StopConditions.limitedTime(lastClientAddTime * 10)
                 ))
-                .problemClass(DroneProblemClass(chargesInWarehouse, withDynamicContractNet))
+                .problemClass(DroneProblemClass(chargesInWarehouse, protocolType))
 
         builder = builder.addEvent(AddWarehousesEvent(nbWarehouses))
         for (i in 1..nbDrones) {
-            builder = builder.addEvent(AddDroneEvent(chargesInWarehouse, withDynamicContractNet))
+            builder = builder.addEvent(AddDroneEvent(chargesInWarehouse, protocolType == ProtocolType.DYNAMIC_CONTRACT_NET))
         }
-        for (i in 0..nbClientGroups-1) {
-            val time = i * lastClientAddTime / nbClientGroups
-            for (j in 1..clientGroupSize){
-                builder = builder.addEvent(AddClientEvent(time, withDynamicContractNet))
-            }
-        }
+        builder = builder.addEvent(AddClientsEvent(nbClients, lastClientAddTime, protocolType))
         return builder.build()
     }
 
+    /*
     internal fun createScenariosWithMoreDrones(scenarioLength: Long,
                                                nbWarehouses: Int,
                                                nbDronesMin: Int, nbDronesMax: Int, nbDronesStep: Int,
@@ -156,18 +151,17 @@ object DroneExperiment {
             createScenario(scenarioLength, true, false, nbWarehouses, it, nbInitialClients, nbExtraClients)
         }
     }
+    */
 
     internal fun createScenariosWithMoreOfEverything(scenarioLength: Long): List<Scenario> {
         //TODO variate with chargesInWarehouse + withDynamicContractNet
         return (1..10 step 2).flatMap { nbDrones ->
             (1..5 step 1).flatMap { nbWarehouses ->
-                (1..50 step 10).flatMap { clientGroupSize ->
-                    (5..10 step 1).flatMap { nbClientGroups ->
-                        listOf(
-                                createScenario(scenarioLength, true, false, nbWarehouses, nbDrones, clientGroupSize, nbClientGroups),
-                                createScenario(scenarioLength, true, true, nbWarehouses, nbDrones, clientGroupSize, nbClientGroups)
-                        )
-                    }
+                (1..50 step 10).flatMap { nbClients ->
+                    listOf(
+                            createScenario(scenarioLength, true, ProtocolType.CONTRACT_NET, nbWarehouses, nbDrones, nbClients),
+                            createScenario(scenarioLength, true, ProtocolType.DYNAMIC_CONTRACT_NET, nbWarehouses, nbDrones, nbClients)
+                    )
                 }
             }
         }

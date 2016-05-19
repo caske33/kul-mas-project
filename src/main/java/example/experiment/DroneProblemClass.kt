@@ -1,11 +1,12 @@
 package example.experiment
 
 import com.github.rinde.rinsim.scenario.Scenario
+import example.ProtocolType
 
 class DroneProblemClass(val chargesInWarehouse: Boolean,
-                        val withDynamicContractNet: Boolean
+                        val protocolType: ProtocolType
 ) : Scenario.ProblemClass {
     override fun getId(): String? {
-        return "Problem-class. chargesInWarehouse:$chargesInWarehouse, withDynamicContractNet:$withDynamicContractNet"
+        return "Problem-class. chargesInWarehouse:$chargesInWarehouse, protocol:$protocolType"
     }
 }
