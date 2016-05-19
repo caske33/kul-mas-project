@@ -1,6 +1,7 @@
 package example.experiment
 
 import com.github.rinde.rinsim.core.Simulator
+import com.github.rinde.rinsim.core.model.comm.CommModel
 import com.github.rinde.rinsim.core.model.pdp.Vehicle
 import com.github.rinde.rinsim.core.model.road.RoadModel
 import com.github.rinde.rinsim.experiment.Experiment.SimArgs
@@ -14,6 +15,8 @@ class ExperimentPostProcessor() : PostProcessor<ExperimentResult> {
         val roadModel = sim.modelProvider.getModel(RoadModel::class.java)
         val drones = roadModel.getObjectsOfType(Drone::class.java)
         val clients = roadModel.getObjectsOfType(Client::class.java)
+
+        val commModel = sim.modelProvider.getModel(CommModel::class.java)
 
         val undeliveredClients = clients.filter { ! it.order!!.isDelivered }
         val totalProfit: Double =
@@ -33,7 +36,8 @@ class ExperimentPostProcessor() : PostProcessor<ExperimentResult> {
                 drones.map { it.totalDistanceTravelled }.average(),
                 drones.map { it.nbOrdersDelivered }.max()!!,
                 drones.map { it.totalEstimatedProfit }.sum() - undeliveredClients.filter { it.order!!.hasExpired }.map { it.order!!.fine } .sum(),
-                drones.map { it.totalEstimatedCrashes }.sum()
+                drones.map { it.totalEstimatedCrashes }.sum(),
+                commModel.usersAndDevices.map { it.value.receivedCount }.sum()
         )
     }
 

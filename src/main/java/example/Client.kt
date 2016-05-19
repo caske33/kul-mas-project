@@ -28,6 +28,8 @@ class Client(val position: Point, val rng: RandomGenerator, val sim: Simulator, 
     var drone: Drone? = null
       private set
 
+    private var nbTicksToWaitBeforeNextCfp: Long = 0
+
     val state: ClientState
       get() {
           if(order == null)
@@ -64,7 +66,7 @@ class Client(val position: Point, val rng: RandomGenerator, val sim: Simulator, 
         //
     }
 
-    override fun tick(timeLapse: TimeLapse?) {
+    override fun tick(timeLapse: TimeLapse) {
         val messages = device?.unreadMessages!!
 
         // CancelOrder
@@ -111,24 +113,31 @@ class Client(val position: Point, val rng: RandomGenerator, val sim: Simulator, 
             }
         }
 
-        if(drone == null) {
-            val refuseMessages = messages.filter { message -> message.contents is Refuse }
-            val nbIneligible = refuseMessages.count { msg ->
-                (msg.contents as Refuse).refuseReason == RefuseReason.INELIGIBLE
-            }
-            if (nbIneligible == refuseMessages.size && nbIneligible > 0) {
-                //order!!.hasExpired = true
-            }
-        }
-
         //Send DeclareOrder
         if(canNegotiate()) {
-            device?.broadcast(CallForProposal(order!!))
+            if(nbTicksToWaitBeforeNextCfp == 0L)
+                device?.broadcast(CallForProposal(order!!))
+            else
+                nbTicksToWaitBeforeNextCfp--
+        }
+
+        if(drone == null) {
+            val refuseMessages = messages.filter { message -> message.contents is Refuse }
+            val hasLowRankingRefuse = refuseMessages.any { (it.contents as Refuse).refuseReason == RefuseReason.LOW_RANKING }
+            if(refuseMessages.size > 0 && !hasLowRankingRefuse){
+                val anyBusy = refuseMessages.any { (it.contents as Refuse).refuseReason == RefuseReason.BUSY }
+                if(anyBusy)
+                    nbTicksToWaitBeforeNextCfp += 5
+                else {
+                    // all ineligible
+                    nbTicksToWaitBeforeNextCfp += 20
+                }
+            }
         }
 
         // ConfirmOrder: neglect, doesn't matter because 100% reliability
 
-        if(timeLapse!!.startTime > order!!.endTime && (!order!!.isDelivered)){
+        if(timeLapse.startTime > order!!.endTime && (!order!!.isDelivered)){
             order!!.hasExpired = true
         }
     }

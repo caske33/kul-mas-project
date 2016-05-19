@@ -23,6 +23,7 @@ import example.Warehouse
 //TODO: DroneExperiment scenario's uitdenken
 //TODO: Exerpiment: betere "rapporten"
 //TODO: Experiment: export to csv for raw results
+//TODO: Experiment values CFP timeout
 object DroneExperiment {
     val MAX_TIME_SCENARIO: Long = 2 * 60 * 60 * 1000
 
@@ -72,6 +73,7 @@ object DroneExperiment {
         val results_: Set<SimulationResult> = builder.perform(System.out, *args).get().results
         val results = results_.map { SimulationExperimentResult(it.simArgs, it.resultObject as ExperimentResult) }
 
+        println("")
         results.groupBy { (it.simArgs.scenario.problemClass as DroneProblemClass).protocolType }.mapValues { averageFromResults(it.value) }.forEach {
             println("${it.key} averaged € ${it.value} profit")
         }
