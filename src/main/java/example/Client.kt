@@ -104,6 +104,16 @@ class Client(val position: Point, val rng: RandomGenerator, val sim: Simulator, 
             }
         }
 
+        if(drone == null) {
+            val refuseMessages = messages.filter { message -> message.contents is Refuse }
+            val nbIneligible = refuseMessages.count { msg ->
+                (msg.contents as Refuse).refuseReason == RefuseReason.INELIGIBLE
+            }
+            if (nbIneligible == refuseMessages.size && nbIneligible > 0) {
+                order!!.hasExpired = true
+            }
+        }
+
         //Send DeclareOrder
         if(canNegotiate()) {
             device?.broadcast(CallForProposal(order!!))

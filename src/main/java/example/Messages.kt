@@ -6,7 +6,13 @@ class CallForProposal(val order: Order) : MessageContents
 
 class Propose(val bid: Bid) : MessageContents
 //TODO implement Refuse
-class Refuse(val order: Order) : MessageContents
+class Refuse(val order: Order, val refuseReason: RefuseReason) : MessageContents
+
+enum class RefuseReason {
+    BUSY,
+    INELIGIBLE,
+    LOW_RANKING
+}
 
 //TODO implement RejectProposal
 class RejectProposal(val bid: Bid) : MessageContents

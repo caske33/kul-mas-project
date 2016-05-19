@@ -235,22 +235,25 @@ class Drone(position: Point, val rng: RandomGenerator, val chargesInWarehouse: B
             }
         }
 
-        // DeclareOrder
-        if(canNegotiate()){
-            messages.filter { message -> message.contents is CallForProposal }.forEach { message ->
-                val order: Order = (message.contents as CallForProposal).order
-
+        // CallForProposal
+        messages.filter { message -> message.contents is CallForProposal }.forEach { message ->
+            val order: Order = (message.contents as CallForProposal).order
+            if(canNegotiate()){
                 val warehouse: Warehouse? = getCheapestWarehouse(order, time)
                 if(warehouse != null) {
                     val costPair = estimatedCostWarehouse(warehouse, order, time.startTime)
                     val cost = -order.price + costPair.first
-                    if(cost < order.fine) // Otherwise beter om order te laten vervallen
+                    if (cost < order.fine) // Otherwise beter om order te laten vervallen
                         device?.send(Propose(Bid(order, cost, warehouse, costPair.second)), message.sender)
+                } else {
+                    device?.send(Refuse(order, RefuseReason.INELIGIBLE), message.sender)
                 }
+            } else {
+                device?.send(Refuse(order, RefuseReason.BUSY), message.sender)
             }
         }
 
-        // AcceptOrder
+        // AcceptProposal
         val acceptOrderMessages = messages.filter { message -> message.contents is AcceptProposal }
         if(canNegotiate() && acceptOrderMessages.size > 0){
 
