@@ -129,7 +129,7 @@ class Drone(position: Point, val rng: RandomGenerator, val chargesInWarehouse: B
         crashed = true
 
         if(currentBid != null)
-            device?.send(DroneCrashMessage(), currentBid!!.order.client)
+            device?.send(Failure(), currentBid!!.order.client)
 
         throw DroneCrashException()
     }
@@ -236,13 +236,13 @@ class Drone(position: Point, val rng: RandomGenerator, val chargesInWarehouse: B
 
         // DeclareOrder
         if(canNegotiate()){
-            messages.filter { message -> message.contents is DeclareOrder }.forEach { message ->
-                val order: Order = (message.contents as DeclareOrder).order
+            messages.filter { message -> message.contents is CallForProposal }.forEach { message ->
+                val order: Order = (message.contents as CallForProposal).order
 
                 if(cachedBids.containsKey(order)){
                     val bid: Bid? = cachedBids.get(order)
                     if(bid != null){
-                        device?.send(BidOnOrder(cachedBids[order]!!), message.sender)
+                        device?.send(Propose(cachedBids[order]!!), message.sender)
                     }
                 } else {
                     val warehouse: Warehouse? = getCheapestWarehouse(order, time)
@@ -252,7 +252,7 @@ class Drone(position: Point, val rng: RandomGenerator, val chargesInWarehouse: B
                         if(cost < order.fine) {
                             // Otherwise beter om order te laten vervallen
                             val bid = Bid(order, cost, warehouse, costPair.second)
-                            device?.send(BidOnOrder(bid), message.sender)
+                            device?.send(Propose(bid), message.sender)
                             cachedBids.put(order, bid)
                         } else {
                             cachedBids.put(order, null)
@@ -265,18 +265,18 @@ class Drone(position: Point, val rng: RandomGenerator, val chargesInWarehouse: B
         }
 
         // AcceptOrder
-        val acceptOrderMessages = messages.filter { message -> message.contents is AcceptOrder }
+        val acceptOrderMessages = messages.filter { message -> message.contents is AcceptProposal }
         if(canNegotiate() && acceptOrderMessages.size > 0){
 
             // accept order with lowest (estimated) cost
-            val winningOrderMessage: Message = acceptOrderMessages.minBy { message -> (message.contents as AcceptOrder).bid.bidValue }!!
-            val winningBid = (winningOrderMessage.contents as AcceptOrder).bid
+            val winningOrderMessage: Message = acceptOrderMessages.minBy { message -> (message.contents as AcceptProposal).bid.bidValue }!!
+            val winningBid = (winningOrderMessage.contents as AcceptProposal).bid
 
             if(currentBid != null && currentBid!!.order != winningBid.order) {
-                device?.send(CancelOrder(currentBid!!), currentBid!!.order.client)
+                device?.send(Disagree(currentBid!!), currentBid!!.order.client)
             }
 
-            device?.send(ConfirmOrder(winningBid), winningOrderMessage.sender)
+            device?.send(Agree(winningBid), winningOrderMessage.sender)
             state = DroneState.PICKING_UP
             currentBid = winningBid
 
@@ -285,7 +285,7 @@ class Drone(position: Point, val rng: RandomGenerator, val chargesInWarehouse: B
 
             // cancel other orders
             acceptOrderMessages.filter { message -> message != winningOrderMessage }.forEach { message ->
-                device?.send(CancelOrder((message.contents as AcceptOrder).bid), message.sender)
+                device?.send(Disagree((message.contents as AcceptProposal).bid), message.sender)
             }
         }
     }

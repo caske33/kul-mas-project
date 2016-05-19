@@ -67,28 +67,28 @@ class Client(val position: Point, val rng: RandomGenerator, val sim: Simulator, 
         val messages = device?.unreadMessages!!
 
         // CancelOrder
-        messages.filter { message -> message.contents is CancelOrder  || message.contents is DroneCrashMessage }.forEach { message ->
+        messages.filter { message -> message.contents is Disagree || message.contents is Failure }.forEach { message ->
             if(message.sender == drone)
                 drone = null
         }
 
         // BidOnOrder
         if(canNegotiate()){
-            messages.filter { message -> message.contents is BidOnOrder }.minBy { message ->
-                (message.contents as BidOnOrder).bid.bidValue
+            messages.filter { message -> message.contents is Propose }.minBy { message ->
+                (message.contents as Propose).bid.bidValue
             }?.let { message ->
-                val winningBid = message.contents as BidOnOrder
+                val winningBid = message.contents as Propose
                 if(drone != null && message.sender != drone){
                     device?.send(GotBetterOffer(order!!), drone)
                 }
-                device?.send(AcceptOrder(winningBid.bid), message.sender)
+                device?.send(AcceptProposal(winningBid.bid), message.sender)
                 drone = message.sender as Drone
             }
         }
 
         //Send DeclareOrder
         if(canNegotiate()) {
-            device?.broadcast(DeclareOrder(order!!))
+            device?.broadcast(CallForProposal(order!!))
         }
 
         // ConfirmOrder: neglect, doesn't matter because 100% reliability

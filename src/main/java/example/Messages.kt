@@ -2,21 +2,19 @@ package example
 
 import com.github.rinde.rinsim.core.model.comm.MessageContents
 
-class DeclareOrder(val order: Order) : MessageContents
+class CallForProposal(val order: Order) : MessageContents
 
-class BidOnOrder(val bid: Bid) : MessageContents
+class Propose(val bid: Bid) : MessageContents
+//TODO implement Refuse
+class Refuse(val order: Order) : MessageContents
 
-class AcceptOrder(val bid: Bid) : MessageContents
+//TODO implement RejectProposal
+class RejectProposal(val bid: Bid) : MessageContents
+class AcceptProposal(val bid: Bid) : MessageContents
 
-class ConfirmOrder(val bid: Bid) : MessageContents{
-    val order: Order
-        get() = bid.order
-}
-class CancelOrder(val bid: Bid) : MessageContents{
-    val order: Order
-        get() = bid.order
-}
+class Agree(val bid: Bid) : MessageContents
+class Disagree(val bid: Bid) : MessageContents
 
 class GotBetterOffer(val orderThatIsLost: Order) : MessageContents
 
-class DroneCrashMessage() : MessageContents
+class Failure() : MessageContents
