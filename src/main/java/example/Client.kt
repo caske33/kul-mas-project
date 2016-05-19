@@ -16,7 +16,7 @@ import com.google.common.collect.ImmutableList
 import org.apache.commons.math3.random.RandomGenerator
 import java.text.FieldPosition
 
-class Client(val position: Point, val rng: RandomGenerator, val sim: Simulator, val usesDynamicContractNet: Boolean) : Depot(position), TickListener, CommUser {
+class Client(val position: Point, val rng: RandomGenerator, val sim: Simulator, val protocolType: ProtocolType) : Depot(position), TickListener, CommUser {
 
     //private var hasContract: Boolean = false
     //private var messageBroadcast: Boolean = false
@@ -118,17 +118,20 @@ class Client(val position: Point, val rng: RandomGenerator, val sim: Simulator, 
         throw IllegalArgumentException("should pass order of the client")
     }
 
-    fun canNegotiate(): Boolean = state.canNegotiate(usesDynamicContractNet)
+    fun canNegotiate(): Boolean = state.canNegotiate(protocolType)
 }
 
-enum class ClientState(val canNegotiate: Boolean,
-                       val canNegotiateDynamic: Boolean = canNegotiate) {
-    LOOKING_FOR_ORDER(false),
-    AWARDING(true),
-    ASSIGNED(false, true),
-    EXECUTING(false),
-    DELIVERED(false),
-    OVERTIME(false);
+enum class ClientState() {
+    LOOKING_FOR_ORDER,
+    AWARDING,
+    ASSIGNED,
+    EXECUTING,
+    DELIVERED,
+    OVERTIME;
 
-    fun canNegotiate(dynamic: Boolean) = if(dynamic) canNegotiateDynamic else canNegotiate
+    fun canNegotiate(protocolType: ProtocolType): Boolean =
+        when(protocolType) {
+            ProtocolType.CONTRACT_NET -> this == AWARDING
+            ProtocolType.DYNAMIC_CONTRACT_NET -> this == AWARDING || this == ASSIGNED
+        }
 }

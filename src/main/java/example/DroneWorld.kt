@@ -82,7 +82,7 @@ object DroneWorld {
 
         // add a number of drones on the road
         for (i in 0..NUM_DRONES - 1) {
-            sim.register(Drone(roadModel.getRandomPosition(rng), rng, true, false))
+            sim.register(Drone(roadModel.getRandomPosition(rng), rng, true, ProtocolType.CONTRACT_NET))
         }
 
         for (i in 0..NUM_HUBS - 1) {
@@ -90,7 +90,7 @@ object DroneWorld {
         }
 
         for (i in 0..NUM_INITIAL_CLIENTS - 1) {
-            sim.register(Client(roadModel.getRandomPosition(rng), rng, sim, false))
+            sim.register(Client(roadModel.getRandomPosition(rng), rng, sim, ProtocolType.CONTRACT_NET))
         }
 
         sim.addTickListener(object : TickListener {
@@ -98,7 +98,7 @@ object DroneWorld {
                 if (time.startTime > Integer.MAX_VALUE) {
                     sim.stop()
                 } else if (rng.nextDouble() < NEW_CUSTOMER_PROB) {
-                    sim.register(Client(roadModel.getRandomPosition(rng), rng, sim, false))
+                    sim.register(Client(roadModel.getRandomPosition(rng), rng, sim, ProtocolType.CONTRACT_NET))
                 }
             }
 

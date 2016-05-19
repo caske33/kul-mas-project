@@ -17,7 +17,7 @@ import org.apache.commons.math3.random.RandomGenerator
 //TODO: DroneExperiment scenario's uitdenken
 //TODO: Exerpiment: betere "rapporten"
 //TODO: Experiment: export to csv for raw results
-class Drone(position: Point, val rng: RandomGenerator, val chargesInWarehouse: Boolean, val usesDynamicContractNet: Boolean) :
+class Drone(position: Point, val rng: RandomGenerator, val chargesInWarehouse: Boolean, val protocolType: ProtocolType) :
         Vehicle(
                 VehicleDTO.builder()
                         .capacity(1)
@@ -352,18 +352,21 @@ class Drone(position: Point, val rng: RandomGenerator, val chargesInWarehouse: B
         device = builder.setReliability(1.0).build()
     }
 
-    fun canNegotiate() = state.canNegotiate(usesDynamicContractNet)
+    fun canNegotiate() = state.canNegotiate(protocolType)
 }
 
-enum class DroneState(private val canNegotiate: Boolean,
-                      private val canNegotiateDynamic: Boolean = canNegotiate) {
-    IDLE(true),
-    PICKING_UP(false, true),
-    CHARGING(true),
-    DELIVERING(false),
-    CHARGING_FOR_CONTRACT(false, true);
+enum class DroneState() {
+    IDLE,
+    PICKING_UP,
+    CHARGING,
+    DELIVERING,
+    CHARGING_FOR_CONTRACT;
 
-    fun canNegotiate(dynamic: Boolean) = if (dynamic) canNegotiateDynamic else canNegotiate
+    fun canNegotiate(protocolType: ProtocolType): Boolean =
+        when(protocolType) {
+            ProtocolType.CONTRACT_NET -> this == IDLE || this == CHARGING
+            ProtocolType.DYNAMIC_CONTRACT_NET -> this != DELIVERING
+        }
 }
 
 enum class BatteryState(val lowerBound: Double, val upperBound: Double, val failureLambda: Double) {

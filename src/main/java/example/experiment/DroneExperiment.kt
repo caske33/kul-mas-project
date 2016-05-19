@@ -135,7 +135,7 @@ object DroneExperiment {
 
         builder = builder.addEvent(AddWarehousesEvent(nbWarehouses))
         for (i in 1..nbDrones) {
-            builder = builder.addEvent(AddDroneEvent(chargesInWarehouse, protocolType == ProtocolType.DYNAMIC_CONTRACT_NET))
+            builder = builder.addEvent(AddDroneEvent(chargesInWarehouse, protocolType))
         }
         builder = builder.addEvent(AddClientsEvent(nbClients, lastClientAddTime, protocolType))
         return builder.build()

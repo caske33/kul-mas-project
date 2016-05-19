@@ -25,7 +25,7 @@ class AddClientsEventHandler() : DroneWorldEventHandler<AddClientsEvent>() {
                 clientTimes.filter { time ->
                     timeLapse.startTime <= time && time <= timeLapse.endTime
                 }.forEach {
-                    simulator.register(Client(roadModel.getRandomPosition(rng), rng, simulator, event.protocolType == ProtocolType.DYNAMIC_CONTRACT_NET))
+                    simulator.register(Client(roadModel.getRandomPosition(rng), rng, simulator, event.protocolType))
                 }
             }
 
