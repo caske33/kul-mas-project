@@ -176,10 +176,18 @@ class Drone(position: Point, val rng: RandomGenerator, val chargesInWarehouse: B
         }
     }
     fun deliver(time: Long) {
-        totalProfit += currentBid!!.order.client.deliverOrder(time, currentBid!!.order)
+        totalProfit += calculateProfit(time, currentBid!!.order)
+        device?.send(InformDone(currentBid!!.order, time), currentBid!!.order.client)
         currentBid = null
         nbOrdersDelivered++
     }
+    private fun calculateProfit(deliveryTime: Long, order: Order): Double {
+        if(deliveryTime < order.endTime)
+            return order.price
+        else
+            return -order.fine
+    }
+
     fun chargeUntilMove(time: TimeLapse) {
         if(!chargesInWarehouse){
             startDelivering(time)

@@ -72,6 +72,16 @@ class Client(val position: Point, val rng: RandomGenerator, val sim: Simulator, 
                 drone = null
         }
 
+        // InformDone
+        messages.filter { it.contents is InformDone }.forEach {
+            val contents = it.contents as InformDone
+            if(contents.order == order) {
+                order!!.deliveryTime = contents.deliveryTime
+            } else {
+                throw IllegalStateException("Received done for order of other client")
+            }
+        }
+
         // BidOnOrder
         if(canNegotiate()){
             messages.filter { message -> message.contents is Propose }.minBy { message ->
@@ -104,18 +114,6 @@ class Client(val position: Point, val rng: RandomGenerator, val sim: Simulator, 
 
     override fun getPosition(): Optional<Point>? {
         return Optional.of(position)
-    }
-
-    fun deliverOrder(deliverTime: Long, order: Order): Double {
-        if(order == this.order){
-            order.deliveryTime = deliverTime;
-
-            if(deliverTime < order.endTime)
-                return order.price
-            else
-                return -order.fine
-        }
-        throw IllegalArgumentException("should pass order of the client")
     }
 
     fun canNegotiate(): Boolean = state.canNegotiate(protocolType)
