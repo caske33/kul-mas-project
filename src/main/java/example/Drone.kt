@@ -45,6 +45,7 @@ class Drone(position: Point, val rng: RandomGenerator, val chargesInWarehouse: B
 
     var crashed: Boolean = false
       private set
+    var crashedByBattery: Boolean = false
 
     val warehouses: Set<Warehouse> by lazy {
         roadModel!!.getObjectsOfType(Warehouse::class.java)
@@ -90,7 +91,10 @@ class Drone(position: Point, val rng: RandomGenerator, val chargesInWarehouse: B
         batteryLevel -= moveProgress.distance().value / DISTANCE_PER_FULL_BATTERY
 
         if(batteryLevel < 0) {
-            throw IllegalStateException("Battery empty")
+            //TODO fix?
+            //throw IllegalStateException("Battery empty")
+            crash()
+            crashedByBattery = true
         }
 
         val probabilityToCrash = calculateProbabilityToCrash(startBatteryLevel, batteryLevel, moveProgress.distance().value)
@@ -349,7 +353,7 @@ class Drone(position: Point, val rng: RandomGenerator, val chargesInWarehouse: B
                                   batteryDrainTrajectory(warehouse.position, order.client.position) -
                                   batteryDrainTrajectory(order.client.position, getClosestWarehouse(order.client.position).position)
 
-            canGetInTime && endBatteryLevel > 0.001 && batteryBeforeWarehouse > 0
+            canGetInTime && endBatteryLevel > 0 && batteryBeforeWarehouse > 0
         }.map { warehouse ->
             Pair(warehouse, estimatedCostWarehouse(warehouse, order, time.startTime))
         }.filter { pair ->

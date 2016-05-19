@@ -16,10 +16,11 @@ data class ExperimentResult(val nbCrashes: Int,
                             val estimatedTotalProfit: Double,
                             val estimatedNbCrashes: Double,
                             val nbMessages: Int,
-                            val averageNbCallsForProposals: Double
+                            val averageNbCallsForProposals: Double,
+                            val nbCrashesByBattery: Int
 ){
     fun toCSV(): String {
-        return "$nbCrashes;$totalProfit;$nbClients;$nbClientsNotDelivered;$averageDeliveryTime;$nbDrones;$averageDistanceTravelledPerDrone;$maximumNbOrdersPerDrone;$estimatedTotalProfit;$estimatedNbCrashes;$nbMessages;$averageNbCallsForProposals"
+        return "$nbCrashes;$totalProfit;$nbClients;$nbClientsNotDelivered;$averageDeliveryTime;$nbDrones;$averageDistanceTravelledPerDrone;$maximumNbOrdersPerDrone;$estimatedTotalProfit;$estimatedNbCrashes;$nbMessages;$averageNbCallsForProposals$nbCrashesByBattery"
     }
 }
 
@@ -38,7 +39,8 @@ fun aggregateFromResults(results: List<SimulationExperimentResult>, f: (List<Dou
           results_.map { it.estimatedTotalProfit }.let(f),
           results_.map { it.estimatedNbCrashes }.let(f),
           results_.map { it.nbMessages.toDouble() }.let(f),
-          results_.map { it.averageNbCallsForProposals }.let(f)
+          results_.map { it.averageNbCallsForProposals }.let(f),
+          results_.map { it.nbCrashesByBattery.toDouble() }.let(f)
   )
 }
 fun averageFromResults(results: List<SimulationExperimentResult>) = aggregateFromResults(results, List<Double>::average)
@@ -59,9 +61,10 @@ data class AggregateExperimentResult(
         val estimatedTotalProfit: Double,
         val estimatedNbCrashes: Double,
         val nbMessages: Double,
-        val averageNbCallsForProposals: Double) {
+        val averageNbCallsForProposals: Double,
+        val nbCrashesByBattery: Double) {
     fun toCSV(): String {
-        return "$nbCrashes;$totalProfit;$nbClients;$nbClientsNotDelivered;$averageDeliveryTime;$nbDrones;$averageDistanceTravelledPerDrone;$maximumNbOrdersPerDrone;$estimatedTotalProfit;$estimatedNbCrashes;$nbMessages;$averageNbCallsForProposals"
+        return "$nbCrashes;$totalProfit;$nbClients;$nbClientsNotDelivered;$averageDeliveryTime;$nbDrones;$averageDistanceTravelledPerDrone;$maximumNbOrdersPerDrone;$estimatedTotalProfit;$estimatedNbCrashes;$nbMessages;$averageNbCallsForProposals;$nbCrashesByBattery"
     }
 }
 
