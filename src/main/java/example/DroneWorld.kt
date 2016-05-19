@@ -63,7 +63,6 @@ object DroneWorld {
 
         // initialize a new Simulator instance
         val sim = Simulator.builder()
-                .setTickLength(TICK_LENGTH)
                 .setRandomSeed(RANDOM_SEED)
                 .addModel(
                     RoadModelBuilders.plane()

@@ -87,7 +87,7 @@ class Drone(position: Point, val rng: RandomGenerator, val chargesInWarehouse: B
         totalDistanceTravelled += moveProgress.distance().value
 
         val startBatteryLevel = batteryLevel
-        batteryLevel -= moveProgress.distance().value / DISTANCE_PER_PERCENTAGE_BATTERY_DRAIN
+        batteryLevel -= moveProgress.distance().value / DISTANCE_PER_FULL_BATTERY
 
         if(batteryLevel < 0) {
             throw IllegalStateException("Battery empty")
@@ -156,7 +156,7 @@ class Drone(position: Point, val rng: RandomGenerator, val chargesInWarehouse: B
         val chargeDuration = Math.min(maxChargeDuration, Math.round(Math.ceil((1.0-batteryLevel) / BATTERY_CHARGING_RATE)))
         batteryLevel += chargeDuration * BATTERY_CHARGING_RATE
         time.consume(chargeDuration)
-        totalProfit -= (batteryLevel-oldBatteryLevel) * COST_FOR_ENERGY_PER_DISTANCE_UNIT * DISTANCE_PER_PERCENTAGE_BATTERY_DRAIN
+        totalProfit -= (batteryLevel-oldBatteryLevel) * COST_FOR_ENERGY_PER_DISTANCE_UNIT * DISTANCE_PER_FULL_BATTERY
 
         if(batteryLevel >= 1.0){
             batteryLevel = 1.0
@@ -402,7 +402,7 @@ class Drone(position: Point, val rng: RandomGenerator, val chargesInWarehouse: B
     }
 
     private fun batteryDrainTrajectory(p1: Point, p2: Point): Double
-        = Point.distance(p1, p2) / DISTANCE_PER_PERCENTAGE_BATTERY_DRAIN
+        = Point.distance(p1, p2) / DISTANCE_PER_FULL_BATTERY
 
     override fun getPosition(): Optional<Point> {
         val rm = roadModel

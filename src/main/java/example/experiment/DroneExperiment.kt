@@ -28,7 +28,7 @@ object DroneExperiment {
 
     @JvmStatic fun main(args: Array<String>) {
         val uiSpeedUp = 1
-        val withGui: Boolean = true
+        val withGui: Boolean = false
 
         var builder = Experiment.builder()
                 .addConfiguration(MASConfiguration.builder()
@@ -66,7 +66,7 @@ object DroneExperiment {
         } else {
             builder = builder
                     .withThreads(8)
-                    .repeat(1)
+                    .repeat(100)
         }
 
         val results_: Set<SimulationResult> = builder.perform(System.out, *args).get().results

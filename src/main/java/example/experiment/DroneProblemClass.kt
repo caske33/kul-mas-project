@@ -3,7 +3,7 @@ package example.experiment
 import com.github.rinde.rinsim.scenario.Scenario
 import example.ProtocolType
 
-class DroneProblemClass(val chargesInWarehouse: Boolean,
+data class DroneProblemClass(val chargesInWarehouse: Boolean,
                         val protocolType: ProtocolType
 ) : Scenario.ProblemClass {
     override fun getId(): String? {
