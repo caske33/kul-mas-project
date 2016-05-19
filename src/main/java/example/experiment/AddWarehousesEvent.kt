@@ -25,8 +25,8 @@ class AddWarehouseEventHandler() : DroneWorldEventHandler<AddWarehousesEvent>() 
             val totalWidth = max.x - min.x
             val totalHeight = max.y - min.y
 
-            var nbCellsX: Int = Math.round(Math.pow(2.0, Math.floor(exponent/2))).toInt()
-            var nbCellsY: Int = if (Math.round(exponent) % 2 == 0L) nbCellsX  else 2*nbCellsX
+            val nbCellsX: Int = Math.round(Math.pow(2.0, Math.floor(exponent/2))).toInt()
+            val nbCellsY: Int = if (Math.round(exponent) % 2 == 0L) nbCellsX  else 2*nbCellsX
             val cellWidth = totalWidth / nbCellsX
             val cellHeight = totalHeight / nbCellsY
 

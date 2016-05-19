@@ -156,7 +156,7 @@ object DroneExperiment {
     internal fun createScenariosWithMoreOfEverything(scenarioLength: Long): List<Scenario> {
         //TODO variate with chargesInWarehouse + withDynamicContractNet
         return (1..10 step 2).flatMap { nbDrones ->
-            (1..5 step 1).flatMap { nbWarehouses ->
+            (7..10 step 1).flatMap { nbWarehouses ->
                 (1..50 step 10).flatMap { nbClients ->
                     listOf(
                             createScenario(scenarioLength, true, ProtocolType.CONTRACT_NET, nbWarehouses, nbDrones, nbClients),
