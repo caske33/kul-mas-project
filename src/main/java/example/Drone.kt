@@ -349,7 +349,7 @@ class Drone(position: Point, val rng: RandomGenerator, val chargesInWarehouse: B
                                   batteryDrainTrajectory(warehouse.position, order.client.position) -
                                   batteryDrainTrajectory(order.client.position, getClosestWarehouse(order.client.position).position)
 
-            canGetInTime && endBatteryLevel > 0 && batteryBeforeWarehouse > 0
+            canGetInTime && endBatteryLevel > 0.001 && batteryBeforeWarehouse > 0
         }.map { warehouse ->
             Pair(warehouse, estimatedCostWarehouse(warehouse, order, time.startTime))
         }.filter { pair ->
