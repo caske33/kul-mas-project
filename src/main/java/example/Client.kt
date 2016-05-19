@@ -39,20 +39,18 @@ class Client(val position: Point,
       get() {
           if(order == null)
               return ClientState.LOOKING_FOR_ORDER
-
-          if(order!!.isDelivered)
+          else if(order!!.isDelivered)
               return ClientState.DELIVERED
-          if(order!!.hasExpired)
+          else if(order!!.hasExpired)
               return ClientState.OVERTIME
-
-          if(drone != null){
+          else if(drone != null){
               if(order!!.isPickedUp)
                   return ClientState.EXECUTING
               else
                   return ClientState.ASSIGNED
+          } else {
+              return ClientState.AWARDING
           }
-
-          return ClientState.AWARDING
       }
 
     override fun initRoadPDP(roadModel: RoadModel?, pdpModel: PDPModel?) {
@@ -75,16 +73,15 @@ class Client(val position: Point,
         val messages = device?.unreadMessages!!
 
         // Disagree
-        messages.filter { message -> message.contents is Disagree }.forEach { message ->
-            if((message.contents as Disagree).bid.order == order)
-                drone = null
+        messages.filter { message -> message.contents is Cancel }.forEach { message ->
+            if((message.contents as Cancel).bid.order == order)
+                cancelContract(message.sender)
             else
                 throw IllegalArgumentException("Should disagree on order of this client")
         }
         // Failure
         messages.filter { message -> message.contents is Failure }.forEach { message ->
-            if(message.sender == drone)
-                drone = null
+            cancelContract(message.sender)
         }
 
         // InformDone
@@ -158,6 +155,13 @@ class Client(val position: Point,
     }
 
     fun canNegotiate(): Boolean = state.canNegotiate(protocolType)
+
+    private fun cancelContract(sender: CommUser) {
+        if(sender == drone){
+            drone = null
+            order!!.pickedUpTime = -1L
+        }
+    }
 }
 
 enum class ClientState() {

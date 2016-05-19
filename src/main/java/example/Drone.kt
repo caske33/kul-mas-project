@@ -261,10 +261,9 @@ class Drone(position: Point, val rng: RandomGenerator, val chargesInWarehouse: B
             val winningBid = (winningOrderMessage.contents as AcceptProposal).bid
 
             if(currentBid != null && currentBid!!.order != winningBid.order) {
-                device?.send(Disagree(currentBid!!), currentBid!!.order.client)
+                device?.send(CancelContract(currentBid!!), currentBid!!.order.client)
             }
 
-            //TODO don't send agree in dynamisch contract net
             device?.send(Agree(winningBid), winningOrderMessage.sender)
             currentBid = winningBid
             state = DroneState.PICKING_UP
@@ -278,7 +277,9 @@ class Drone(position: Point, val rng: RandomGenerator, val chargesInWarehouse: B
             }
         } else {
             acceptProposalMessages.forEach { message ->
-                device?.send(Disagree((message.contents as AcceptProposal).bid), message.sender)
+                val contents = (message.contents as AcceptProposal)
+                if(contents.bid.order != currentBid!!.order)
+                    device?.send(Disagree(contents.bid), message.sender)
             }
         }
 
