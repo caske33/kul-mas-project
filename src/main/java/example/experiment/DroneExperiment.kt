@@ -26,7 +26,7 @@ object DroneExperiment {
 
     @JvmStatic fun main(args: Array<String>) {
         val uiSpeedUp = 1
-        val withGui: Boolean = true
+        val withGui: Boolean = false
 
         var builder = Experiment.builder()
                 .addConfiguration(MASConfiguration.builder()
@@ -56,6 +56,7 @@ object DroneExperiment {
                                     .withImageAssociation(Client::class.java, "/graphics/flat/deliverylocation.png")
                                     .withImageAssociation(Warehouse::class.java, "/graphics/flat/warehouse-32.png"))
                             .with(DroneCommRenderer.builder()
+                                    .withMessageCount()
                                     .withBatteryLevel()
                                     .withProfit())
                             .withTitleAppendix("Experiments DroneWorld"))

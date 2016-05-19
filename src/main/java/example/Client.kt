@@ -31,7 +31,7 @@ class Client(val position: Point,
     var drone: Drone? = null
       private set
 
-    private var nbTicksToWaitBeforeNextCfp: Long = 0
+    private var nextProposalTime: Long = 0
 
     var nbCallsForProposals: Int = 0
 
@@ -125,29 +125,21 @@ class Client(val position: Point,
             }
         }
 
-        //Send CallForProposal
-        if(canNegotiate() && nbTicksToWaitBeforeNextCfp == 0L) {
-            device?.broadcast(CallForProposal(order!!))
-            //TODO think about this one
-            nbTicksToWaitBeforeNextCfp += 2
-            nbCallsForProposals++
-        } else if(nbTicksToWaitBeforeNextCfp > 0) {
-            nbTicksToWaitBeforeNextCfp--
-        }
-
         //Refuse
         if(drone == null) {
             val refuseMessages = messages.filter { message -> message.contents is Refuse }
             val hasLowRankingRefuse = refuseMessages.any { (it.contents as Refuse).refuseReason == RefuseReason.LOW_RANKING }
             if(refuseMessages.size > 0 && !hasLowRankingRefuse){
-                val anyBusy = refuseMessages.any { (it.contents as Refuse).refuseReason == RefuseReason.BUSY }
-                if(anyBusy)
-                    nbTicksToWaitBeforeNextCfp += NB_TICKS_WAITING_BUSY
-                else {
-                    // all ineligible
-                    nbTicksToWaitBeforeNextCfp += NB_TICKS_WAITING_INELIGIBLE
-                }
+                val minProposalTime = refuseMessages.filter { (it.contents as Refuse).refuseReason == RefuseReason.BUSY }.map { (it.contents as Refuse).minimumBusyTime }.min()
+                if(minProposalTime != null)
+                    nextProposalTime = minProposalTime
             }
+        }
+
+        //Send CallForProposal
+        if(canNegotiate() && timeLapse.startTime >= nextProposalTime - 3000L) {
+            device?.broadcast(CallForProposal(order!!))
+            nbCallsForProposals++
         }
 
         // ConfirmOrder: neglect, doesn't matter because 100% reliability

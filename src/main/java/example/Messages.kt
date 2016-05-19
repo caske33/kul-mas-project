@@ -5,7 +5,7 @@ import com.github.rinde.rinsim.core.model.comm.MessageContents
 class CallForProposal(val order: Order) : MessageContents
 
 class Propose(val bid: Bid) : MessageContents
-class Refuse(val order: Order, val refuseReason: RefuseReason) : MessageContents
+class Refuse(val order: Order, val refuseReason: RefuseReason, val minimumBusyTime: Long = 0) : MessageContents
 
 enum class RefuseReason {
     BUSY,

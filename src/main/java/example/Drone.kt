@@ -285,8 +285,9 @@ class Drone(position: Point, val rng: RandomGenerator, val chargesInWarehouse: B
         // CallForProposal
         val callForProposals = messages.filter { message -> message.contents is CallForProposal }
         if(!canNegotiate()){
+            val minWaitTime = time.startTime + Math.round(Math.floor(Point.distance(realPosition, currentBid!!.order.client.position) / DRONE_SPEED_PER_MILLISECOND))
             callForProposals.forEach { message ->
-                device?.send(Refuse((message.contents as CallForProposal).order, RefuseReason.BUSY), message.sender)
+                device?.send(Refuse((message.contents as CallForProposal).order, RefuseReason.BUSY, minWaitTime), message.sender)
             }
         } else {
             val bids = callForProposals.map { message ->
