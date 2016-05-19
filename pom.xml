@@ -13,7 +13,26 @@
           <groupId>com.github.rinde</groupId>
           <artifactId>rinsim-ui</artifactId>
           <version>4.1.0</version>
+                     <exclusions>
+                         <!--  STAX comes with Java 1.6 -->
+                         <exclusion>
+                             <groupId>org.eclipse.swt</groupId>
+                             <artifactId>org.eclipse.swt.win32.win32.x86</artifactId>
+
+                         </exclusion>
+
+                     </exclusions>
+
+
       </dependency>
+             <!-- http://mvnrepository.com/artifact/org.eclipse.swt/org.eclipse.swt.win32.win32.x86_64 -->
+             <dependency>
+                 <groupId>org.eclipse.swt</groupId>
+                 <artifactId>org.eclipse.swt.win32.win32.x86_64</artifactId>
+                 <version>4.3</version>
+             </dependency>
+
+
       <dependency>
           <groupId>com.google.auto.value</groupId>
           <artifactId>auto-value</artifactId>
@@ -31,7 +50,7 @@
       </dependency>
   </dependencies>
     <properties>
-        <kotlin.version>1.0.1-2</kotlin.version>
+        <kotlin.version>1.0.2</kotlin.version>
     </properties>
 
     <build>
