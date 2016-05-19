@@ -52,7 +52,9 @@ class Drone(position: Point, val rng: RandomGenerator, val chargesInWarehouse: B
 
     val cachedBids: HashMap<Order, Bid?> = HashMap<Order, Bid?>()
 
-    var warehouses_: Set<Warehouse>? = null
+    val warehouses: Set<Warehouse> by lazy {
+        roadModel!!.getObjectsOfType(Warehouse::class.java)
+    }
 
     override fun afterTick(timeLapse: TimeLapse?) {
         // we don't need this in this example. This method is called after
@@ -142,13 +144,8 @@ class Drone(position: Point, val rng: RandomGenerator, val chargesInWarehouse: B
             doAction(time)
         }
     }
-    private fun getWarehouses(): Set<Warehouse> {
-        if(warehouses_ == null)
-            warehouses_ = roadModel.getObjectsOfType(Warehouse::class.java)
-        return warehouses_!!
-    }
     private fun getClosestWarehouse(p1: Point): Warehouse {
-        return getWarehouses().minBy { warehouse ->
+        return warehouses.minBy { warehouse ->
             Point.distance(p1, warehouse.position)
         }!!
     }
@@ -294,7 +291,7 @@ class Drone(position: Point, val rng: RandomGenerator, val chargesInWarehouse: B
     }
 
     private fun getCheapestWarehouse(order: Order, time: TimeLapse): Warehouse? {
-        return getWarehouses().filter { warehouse ->
+        return warehouses.filter { warehouse ->
             val distance = Point.distance(realPosition, warehouse.position) + Point.distance(warehouse.position, order.client.position)
             val traveltime = distance / DRONE_SPEED_PER_MILLISECOND
             val canGetInTime = time.startTime + traveltime < order.endTime
