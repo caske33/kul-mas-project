@@ -34,8 +34,9 @@ object DroneExperiment {
                         .addEventHandler(AddWarehousesEvent::class.java, AddWarehouseEventHandler())
                         .addModel(CommModel.builder()).build())
                 //.addScenarios(createScenariosWithMoreDrones(MAX_TIME_SCENARIO, 15, 1, 10, 2, 5, 5))
-                //.addScenario(createScenario(MAX_TIME_SCENARIO, false, ProtocolType.CONTRACT_NET, 3, 3, 2, 10))
-                .addScenario(createScenario(MAX_TIME_SCENARIO, false, ProtocolType.DYNAMIC_CONTRACT_NET, 3, 3, 2, 10))
+                .addScenario(createScenario(MAX_TIME_SCENARIO, true, ProtocolType.CONTRACT_NET, 16, 3, 10, 10))
+                .addScenario(createScenario(MAX_TIME_SCENARIO, true, ProtocolType.CONTRACT_NET_CONFIRMATION, 16, 3, 10, 10))
+                .addScenario(createScenario(MAX_TIME_SCENARIO, true, ProtocolType.DYNAMIC_CONTRACT_NET, 16, 3, 10, 10))
                 //.addScenarios(createScenariosWithMoreOfEverything(MAX_TIME_SCENARIO))
                 .withRandomSeed(RANDOM_SEED)
                 .usePostProcessor(ExperimentPostProcessor())
@@ -161,7 +162,7 @@ object DroneExperiment {
                 (5..50 step 10).flatMap { nbInitialClients ->
                     (1..50 step 10).flatMap { nbDynamicClients ->
                         listOf(
-                                createScenario(scenarioLength, true, ProtocolType.CONTRACT_NET, nbWarehouses, nbDrones, nbInitialClients, nbDynamicClients),
+                                createScenario(scenarioLength, true, ProtocolType.CONTRACT_NET_CONFIRMATION, nbWarehouses, nbDrones, nbInitialClients, nbDynamicClients),
                                 createScenario(scenarioLength, true, ProtocolType.DYNAMIC_CONTRACT_NET, nbWarehouses, nbDrones, nbInitialClients, nbDynamicClients)
                         )
                     }

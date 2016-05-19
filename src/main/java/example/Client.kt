@@ -92,7 +92,8 @@ class Client(val position: Point, val rng: RandomGenerator, val sim: Simulator, 
 
         // BidOnOrder
         if(canNegotiate()){
-            messages.filter { message -> message.contents is Propose }.minBy { message ->
+            val proposeMessages = messages.filter { message -> message.contents is Propose }
+            proposeMessages.minBy { message ->
                 (message.contents as Propose).bid.bidValue
             }?.let { message ->
                 val winningBid = message.contents as Propose
@@ -100,6 +101,11 @@ class Client(val position: Point, val rng: RandomGenerator, val sim: Simulator, 
                     device?.send(GotBetterOffer(order!!), drone)
                 }
                 device?.send(AcceptProposal(winningBid.bid), message.sender)
+                proposeMessages.forEach { otherMessage ->
+                    if(otherMessage != message){
+                        device?.send(RejectProposal((otherMessage.contents as Propose).bid), otherMessage.sender)
+                    }
+                }
                 drone = message.sender as Drone
             }
         }
@@ -110,7 +116,7 @@ class Client(val position: Point, val rng: RandomGenerator, val sim: Simulator, 
                 (msg.contents as Refuse).refuseReason == RefuseReason.INELIGIBLE
             }
             if (nbIneligible == refuseMessages.size && nbIneligible > 0) {
-                order!!.hasExpired = true
+                //order!!.hasExpired = true
             }
         }
 
@@ -148,6 +154,7 @@ enum class ClientState() {
     fun canNegotiate(protocolType: ProtocolType): Boolean =
         when(protocolType) {
             ProtocolType.CONTRACT_NET -> this == AWARDING
+            ProtocolType.CONTRACT_NET_CONFIRMATION -> this == AWARDING
             ProtocolType.DYNAMIC_CONTRACT_NET -> this == AWARDING || this == ASSIGNED
         }
 }
