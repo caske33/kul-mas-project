@@ -25,7 +25,7 @@ object DroneExperiment {
 
     @JvmStatic fun main(args: Array<String>) {
         val uiSpeedUp = 1
-        val withGui: Boolean = false
+        val withGui: Boolean = true
 
         var builder = Experiment.builder()
                 .addConfiguration(MASConfiguration.builder()
@@ -35,8 +35,8 @@ object DroneExperiment {
                         .addModel(CommModel.builder()).build())
                 //.addScenarios(createScenariosWithMoreDrones(MAX_TIME_SCENARIO, 15, 1, 10, 2, 5, 5))
                 //.addScenario(createScenario(MAX_TIME_SCENARIO, false, ProtocolType.CONTRACT_NET, 3, 3, 2, 10))
-                //.addScenario(createScenario(MAX_TIME_SCENARIO, false, ProtocolType.DYNAMIC_CONTRACT_NET, 3, 3, 2, 10))
-                .addScenarios(createScenariosWithMoreOfEverything(MAX_TIME_SCENARIO))
+                .addScenario(createScenario(MAX_TIME_SCENARIO, false, ProtocolType.DYNAMIC_CONTRACT_NET, 3, 3, 2, 10))
+                //.addScenarios(createScenariosWithMoreOfEverything(MAX_TIME_SCENARIO))
                 .withRandomSeed(RANDOM_SEED)
                 .usePostProcessor(ExperimentPostProcessor())
 

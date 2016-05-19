@@ -5,7 +5,6 @@ import com.github.rinde.rinsim.core.model.comm.MessageContents
 class CallForProposal(val order: Order) : MessageContents
 
 class Propose(val bid: Bid) : MessageContents
-//TODO implement Refuse
 class Refuse(val order: Order, val refuseReason: RefuseReason) : MessageContents
 
 enum class RefuseReason {
@@ -14,7 +13,7 @@ enum class RefuseReason {
     LOW_RANKING
 }
 
-//TODO implement RejectProposal
+//TODO implement RejectProposal (CNET)
 class RejectProposal(val bid: Bid) : MessageContents
 class AcceptProposal(val bid: Bid) : MessageContents
 
