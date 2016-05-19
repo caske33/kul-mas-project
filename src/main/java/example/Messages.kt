@@ -17,6 +17,7 @@ class RejectProposal(val bid: Bid) : MessageContents
 class AcceptProposal(val bid: Bid) : MessageContents
 
 class Agree(val bid: Bid) : MessageContents
+//TODO Disagree: split in Disagree en CancelOrder?
 class Disagree(val bid: Bid) : MessageContents
 
 class GotBetterOffer(val orderThatIsLost: Order) : MessageContents

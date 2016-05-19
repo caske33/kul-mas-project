@@ -229,7 +229,7 @@ public final class DroneCommRenderer extends AbstractTypedCanvasRenderer<CommUse
         }
 
         private String getNameOfClient(Client client) {
-            return Integer.toString(client.hashCode()).substring(0, 3);
+            return Integer.toHexString(client.hashCode()).substring(0, 3);
         }
     }
 

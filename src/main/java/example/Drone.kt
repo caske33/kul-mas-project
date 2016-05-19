@@ -255,28 +255,30 @@ class Drone(position: Point, val rng: RandomGenerator, val chargesInWarehouse: B
                     totalEstimatedCrashes += currentBid!!.estimatedProbabilityFailure
                 }
             }
+        } else if(canNegotiate() && acceptProposalMessages.size > 0){
+            // accept order with lowest (estimated) cost
+            val winningOrderMessage: Message = acceptProposalMessages.minBy { message -> (message.contents as AcceptProposal).bid.bidValue }!!
+            val winningBid = (winningOrderMessage.contents as AcceptProposal).bid
+
+            if(currentBid != null && currentBid!!.order != winningBid.order) {
+                device?.send(Disagree(currentBid!!), currentBid!!.order.client)
+            }
+
+            //TODO don't send agree in dynamisch contract net
+            device?.send(Agree(winningBid), winningOrderMessage.sender)
+            currentBid = winningBid
+            state = DroneState.PICKING_UP
+
+            totalEstimatedProfit += -currentBid!!.bidValue
+            totalEstimatedCrashes += currentBid!!.estimatedProbabilityFailure
+
+            // cancel other orders
+            acceptProposalMessages.filter { message -> message != winningOrderMessage }.forEach { message ->
+                device?.send(Disagree((message.contents as AcceptProposal).bid), message.sender)
+            }
         } else {
-            if(canNegotiate() && acceptProposalMessages.size > 0){
-
-                // accept order with lowest (estimated) cost
-                val winningOrderMessage: Message = acceptProposalMessages.minBy { message -> (message.contents as AcceptProposal).bid.bidValue }!!
-                val winningBid = (winningOrderMessage.contents as AcceptProposal).bid
-
-                if(currentBid != null && currentBid!!.order != winningBid.order) {
-                    device?.send(Disagree(currentBid!!), currentBid!!.order.client)
-                }
-
-                device?.send(Agree(winningBid), winningOrderMessage.sender)
-                state = DroneState.PICKING_UP
-                currentBid = winningBid
-
-                totalEstimatedProfit += -currentBid!!.bidValue
-                totalEstimatedCrashes += currentBid!!.estimatedProbabilityFailure
-
-                // cancel other orders
-                acceptProposalMessages.filter { message -> message != winningOrderMessage }.forEach { message ->
-                    device?.send(Disagree((message.contents as AcceptProposal).bid), message.sender)
-                }
+            acceptProposalMessages.forEach { message ->
+                device?.send(Disagree((message.contents as AcceptProposal).bid), message.sender)
             }
         }
 

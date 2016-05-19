@@ -46,10 +46,10 @@ class Client(val position: Point,
               return ClientState.OVERTIME
 
           if(drone != null){
-              if(! order!!.isPickedUp)
-                  return ClientState.ASSIGNED
-              else
+              if(order!!.isPickedUp)
                   return ClientState.EXECUTING
+              else
+                  return ClientState.ASSIGNED
           }
 
           return ClientState.AWARDING
@@ -74,8 +74,15 @@ class Client(val position: Point,
     override fun tick(timeLapse: TimeLapse) {
         val messages = device?.unreadMessages!!
 
-        // CancelOrder
-        messages.filter { message -> message.contents is Disagree || message.contents is Failure }.forEach { message ->
+        // Disagree
+        messages.filter { message -> message.contents is Disagree }.forEach { message ->
+            if((message.contents as Disagree).bid.order == order)
+                drone = null
+            else
+                throw IllegalArgumentException("Should disagree on order of this client")
+        }
+        // Failure
+        messages.filter { message -> message.contents is Failure }.forEach { message ->
             if(message.sender == drone)
                 drone = null
         }
@@ -121,11 +128,14 @@ class Client(val position: Point,
         //Send CallForProposal
         if(canNegotiate() && nbTicksToWaitBeforeNextCfp == 0L) {
             device?.broadcast(CallForProposal(order!!))
+            //TODO think about this one
+            nbTicksToWaitBeforeNextCfp += 2
             nbCallsForProposals++
         } else if(nbTicksToWaitBeforeNextCfp > 0) {
             nbTicksToWaitBeforeNextCfp--
         }
 
+        //Refuse
         if(drone == null) {
             val refuseMessages = messages.filter { message -> message.contents is Refuse }
             val hasLowRankingRefuse = refuseMessages.any { (it.contents as Refuse).refuseReason == RefuseReason.LOW_RANKING }
