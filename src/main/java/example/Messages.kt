@@ -20,3 +20,4 @@ class GotBetterOffer(val orderThatIsLost: Order) : MessageContents
 class Failure() : MessageContents
 
 class InformDone(val order: Order, val deliveryTime: Long) : MessageContents
+class InformPickedUp(val order: Order, val pickupTime: Long) : MessageContents

@@ -38,7 +38,7 @@ class Client(val position: Point, val rng: RandomGenerator, val sim: Simulator, 
               return ClientState.OVERTIME
 
           if(drone != null){
-              if(drone!!.canNegotiate())
+              if(! order!!.isPickedUp)
                   return ClientState.ASSIGNED
               else
                   return ClientState.EXECUTING
@@ -79,6 +79,14 @@ class Client(val position: Point, val rng: RandomGenerator, val sim: Simulator, 
                 order!!.deliveryTime = contents.deliveryTime
             } else {
                 throw IllegalStateException("Received done for order of other client")
+            }
+        }
+
+        // InformPickedUp
+        messages.filter { it.contents is InformPickedUp }.forEach {
+            val contents = it.contents as InformPickedUp
+            if(contents.order == order) {
+                contents.order.pickedUpTime = contents.pickupTime
             }
         }
 

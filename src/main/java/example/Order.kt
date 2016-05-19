@@ -15,4 +15,7 @@ class Order(
     var deliveryTime: Long = -1
     val isDelivered: Boolean
         get() = deliveryTime >= 0 && deliveryTime <= endTime
+    var pickedUpTime: Long = -1
+    val isPickedUp: Boolean
+        get() = pickedUpTime >= 0 && pickedUpTime <= endTime
 }
