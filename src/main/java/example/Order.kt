@@ -9,7 +9,6 @@ class Order(
         val fine : Double
 ){
     var hasExpired = false
-    var warehouse: Warehouse? = null
     var drone: Drone? = null
 
     var deliveryTime: Long = -1

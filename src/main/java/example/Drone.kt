@@ -45,6 +45,7 @@ class Drone(position: Point, val rng: RandomGenerator, val chargesInWarehouse: B
 
     var crashed: Boolean = false
       private set
+    var crashedByBattery: Boolean = false
 
     val warehouses: Set<Warehouse> by lazy {
         roadModel!!.getObjectsOfType(Warehouse::class.java)
@@ -90,7 +91,10 @@ class Drone(position: Point, val rng: RandomGenerator, val chargesInWarehouse: B
         batteryLevel -= moveProgress.distance().value / DISTANCE_PER_FULL_BATTERY
 
         if(batteryLevel < 0) {
-            throw IllegalStateException("Battery empty")
+            //TODO fix?
+            //throw IllegalStateException("Battery empty")
+            crash()
+            crashedByBattery = true
         }
 
         val probabilityToCrash = calculateProbabilityToCrash(startBatteryLevel, batteryLevel, moveProgress.distance().value)
@@ -243,11 +247,52 @@ class Drone(position: Point, val rng: RandomGenerator, val chargesInWarehouse: B
             }
         }
 
+        // AcceptProposal
+        //TODO polymorphism?
+        val acceptProposalMessages = messages.filter { message -> message.contents is AcceptProposal }
+        if(protocolType == ProtocolType.CONTRACT_NET){
+            acceptProposalMessages.forEach { message ->
+                val contents = message.contents as AcceptProposal
+                if(contents.bid == currentBid){
+                    state = DroneState.PICKING_UP
+                    totalEstimatedProfit += -currentBid!!.bidValue
+                    totalEstimatedCrashes += currentBid!!.estimatedProbabilityFailure
+                }
+            }
+        } else if(canNegotiate() && acceptProposalMessages.size > 0){
+            // accept order with lowest (estimated) cost
+            val winningOrderMessage: Message = acceptProposalMessages.minBy { message -> (message.contents as AcceptProposal).bid.bidValue }!!
+            val winningBid = (winningOrderMessage.contents as AcceptProposal).bid
+
+            if(currentBid != null && currentBid!!.order != winningBid.order) {
+                device?.send(CancelContract(currentBid!!), currentBid!!.order.client)
+            }
+
+            device?.send(Agree(winningBid), winningOrderMessage.sender)
+            currentBid = winningBid
+            state = DroneState.PICKING_UP
+
+            totalEstimatedProfit += -currentBid!!.bidValue
+            totalEstimatedCrashes += currentBid!!.estimatedProbabilityFailure
+
+            // cancel other orders
+            acceptProposalMessages.filter { message -> message != winningOrderMessage }.forEach { message ->
+                device?.send(Disagree((message.contents as AcceptProposal).bid), message.sender)
+            }
+        } else {
+            acceptProposalMessages.forEach { message ->
+                val contents = (message.contents as AcceptProposal)
+                if(contents.bid.order != currentBid!!.order)
+                    device?.send(Disagree(contents.bid), message.sender)
+            }
+        }
+
         // CallForProposal
         val callForProposals = messages.filter { message -> message.contents is CallForProposal }
         if(!canNegotiate()){
+            val minWaitTime = time.startTime + Math.round(Math.floor(Point.distance(realPosition, currentBid!!.order.client.position) / DRONE_SPEED_PER_MILLISECOND))
             callForProposals.forEach { message ->
-                device?.send(Refuse((message.contents as CallForProposal).order, RefuseReason.BUSY), message.sender)
+                device?.send(Refuse((message.contents as CallForProposal).order, RefuseReason.BUSY, minWaitTime), message.sender)
             }
         } else {
             val bids = callForProposals.map { message ->
@@ -287,43 +332,6 @@ class Drone(position: Point, val rng: RandomGenerator, val chargesInWarehouse: B
             } else {
                 realBids.forEach { triple ->
                     device?.send(Propose(triple.third!!), triple.first.sender)
-                }
-            }
-        }
-
-        // AcceptProposal
-        //TODO polymorphism?
-        val acceptProposalMessages = messages.filter { message -> message.contents is AcceptProposal }
-        if(protocolType == ProtocolType.CONTRACT_NET){
-            acceptProposalMessages.forEach { message ->
-                val contents = message.contents as AcceptProposal
-                if(contents.bid == currentBid){
-                    state = DroneState.PICKING_UP
-                    totalEstimatedProfit += -currentBid!!.bidValue
-                    totalEstimatedCrashes += currentBid!!.estimatedProbabilityFailure
-                }
-            }
-        } else {
-            if(canNegotiate() && acceptProposalMessages.size > 0){
-
-                // accept order with lowest (estimated) cost
-                val winningOrderMessage: Message = acceptProposalMessages.minBy { message -> (message.contents as AcceptProposal).bid.bidValue }!!
-                val winningBid = (winningOrderMessage.contents as AcceptProposal).bid
-
-                if(currentBid != null && currentBid!!.order != winningBid.order) {
-                    device?.send(Disagree(currentBid!!), currentBid!!.order.client)
-                }
-
-                device?.send(Agree(winningBid), winningOrderMessage.sender)
-                state = DroneState.PICKING_UP
-                currentBid = winningBid
-
-                totalEstimatedProfit += -currentBid!!.bidValue
-                totalEstimatedCrashes += currentBid!!.estimatedProbabilityFailure
-
-                // cancel other orders
-                acceptProposalMessages.filter { message -> message != winningOrderMessage }.forEach { message ->
-                    device?.send(Disagree((message.contents as AcceptProposal).bid), message.sender)
                 }
             }
         }

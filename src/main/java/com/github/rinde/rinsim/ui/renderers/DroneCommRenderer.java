@@ -209,7 +209,7 @@ public final class DroneCommRenderer extends AbstractTypedCanvasRenderer<CommUse
                         .append(')');
             }
             if (sb.length() > 0) {
-                helper.drawString(sb.toString(), user.getPosition().get(), true);
+                helper.drawString(sb.toString(), Point.diff(user.getPosition().get(), new Point(0.7, 0.0)), true);
             }
             if (user instanceof Drone){
                 Drone drone = (Drone) user;
@@ -229,7 +229,7 @@ public final class DroneCommRenderer extends AbstractTypedCanvasRenderer<CommUse
         }
 
         private String getNameOfClient(Client client) {
-            return Integer.toString(client.hashCode()).substring(0, 3);
+            return Integer.toHexString(client.hashCode()).substring(0, 3);
         }
     }
 
