@@ -20,7 +20,7 @@ data class ExperimentResult(val nbCrashes: Int,
                             val nbCrashesByBattery: Int
 ){
     fun toCSV(): String {
-        return "$nbCrashes;$totalProfit;$nbClients;$nbClientsNotDelivered;$averageDeliveryTime;$nbDrones;$averageDistanceTravelledPerDrone;$maximumNbOrdersPerDrone;$estimatedTotalProfit;$estimatedNbCrashes;$nbMessages;$averageNbCallsForProposals$nbCrashesByBattery"
+        return "$nbCrashes;$totalProfit;$nbClients;$nbClientsNotDelivered;$averageDeliveryTime;$nbDrones;$averageDistanceTravelledPerDrone;$maximumNbOrdersPerDrone;$estimatedTotalProfit;$estimatedNbCrashes;$nbMessages;$averageNbCallsForProposals;$nbCrashesByBattery"
     }
 }
 
