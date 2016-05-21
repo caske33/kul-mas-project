@@ -1,0 +1,1 @@
+mvn exec:java -Dexec.args="$1 -t 4" > $1-$HOSTNAME.txt
