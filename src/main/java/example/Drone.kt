@@ -42,6 +42,8 @@ class Drone(position: Point, val rng: RandomGenerator, val chargesInWarehouse: B
       private set
     var nbOrdersDelivered: Int = 0
       private set
+    var nbSwitches: Int = 0
+      private set
 
     var crashed: Boolean = false
       private set
@@ -265,6 +267,7 @@ class Drone(position: Point, val rng: RandomGenerator, val chargesInWarehouse: B
             val winningBid = (winningOrderMessage.contents as AcceptProposal).bid
 
             if(currentBid != null && currentBid!!.order != winningBid.order) {
+                nbSwitches++
                 device?.send(CancelContract(currentBid!!), currentBid!!.order.client)
             }
 

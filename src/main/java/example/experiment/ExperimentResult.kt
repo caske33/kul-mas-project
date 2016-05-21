@@ -17,10 +17,12 @@ data class ExperimentResult(val nbCrashes: Int,
                             val estimatedNbCrashes: Double,
                             val nbMessages: Int,
                             val averageNbCallsForProposals: Double,
-                            val nbCrashesByBattery: Int
+                            val nbCrashesByBattery: Int,
+                            val averageNbSwitchesPerDrone: Double,
+                            val averageNbSwitchesPerClient: Double
 ){
     fun toCSV(): String {
-        return "$nbCrashes;$totalProfit;$nbClients;$nbClientsNotDelivered;$averageDeliveryTime;$nbDrones;$averageDistanceTravelledPerDrone;$maximumNbOrdersPerDrone;$estimatedTotalProfit;$estimatedNbCrashes;$nbMessages;$averageNbCallsForProposals;$nbCrashesByBattery"
+        return "$nbCrashes;$totalProfit;$nbClients;$nbClientsNotDelivered;$averageDeliveryTime;$nbDrones;$averageDistanceTravelledPerDrone;$maximumNbOrdersPerDrone;$estimatedTotalProfit;$estimatedNbCrashes;$nbMessages;$averageNbCallsForProposals;$nbCrashesByBattery;$averageNbSwitchesPerDrone;$averageNbSwitchesPerClient"
     }
 }
 
@@ -40,7 +42,10 @@ fun aggregateFromResults(results: List<SimulationExperimentResult>, f: (List<Dou
           results_.map { it.estimatedNbCrashes }.let(f),
           results_.map { it.nbMessages.toDouble() }.let(f),
           results_.map { it.averageNbCallsForProposals }.let(f),
-          results_.map { it.nbCrashesByBattery.toDouble() }.let(f)
+          results_.map { it.nbCrashesByBattery.toDouble() }.let(f),
+          results_.map { it.averageNbSwitchesPerDrone }.let(f),
+          results_.map { it.averageNbSwitchesPerClient }.let(f)
+
   )
 }
 fun averageFromResults(results: List<SimulationExperimentResult>) = aggregateFromResults(results, List<Double>::average)
@@ -62,9 +67,12 @@ data class AggregateExperimentResult(
         val estimatedNbCrashes: Double,
         val nbMessages: Double,
         val averageNbCallsForProposals: Double,
-        val nbCrashesByBattery: Double) {
+        val nbCrashesByBattery: Double,
+        val averageNbSwitchesPerDrone: Double,
+        val averageNbSwitchesPerClient: Double
+) {
     fun toCSV(): String {
-        return "$nbCrashes;$totalProfit;$nbClients;$nbClientsNotDelivered;$averageDeliveryTime;$nbDrones;$averageDistanceTravelledPerDrone;$maximumNbOrdersPerDrone;$estimatedTotalProfit;$estimatedNbCrashes;$nbMessages;$averageNbCallsForProposals;$nbCrashesByBattery"
+        return "$nbCrashes;$totalProfit;$nbClients;$nbClientsNotDelivered;$averageDeliveryTime;$nbDrones;$averageDistanceTravelledPerDrone;$maximumNbOrdersPerDrone;$estimatedTotalProfit;$estimatedNbCrashes;$nbMessages;$averageNbCallsForProposals;$nbCrashesByBattery;$averageNbSwitchesPerDrone;$averageNbSwitchesPerClient"
     }
 }
 

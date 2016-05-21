@@ -34,6 +34,7 @@ class Client(val position: Point,
     private var nextProposalTime: Long = 0
 
     var nbCallsForProposals: Int = 0
+    var nbSwitches: Int = 0
 
     val state: ClientState
       get() {
@@ -110,6 +111,7 @@ class Client(val position: Point,
             }?.let { message ->
                 val winningBid = message.contents as Propose
                 if(drone != null && message.sender != drone){
+                    nbSwitches++
                     device?.send(GotBetterOffer(order!!), drone)
                 }
                 device?.send(AcceptProposal(winningBid.bid), message.sender)

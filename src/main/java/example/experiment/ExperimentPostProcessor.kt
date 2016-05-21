@@ -39,7 +39,9 @@ class ExperimentPostProcessor() : PostProcessor<ExperimentResult> {
                 drones.map { it.totalEstimatedCrashes }.sum(),
                 commModel.usersAndDevices.map { it.value.receivedCount }.sum(),
                 clients.map { it.nbCallsForProposals }.average(),
-                drones.filter { it.crashedByBattery }.size
+                drones.filter { it.crashedByBattery }.size,
+                drones.map { it.nbSwitches }.average(),
+                clients.map { it.nbSwitches }.average()
         )
     }
 
