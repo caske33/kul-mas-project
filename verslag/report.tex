@@ -30,8 +30,33 @@
 \section{Introduction}
 \commentV{Zie https://bitbucket.org/VictorLP/mas/wiki/Notities}
 \subsection{Objectives}
-\outline{\proposalV{Investigate the performance changes between DynCNET/confirmation and CNET. \\ (bijbehorende question: what is the relative performance of cnet, confirmation and dyncnet)}}
+\outline{\proposalV{Investigate the performance changes between DynCNET/confirmation and CNET. (bijbehorende question: what is the relative performance of cnet, confirmation and dyncnet)}}
+The objective of this paper is to compare 2 extensions of Contract Net (CNET), namely Contract Net with Confirmation (CNC) and Dynamic Contract Net (DCNET) to CNET itself. We do this in a drone delivery setting where all agents (both the Drones and the Clients) act as homo economicus. We also investigate whether any of these protocols are suited for a Drone company to deliver packages from warehouses (with infinite stock) to clients. We will also check the influence of the number of Drones, Clients and Warehouses on the profit the company can make.
 \subsection{Hypotheses}
+\noindent\textit{Is there a difference between CNET, CNC and DCNET in the profit the company can make?} \\
+We expect that the company can make more profit using DCNET than using CNC than using CNET. \\
+
+\noindent\textit{Is there a difference in average delivery time between CNET, CNC and DCNET?} \\
+We expect that CNC and CNET will deliver faster than DCNET (as DCNET has wasted time when it switches). We don't expect a difference between CNC and CNET as both will start delivering fast and won't waste any time by switching.\\
+
+\noindent\textit{Is there a difference in the number of clients that are not delivered between CNET, CNC and DCNET?} \\
+We expect that CNET and CNC will deliver the same amount of clients and DCNET less. Again because of the switching.\\
+
+\noindent\textit{Is there a difference in the number of messages that needs to be exchanged between CNET, CNC and DCNET?}\\
+We expect that CNC will need less messages because we expect less rounds of bidding. CNET will take more messages but still less than DCNET which needs a lot of messages to make sure the best contract is being executed. \\
+
+\noindent\textit{Is it possible to make a profit using any of the 3 approaches?}\\
+We expect that all 3 approaches should be profitable give the right number of warehouses, drones and clients.\\
+
+\noindent\textit{What is the influence of the number of drones on the profit?}\\
+We expect the profit to scale linearly with the number of drones. Once all clients start to get delivered, saturation will set in.\\
+
+\noindent\textit{What is the influence of the number of warehouses on the profit?}\\
+We expect the profit to scale with the number of warehouses. As more warehouses become available, it will become more likely to have a warehouse with a low price for the product near the customer.\\
+
+\noindent\textit{What is the influence of the number of clients on the profit?}\\
+We expect the profit to rise until the fines of not delivering start to become too large.\\
+
 \outline{In profit: DynCNET better than Confirmation better than CNET \\ In messages: CNET better than confirmation better than DynCNET}
 
 \section{Theory}
