@@ -52,6 +52,8 @@ MASplotFilter("nbClients", "mean(totalProfit)", "nbDrones >= 8")
 
 
 s = results %>% filter(nbDrones == 8 & nbWarehouses == 10)
+# Test for homoskedasticiteit: mag niet significant zijn, Pr(>F) moet >0.05 zijn, of er mogen dus geen sterretje(s) naast resultaat staan
+# Anders werkt TukeyHSD NIET!
 leveneTest(totalProfit ~ protocolType, s)
 s.aov = aov(totalProfit ~ protocolType, s)
 summary(s.aov)
