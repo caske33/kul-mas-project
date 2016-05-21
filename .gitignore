@@ -8,3 +8,4 @@ report.pdf
 .Rhistory
 *.csv
 *.Rproj
+*.log
