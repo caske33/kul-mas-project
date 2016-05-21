@@ -4,3 +4,7 @@ target/
 *.aux
 *.synctex.gz
 report.pdf
+.Rproj.user
+.Rhistory
+*.csv
+*.Rproj
