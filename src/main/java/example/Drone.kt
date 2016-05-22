@@ -93,7 +93,6 @@ class Drone(position: Point, val rng: RandomGenerator, val chargesInWarehouse: B
         batteryLevel -= moveProgress.distance().value / DISTANCE_PER_FULL_BATTERY
 
         if(batteryLevel < 0) {
-            //TODO fix?
             //throw IllegalStateException("Battery empty")
             crash()
             crashedByBattery = true
@@ -250,7 +249,6 @@ class Drone(position: Point, val rng: RandomGenerator, val chargesInWarehouse: B
         }
 
         // AcceptProposal
-        //TODO polymorphism?
         val acceptProposalMessages = messages.filter { message -> message.contents is AcceptProposal }
         if(protocolType == ProtocolType.CONTRACT_NET){
             acceptProposalMessages.forEach { message ->
@@ -293,7 +291,7 @@ class Drone(position: Point, val rng: RandomGenerator, val chargesInWarehouse: B
         // CallForProposal
         val callForProposals = messages.filter { message -> message.contents is CallForProposal }
         if(!canNegotiate()){
-            val minWaitTime = time.startTime + Math.round(Math.floor(Point.distance(realPosition, currentBid!!.order.client.position) / DRONE_SPEED_PER_MILLISECOND))
+            val minWaitTime = time.startTime + Math.round(Math.floor(Point.distance(realPosition, currentBid!!.order.client.position) / DRONE_SPEED_PER_MILLISECOND)) - 3000L
             callForProposals.forEach { message ->
                 device?.send(Refuse((message.contents as CallForProposal).order, RefuseReason.BUSY, minWaitTime), message.sender)
             }

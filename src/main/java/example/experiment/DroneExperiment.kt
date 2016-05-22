@@ -18,7 +18,6 @@ import example.Drone
 import example.*
 import example.Warehouse
 
-//TODO: DroneExperiment scenario's uitdenken
 object DroneExperiment {
     val MAX_TIME_SCENARIO: Long = 1 * 60 * 60 * 1000
 
@@ -62,7 +61,7 @@ object DroneExperiment {
         } else {
             builder = builder
                     .withThreads(8)
-                    .repeat(50)
+                    .repeat(150)
         }
 
         val newArgs: List<String> = args.asList().drop(1)

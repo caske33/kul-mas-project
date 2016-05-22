@@ -136,7 +136,7 @@ class Client(val position: Point,
         }
 
         //Send CallForProposal
-        if(canNegotiate() && timeLapse.startTime >= nextProposalTime - 3000L) {
+        if(canNegotiate() && timeLapse.startTime >= nextProposalTime) {
             device?.broadcast(CallForProposal(order!!))
             nbCallsForProposals++
         }
