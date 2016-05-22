@@ -1,4 +1,4 @@
-\documentclass[10pt,a4paper]{article}
+\documentclass[10pt,a4paper,twocolumn]{article}
 
 \usepackage[english]{babel}
 \usepackage[utf8]{inputenc}
@@ -28,22 +28,26 @@
 \begin{document}
 \maketitle
 
-\commentY{In 2 kolommen? => geeft wel ander aantal pagina's, dus opletten met theorie sectie dan.}
+\commentY{In 2 kolommen? => geeft wel ander aantal pagina's, dus opletten met theorie sectie dan. Maar in mijn ogen is het wel een pak beter}
 
 \section{Introduction}
 \commentV{Zie https://bitbucket.org/VictorLP/mas/wiki/Notities}
+\commentY{Normaal staan alle comments van de wiki in het verslag nu}
 \subsection{Objectives}
 \outline{\proposalV{Investigate the performance changes between DynCNET/confirmation and CNET. (bijbehorende question: what is the relative performance of cnet, confirmation and dyncnet)}}
-The objective of this paper is to compare 2 extensions of Contract Net (CNET)\cite{CNETStandard,CNET}, namely Contract Net with Confirmation Protocol (CNCP)\cite{CNCP} and Dynamic Contract Net (DynCNET)\cite{DynCNET} to CNET itself. We do this in a drone delivery setting where all agents (both the drones and the clients) try to maximize the profit for the company (locally). We also investigate whether any of these protocols are suited for a drone company to deliver packages from warehouses (with infinite stock) to clients. We will also check the influence of the number of drones, clients and warehouses on the profit the company can make.
+The objective of this paper is to compare 2 extensions of Contract Net (CNET)\cite{CNETStandard,CNET}, namely Contract Net with Confirmation Protocol (CNCP)\cite{CNCP} and Dynamic Contract Net (DynCNET)\cite{DynCNET} to CNET itself. We do this in a drone delivery setting where all agents (both the drones and the clients) try to maximize (locally) the profit for the company. Drones can fail and are constrained by their batteries. They can charge these in the warehouses. The company needs to pay a fine for every client that is not delivered in time. The drones can pick up the packages in multiple warehouses (with infinite stock), each with a different price per package. Drones cannot collide with each other.
+
+We investigate whether any of the aforementioned protocols are suited for a drone company to be profitable in the described setting. We will also check the influence of the number of drones, clients and warehouses on the profit the company can make.
 \subsection{Hypotheses}
+\commentY{Vraag-antwoord style of eerder voor doorlopende tekst gaan?}
 \noindent\textit{Is there a difference between CNET, CNCP and DynCNET in the profit the company can make?} \\
-We expect that the company can make more profit using DynCNET than using CNCP than using CNET. \\
+We expect that the company can make more profit using DynCNET than using CNCP, which should be more profitable than CNET. \\
 
 \noindent\textit{Is there a difference in average delivery time between CNET, CNCP and DynCNET?} \\
-We expect that CNCP and CNET will deliver faster than DynCNET (as DynCNET has wasted time when it switches). We don't expect a difference between CNCP and CNET as both will start delivering fast and won't waste any time by switching.\\
+We expect that CNCP and CNET will deliver faster than DynCNET (as DynCNET wastes time when it switches). We don't expect a difference between CNCP and CNET as both will start delivering fast and won't waste any time by switching.\\
 
 \noindent\textit{Is there a difference in the number of clients that are not delivered between CNET, CNCP and DynCNET?} \\
-We expect that CNET and CNCP will deliver the same amount of clients and DynCNET less. Again because of the switching.\\
+We expect that CNET and CNCP will deliver the same amount of clients and DynCNET less. Again because of the switching between clients.\\
 
 \noindent\textit{Is there a difference in the number of messages that needs to be exchanged between CNET, CNCP and DynCNET?}\\
 We expect that CNCP will need less messages because we expect less rounds of bidding. CNET will take more messages but still less than DynCNET which needs a lot of messages to make sure the best contract is being executed. \\
@@ -64,7 +68,6 @@ We expect the profit to rise until the fines of not delivering start to become t
 
 \section{Theory}
 \outline{Theoretische uiteenzetting van wat in de drie relevante papers staat}
-\commentY{\cite{DynCNET}, \cite{CNET}, \cite{CNCP}, \cite{CNETStandard}}
 In this section we describe how the theory of contract net and its variations map unto our implementation. We start with the discussion of CNET itself and then move on to how CNCP and DynCNET differ from CNET.
 
 \outline{\proposalY{State machines als agent architectures toevoegen?}}
@@ -96,6 +99,12 @@ This means that in practice, the client will keep sending calls for proposals un
 
 A potential risk of DynCNET is oscillation of tasks between drones. \cite{DynCNET} describes a solution by limiting the areas of interest. In our design, the agents are only limited by the battery constraint of the drones. We did not take special action to prevent the oscillation of tasks between drones.
 
+\commentY{Message loss?}
+
+\commentY{Synchronization van DynCNET: }
+\commentV{This latter then sends a message to confirm the abort.
+moeten we verbreken contract bevestigen? zie DynCNET + CW566: 3.3. Synchronization of abort messages}
+
 \section{Multi-agent system design}
 \outline{Wat wij concreet doen}
 \subsection{Design}
@@ -103,6 +112,7 @@ A potential risk of DynCNET is oscillation of tasks between drones. \cite{DynCNE
         \item drones leveren orders uit warehouses aan clients (1 order per client)
         \item bid berekening (statistisch relevant)
         \item messaging gedetailleerd bespreken of niet?
+        \item tijd tijdens opladen wordt niet meegerekend bij estimated cost (footnote)
     \end{itemize}}
 \subsection{Comparison with existing MAS from literature}
 \outline{
@@ -124,9 +134,12 @@ A potential risk of DynCNET is oscillation of tasks between drones. \cite{DynCNE
         \item other: battery drain, kost pakketjes, oplaadkost, ... (\texttt{Variables.kt} + \texttt{PackageType.kt})
     \end{itemize}}
 \subsection{Results}
+\commentY{Ook 95 \% Confidence interval (CI) op grafieken? Prof is daar precies fan van => Misschien beter om te doen. Ik ben niet 100\% zeker van correctheid, maar misschien wel, omdat CI daar slaagt op één test, niet op het verschil tussen 2 testen.}
 \subsection{Analysis}
 
 \section{Conclusion}
+\commentV{CW566: TABLE 1: INTERFACE DEFINITIONS FOR A TRANSPORT AGENT AND AN AGV AGENT
+nakijken of we die allemaal hebben}
 \commentY{Ook http://www.fipa.org/specs/fipa00037/SC00037J.html als referentie voor de ACL acts?}
 \bibliographystyle{plain}
 \bibliography{report}
