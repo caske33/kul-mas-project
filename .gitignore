@@ -11,3 +11,5 @@ report.pdf
 *.log
 *.bbl
 *.blg
+*.vpp~*
+*.vpp.working
