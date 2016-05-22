@@ -21,17 +21,20 @@
 
 \newcommand{\taskY}[1]{\todo[inline, color=red]{@Yens, fix: #1}}
 \newcommand{\taskV}[1]{\todo[inline, color=red]{@Victor, fix: #1}}
+\newcommand{\taskS}[1]{\todo[inline, color=red]{@???, fix: #1}}
 
 \newcommand{\outline}[1]{\todo[inline, caption={}, color=cyan]{\emph{Outline of what should come here}: #1}}
 
 \begin{document}
 \maketitle
 
+\commentY{In 2 kolommen? => geeft wel ander aantal pagina's, dus opletten met theorie sectie dan.}
+
 \section{Introduction}
 \commentV{Zie https://bitbucket.org/VictorLP/mas/wiki/Notities}
 \subsection{Objectives}
 \outline{\proposalV{Investigate the performance changes between DynCNET/confirmation and CNET. (bijbehorende question: what is the relative performance of cnet, confirmation and dyncnet)}}
-The objective of this paper is to compare 2 extensions of Contract Net (CNET), namely Contract Net with Confirmation Protocol (CNCP) and Dynamic Contract Net (DynCNET) to CNET itself. We do this in a drone delivery setting where all agents (both the Drones and the Clients) act as homo economicus. We also investigate whether any of these protocols are suited for a Drone company to deliver packages from warehouses (with infinite stock) to clients. We will also check the influence of the number of Drones, Clients and Warehouses on the profit the company can make.
+The objective of this paper is to compare 2 extensions of Contract Net (CNET)\cite{CNETStandard,CNET}, namely Contract Net with Confirmation Protocol (CNCP)\cite{CNCP} and Dynamic Contract Net (DynCNET)\cite{DynCNET} to CNET itself. We do this in a drone delivery setting where all agents (both the drones and the clients) try to maximize the profit for the company (locally). We also investigate whether any of these protocols are suited for a drone company to deliver packages from warehouses (with infinite stock) to clients. We will also check the influence of the number of drones, clients and warehouses on the profit the company can make.
 \subsection{Hypotheses}
 \noindent\textit{Is there a difference between CNET, CNCP and DynCNET in the profit the company can make?} \\
 We expect that the company can make more profit using DynCNET than using CNCP than using CNET. \\
@@ -62,6 +65,23 @@ We expect the profit to rise until the fines of not delivering start to become t
 \section{Theory}
 \outline{Theoretische uiteenzetting van wat in de drie relevante papers staat}
 \commentY{\cite{DynCNET}, \cite{CNET}, \cite{CNCP}, \cite{CNETStandard}}
+In this section we describe how the theory of Contract Net and its variations map unto our implementation. We start with the discussion of contract net itself and then move on to the changes in contract net with confirmation and dynamic contract net.
+
+\outline{\proposalY{State machines als agent architectures toevoegen?}}
+
+\subsection{Contract Net} There are two types of agents in our solution: Clients and Drones. Clients represents the task and fulfill the role of manager in contract net, while the drones fulfill the role of contractor. When clients enter the world, they will announce a call for proposal to all agents\footnote{This includes other clients, which will ignore all calls for proposal. RinSim does not provide a broadcast to a subset, the drones, of all agents.} through the means of broadcasting. This task announcement is simplified from the original paper \cite{CNET}, as all drones are eligible. No bid specification is provided, as this is known by the drones. There is also no expiration time, as drones should bid as quickly as they can.
+
+When drones receive task announcements, they will calculate, for every warehouse, the estimated profit\footnote{Taking the delivery window and the probability of a crash into account} they can make on this client. Only the warehouse with maximal profit for the client is kept. This is done for all task announcements. A drone is only allowed to bid on 1 of those announcements, therefore the most profitable client is selected\footnote{If it is economically better to not deliver any client, no bids are placed}. A propose message is sent to this client including the estimated profit the company can make on this client. Once a drone has placed a bid, he will enter another state \texttt{PROPOSED\_BID} in which he is no longer allowed to bid until either he is awarded the task and has executed it or the client refuses his bid.
+
+When a client receives a bid, it will compare it to the other bids it got (if any) and will award the contract to the drone which will make the most profit for the company \footnote{The client agent thus acts as if it is a manager for the real client}. It will send the drone a message to inform him of the contract. All other drones will be informed of the refusal of their proposal. If later on, more proposals would arrive, the client will refuse them. 
+
+Because drones won't bid if it is not economically interesting, all bids are satisfactory for the client.
+
+Once the drone has received the contract from the client, it will start executing it. Once it has picked up the package at the warehouse, it will inform the client of this. When it has delivered the package, it will also inform the client of this. In case the drone would crash, it would sent one last signal to the client to inform of this failure\footnote{In practice, a polling approach might be used instead.}.
+
+As said earlier, once a bid has been placed, a drone cannot bid unless the current task has been executed or he did not get the contract. While \cite{CNET} suggest that this might increase delay significantly, we assumed the effect would be smaller in our design where clients assign contracts from the moments they receive bids. As only 1 contract is possible, there is no need for a local scheduler within the drone.
+
+To reduce the message count significantly, drones send explicit refuse messages to clients. In these messages, the reason for refusal is added. There are 3 possibilities: \texttt{BUSY}\footnote{The drone is executing another delivery}, \texttt{LOW\_RANKING}\footnote{The drone prefers the proposal of another client.} and \texttt{INELIGIBLE}\footnote{It is not economically profitable for the drone to deliver to this client}. Clients will act smart based on these refusal reasons. If a \texttt{LOW\_RANKING} is received, it can send a new call for proposal immediately as it is likely that a drone was refused the contract it preferred. If only \texttt{BUSY} or \texttt{INELIGIBLE} refusals are received, a new immediate call for proposal has little chance of succeeding. We know that the drones are busy delivering other packages or are too far away. Clients can thus wait until a drone becomes available again. \cite{CNET} suggests that drones could declare when they are available and what kind of tasks they can execute so the clients can propose them instead of the other way around. We decided to give extra information to the refusal message: If busy, the refusal message also contains a lower limit on when the drone will become available again. The client can now wait with sending out new calls for proposals until this lower limit has passed.
 
 \section{Multi-agent system design}
 \outline{Wat wij concreet doen}
