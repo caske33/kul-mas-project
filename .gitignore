@@ -9,3 +9,5 @@ report.pdf
 *.csv
 *.Rproj
 *.log
+*.bbl
+*.blg
