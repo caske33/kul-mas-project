@@ -83,6 +83,15 @@ As said earlier, once a bid has been placed, a drone cannot bid unless the curre
 
 To reduce the message count significantly, drones send explicit refuse messages to clients. In these messages, the reason for refusal is added. There are 3 possibilities: \texttt{BUSY}\footnote{The drone is executing another delivery}, \texttt{LOW\_RANKING}\footnote{The drone prefers the proposal of another client.} and \texttt{INELIGIBLE}\footnote{It is not economically profitable for the drone to deliver to this client}. Clients will act smart based on these refusal reasons. If a \texttt{LOW\_RANKING} is received, it can send a new call for proposal immediately as it is likely that a drone was refused the contract it preferred. If only \texttt{BUSY} or \texttt{INELIGIBLE} refusals are received, a new immediate call for proposal has little chance of succeeding. We know that the drones are busy delivering other packages or are too far away. Clients can thus wait until a drone becomes available again. \cite{CNET} suggests that drones could declare when they are available and what kind of tasks they can execute so the clients can propose them instead of the other way around. We decided to give extra information to the refusal message: If busy, the refusal message also contains a lower limit on when the drone will become available again. The client can now wait with sending out new calls for proposals until this lower limit has passed.
 
+\subsection{Contract Net with Confirmation} The earlier solution suffers from 1 major flaw: drones have to commit to their bid until the client accepts or declines their bid. They are not allowed to bid on other task announcements while they have a bid outstanding. As their are $n$ drones and $m$ clients, $n*m$ bids are possible in theory. In practice, only $n$ bids are sent out. In the worst case, where all drones rank the clients in the same order $O(m)$ rounds of bidding are necessary to assign all clients to drones.
+
+In contract net with confirmation, the drones are allowed to sent out multiple bids. Only when a drone receives an \texttt{AcceptProposal} message should it commit to the bid. It case it receives multiple bids, it can choose to which bid to commit. The client to which is committed is sent an \texttt{Agree} message. From that moment on, the drone starts executing the delivery\footnote{In \cite{CNCP} they first sent a \texttt{Request} message and only upon the \texttt{Agree} message of the client, the \texttt{AcceptProposal} is sent. These two messages from the client to the drone are merged together in our design}. All other clients are sent a \texttt{Disagree} message. When a client receives a \texttt{Disagree} message, it will send out a new call for proposal. This behaviour differs from \cite{CNCP}: when a client receives proposals, it will rank them and send out an \texttt{AcceptProposal} to the first one. If the first drone declines, the second drone will be sent an \texttt{AcceptProposal} and so on, until all (satisfactory) drones are sent an \texttt{AcceptProposal}. Because of the short deadlines and the high chance that the second drone has in the mean time committed to another client, we preferred to start a new bidding round.
+\commentY{Disagree: note van dat dit een ACL-refuse message is? of via diagram?} 
+
+While the pure contract net with confirmation requires an extra $O(2*n)$ messages, our design only requires one extra message per bidding round. We believe the number of bidding rounds will be reduced drastically, and therefore the total message count as well.
+
+\subsection{Dynamic Contract Net}
+
 \section{Multi-agent system design}
 \outline{Wat wij concreet doen}
 \subsection{Design}
@@ -114,6 +123,7 @@ To reduce the message count significantly, drones send explicit refuse messages 
 \subsection{Analysis}
 
 \section{Conclusion}
+\commentY{Ook http://www.fipa.org/specs/fipa00037/SC00037J.html als referentie voor de ACL acts?}
 \bibliographystyle{plain}
 \bibliography{report}
 
