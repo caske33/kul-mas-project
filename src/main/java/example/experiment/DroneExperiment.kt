@@ -34,7 +34,8 @@ object DroneExperiment {
                 //.addScenario(createScenario(MAX_TIME_SCENARIO, DroneProblemClass(true, ProtocolType.CONTRACT_NET, 4, 3, 10, 10)))
                 //.addScenario(createScenario(MAX_TIME_SCENARIO, DroneProblemClass(true, ProtocolType.CONTRACT_NET_CONFIRMATION, 4, 3, 10, 10)))
                 //.addScenario(createScenario(MAX_TIME_SCENARIO, DroneProblemClass(true, ProtocolType.DYNAMIC_CONTRACT_NET, 4, 3, 10, 10)))
-                .addScenarios(createScenariosForExperiment(MAX_TIME_SCENARIO, Integer.parseInt(args[0])))
+                //.addScenarios(createScenariosForExperiment(MAX_TIME_SCENARIO, Integer.parseInt(args[0])))
+                .addScenarios(createScenariosForSecondExperiment(MAX_TIME_SCENARIO))
                 .withRandomSeed(RANDOM_SEED)
                 .usePostProcessor(ExperimentPostProcessor())
 
@@ -108,22 +109,6 @@ object DroneExperiment {
         return builder.build()
     }
 
-    internal fun createScenariosWithMoreOfEverything(scenarioLength: Long): List<Scenario> {
-        return (1..10 step 1).flatMap { nbDrones ->
-            (4..10 step 1).flatMap { nbWarehouses ->
-                (5..25 step 5).flatMap { nbInitialClients ->
-                    (10..50 step 5).flatMap { nbDynamicClients ->
-                        listOf(
-                                createScenario(scenarioLength, DroneProblemClass(true, ProtocolType.CONTRACT_NET, nbWarehouses, nbDrones, nbInitialClients, nbDynamicClients)),
-                                createScenario(scenarioLength, DroneProblemClass(true, ProtocolType.CONTRACT_NET_CONFIRMATION, nbWarehouses, nbDrones, nbInitialClients, nbDynamicClients)),
-                                createScenario(scenarioLength, DroneProblemClass(true, ProtocolType.DYNAMIC_CONTRACT_NET, nbWarehouses, nbDrones, nbInitialClients, nbDynamicClients))
-                        )
-                    }
-                }
-            }
-        }
-    }
-
     internal fun createScenariosForExperiment(scenarioLength: Long, nbDrones: Int): List<Scenario> {
             return (4..10 step 1).flatMap { nbWarehouses ->
                 (5..25 step 5).flatMap { nbInitialClients ->
@@ -134,6 +119,18 @@ object DroneExperiment {
                                 createScenario(scenarioLength, DroneProblemClass(true, ProtocolType.DYNAMIC_CONTRACT_NET, nbWarehouses, nbDrones, nbInitialClients, nbDynamicClients))
                         )
                     }
+                }
+            }
+    }
+
+    internal fun createScenariosForSecondExperiment(scenarioLength: Long): List<Scenario> {
+        return (5..100 step 5).flatMap { nbInitialClients ->
+                (10..200 step 5).flatMap { nbDynamicClients ->
+                    listOf(
+                            createScenario(scenarioLength, DroneProblemClass(true, ProtocolType.CONTRACT_NET, 10, 10, nbInitialClients, nbDynamicClients)),
+                            createScenario(scenarioLength, DroneProblemClass(true, ProtocolType.CONTRACT_NET_CONFIRMATION, 10, 10, nbInitialClients, nbDynamicClients)),
+                            createScenario(scenarioLength, DroneProblemClass(true, ProtocolType.DYNAMIC_CONTRACT_NET, 10, 10, nbInitialClients, nbDynamicClients))
+                    )
                 }
             }
     }
