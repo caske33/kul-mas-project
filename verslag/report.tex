@@ -143,6 +143,8 @@ The client FSM, in figure~\ref{fig:clientFSM}, is even simpler. The clients star
 
 In CNET and CNCP, a client can only send calls for proposals while in the \texttt{AWARDING} state. In DynCNET, it can also send calls for proposals in the \texttt{ASSIGNED} state.
 
+\commentY{Table met communication primitives as in \cite{TentativeBidding}?}
+
 
 \section{Multi-agent system design}
 \outline{Wat wij concreet doen}
@@ -161,9 +163,22 @@ In CNET and CNCP, a client can only send calls for proposals while in the \textt
         \item verschillen in messaging
         \item concretere berekening bid
         \item hier de state machines? (of eerder bij design)
+        \item Feit dat ze enkel kunnen opladen als ze IDLE (CHARGING) zijn of in CHARGING\_FOR\_WAREHOUSE? En dus niet in andere warehouses. En ook niet voor ze naar andere warehouse vertrekken.
     \end{itemize}
     }
 \commentY{\cite{TentativeBidding}, \cite{LeveledCommitment}, \cite{CNETIterativeStandard}, zie ook \cite{DynCNET} Related work voor korte beschrijving, \cite{CNETStandard} is ook nog niet besproken bij theorie + afwijking die bij theorie al voorkomen ook nog eens herhalen?}
+
+\commentY{Nu altijd geschreven als client-drone, aanpassen naar initiator-participant?}
+
+In the literature, other extensions of CNET can be found. \cite{TentativeBidding} describes a 2-phase protocol (PreBidding and DefinitiveBidding). The first round of pre-bidding is only tentative. The client informs the drones of the tentative results. Drones can still change their offers based on this tentative results and how the world (and other bidding processes) evolve. Once a drone has been tentatively accepted, it can send a definitive bid to the client. If this bid is still better than all tentative bids from other drones, the drone will be informed and both agents commit to the contract. All other drones will be informed that the bidding is definitely over. If the definitive bid is not the best bid, the drone gets tentatively or definitely declined. In case of the former, it can submit a new tentative bid. This protocol can be seen as an extension on CNCP. Drones who get accepted, can accept or decline by choosing the appropriate definitive bid. The advantage of this protocol is that drones who get rejected can still improve their bid.
+
+\cite{CNETIterativeStandard} describes a similar protocol: iterated contract net (ICN). When a client receives bids, it can choose to accept one, or choose to iterate the process by issuing an adapted the call for proposal to a subset of the bidders. The intent of this next iteration is to receive better bids. The protocol stops when a drone is awarded the contract, the client stops issuing calls for proposals (because all bids are unsatisfactory) or all drones stop bidding.
+
+The tentative bidding of \cite{TentativeBidding} and ICN are very similar. Both protocols can be mapped onto each other.\commentY{Dat erin laten van het mappen op elkaar? Ik denk dat dat het geval is, als ik diagrammen vergelijk} One of the main differences is that ICN issues new calls for proposals and can thus actively try to increase the price of the contract.  In our setting however, both protocols do not make much sense. Drones bid using the estimated profit. They cannot increase their bid, unless the estimated profit changes.
+
+\cite{LeveledCommitment} uses game theory to proof that leveled commitment is to be preferred in all situations over full commitment. In the negotiation of a contract, a decommitting penalty is agreed upon. (This penalty might be different for both agents). When an agent wants to cancel the contract, he has to pay his decommitting fee to the other agent. This not only gives a way to calculate whether or not to cancel a contract in favor of another contract\footnote{They proof (again using game theory) that it is harder than just checking if the profit of the new contract is higher than the fee, because the other agent might decommit if this agent doesn't decommit.}. It also allows contracts that were not possible using full commitment: it is possible that the benefit from a contract is lower than the expected benefit from other contracts that have not yet been announced. But by having the right decommitting fees, a leveled commitment contract might still be interesting for both parties.
+
+It is important to note, that in our design, bids are satisfactory if the expected profit is above the fine for not delivering to this client. (It does not take into account that new clients or drones might become available). The agents described in \cite{LeveledCommitment} take the expected profit of new clients or busy drones into account.
 
 \section{Experiments}
 \subsection{Setup}
