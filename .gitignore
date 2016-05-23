@@ -13,3 +13,4 @@ report.pdf
 *.blg
 *.vpp~*
 *.vpp.working
+*.vux

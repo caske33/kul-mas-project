@@ -33,11 +33,15 @@
 \commentY{In 2 kolommen? => geeft wel ander aantal pagina's, dus opletten met theorie sectie dan. Maar in mijn ogen is het wel een pak beter}
 
 \section{Introduction}
+\proposalY{Nog voor Objectives een context sectie hebben?}
 \commentV{Zie https://bitbucket.org/VictorLP/mas/wiki/Notities}
 \commentY{Normaal staan alle comments van de wiki in het verslag nu}
 \subsection{Objectives}
 \outline{\proposalV{Investigate the performance changes between DynCNET/confirmation and CNET. (bijbehorende question: what is the relative performance of cnet, confirmation and dyncnet)}}
-The objective of this paper is to compare 2 extensions of Contract Net (CNET)\cite{CNETStandard,CNET}, namely Contract Net with Confirmation Protocol (CNCP)\cite{CNCP} and Dynamic Contract Net (DynCNET)\cite{DynCNET} to CNET itself. We do this in a drone delivery setting where all agents (both the drones and the clients) try to maximize (locally) the profit for the company. Drones can fail and are constrained by their batteries. They can charge these in the warehouses. The company needs to pay a fine for every client that is not delivered in time. The drones can pick up the packages in multiple warehouses (with infinite stock), each with a different price per package. Drones cannot collide with each other.
+The objective of this paper is to compare 2 extensions of Contract Net (CNET)\cite{CNETStandard,CNET}, namely Contract Net with Confirmation Protocol (CNCP)\cite{CNCP} and Dynamic Contract Net (DynCNET)\cite{DynCNET} to CNET itself. 
+
+We do this in a drone delivery setting where all agents (both the drones and the clients) try to maximize (locally) the profit for the company. Drones can fail and are constrained by their batteries. The company needs to pay a fine for every client that is not delivered in time. The drones can pick up the packages in multiple warehouses (with infinite stock), each with a different price per package. Drones cannot collide with each other.
+\commentY{De setting moet nog serieus herschreven worden, bovenstaand stukje is niet duidelijk. Zeker in vergelijking met sectie 2: Context van de opgave.}
 
 We investigate whether any of the aforementioned protocols are suited for a drone company to be profitable in the described setting. We will also check the influence of the number of drones, clients and warehouses on the profit the company can make.
 \subsection{Hypotheses}
@@ -70,48 +74,28 @@ We expect the profit to rise until the fines of not delivering start to become t
 
 \section{Theory}
 \outline{Theoretische uiteenzetting van wat in de drie relevante papers staat}
-In this section we describe how the theory of multi-agent systems map onto our implementation. We first discuss the agent architecture of the drone and the client. Then we discuss the theory of contract net and its variations in CNCP and DynCNET.
 
-\commentY{Hoort sectie over agent architecture hier?}
-
-\subsection{Agent Architecture} Both the drone and client agents have very simple architectures. They can be modeled using simple finite state machines. 
-
-\commentY{FSM of toch proberen onderbrengen onder BDI/Reactive? BDI kan, maar hij probeert niet echt opnieuw (met lagere bieding) als hij intention heeft van bepaalde client. Al kunt ge zeggen dat intention pas is bij het binnenhalen van client. Reactive is er dan wrs weer te veel "state" voor.}
-
-Figure~\ref{fig:droneFSM} gives the FSM for the drone agent in the different protocols\footnote{Not represented in the figure is the failed state, in case the drone crashes. It can enter this state from all other states and can never leave it again}. The \texttt{PROPOSED\_BID} state is only used in CNET, not in CNCP or DynCNET. In CNET and CNCP, a drone can bid in the green states. In DynCNET, a drone can bid in the green and yellow states. DynCNET also has two extra transitions: from \texttt{PICKING\_UP} and \texttt{CHARGING\_FOR\_CONTRACT} back to \texttt{IDLE} in case the client cancels the contract. CNCP and DynCNET also have the \texttt{gotContract} transition from \texttt{IDLE} and \texttt{CHARGING\_FOR\_CONTRACT} to \texttt{PICKING\_UP}, while in CNET the drone has to pass the \texttt{PROPOSED\_BID} state.
-
-\begin{figure}[htp]
-    \centering
-    \includegraphics[width=\columnwidth]{Drone}
-    \caption{A finite state machine of the drone agent (the black transitions and state only apply to CNET. The red transitions only to DynCNET and the green transitions only to CNCP and DynCNET)}
-    \label{fig:droneFSM}
-\end{figure}
-
-The drone starts of in the \texttt{IDLE} state. In this state, it will move to the closet warehouse. When it gets there, it will enter the \texttt{CHARGING} state and start charging. In CNET, a drone will enter the \texttt{PROPOSED\_BID} state once it has sent a bid to a client. It will reenter the \texttt{IDLE} state if the client declines or the \texttt{PICKING\_UP} state when the client accepts. In the \texttt{PICKING\_UP} state it will start moving to the cheapest warehouse. When it gets there, it will start charging until it is sufficiently charged or it is time to leave (because the deadline of the client is coming up). Once it has entered the \texttt{DELIVERING} state, it will keep on flying to the client until it has arrived, upon which it will deliver the package to the client and enter the \texttt{IDLE} state.
-
-\commentY{Ook FSM voor client beschrijven?}
-
-\commentY{Ook "biedingen" beter op FSM weergeven? Of dat laten voor sequence diagram}
+In this section we describe how the theory of multi-agent systems maps onto our implementation. We first discuss the theory of contract net. Followed by the variations in CNCP and DynCNET. We conclude with a description of the agent architectures.
 
 \taskS{Add sequence diagrams of 3 protocols (mss met kleuren werken om verschillen aan te duiden?). Best met zelfde kleuren als grafieken dan: CNET rood, CNCP groen en DynCNET blauw}
 
-\subsection{Contract Net} The two types of agents in our solution each fulfill a different role in CNET: Clients fulfill the role of manager, while the drones fulfill the role of contractor. When clients enter the world, they will announce a call for proposal to all agents\footnote{This includes other clients, which will ignore all calls for proposals. RinSim does not (yet) provide a broadcast to a subset, the drones, of all agents.} through the means of broadcasting. This task announcement is simplified from the original paper \cite{CNET}, as all drones are eligible. No bid specification is provided, as this is known by the drones. There is also no expiration time, as drones should bid as quickly as they can.
+\subsection{Contract Net} Our system has two types of agents: clients (who represent a package that needs to be delivered) and a drone. The two types of agents each fulfill a different role in CNET: clients fulfill the role of manager, while the drones fulfill the role of contractor. When clients enter the world, they will announce a call for proposal to all agents\footnote{This includes other clients, which will ignore all calls for proposals. RinSim does not (yet) provide a broadcast to a subset, the drones, of all agents.} through the means of broadcasting. This task announcement is simplified from the original paper \cite{CNET}. As all drones are eligible, no eligibility information is provided. The bid specification is missing as well. There is no expiration time on the call for proposal, as drones should bid as quickly as they can.
 
-When drones receive task announcements, they will calculate, for every warehouse, the estimated profit\footnote{Taking the delivery window and the probability of a crash into account} they can make on this client. Only the warehouse with maximal profit for the client is kept. This is done for all task announcements. A drone is only allowed to bid on 1 of those announcements, therefore the most profitable client is selected\footnote{If it is economically better to not deliver any client, no bids are placed}. A propose message is sent to this client including the estimated profit the company can make on this client. Once a drone has placed a bid, he will enter another state \texttt{PROPOSED\_BID} in which he is no longer allowed to bid until either he is awarded the task and has executed it or the client refuses his bid.
+When drones receive task announcements, they will calculate, for every warehouse, the estimated profit\footnote{Taking the delivery window and the probability of a crash into account} they can make on this client. Only the warehouse with maximal profit for the client is kept. This is done for all task announcements. A drone is only allowed to bid on 1 of those announcements, therefore the most profitable client is selected\footnote{If it is economically better to not deliver any client, no bids are placed}. A propose message is sent to this client including the estimated profit the company can make on this client. Once a drone has placed a bid, he will enter the \texttt{PROPOSED\_BID} state in which he is no longer allowed to bid until either he is awarded the task and has executed it or the client refuses his bid.
 
-When a client receives a bid, it will compare it to the other bids it got (if any) and will award the contract to the drone which will make the most profit for the company \footnote{The client agent thus acts as if it is a manager for the real client}. It will send the drone a message to inform him of the contract. All other drones will be informed of the refusal of their proposal. If later on, more proposals would arrive, the client will refuse them. 
+When a client receives a bid, it will compare it to the other bids it got (if any) and will award the contract to the drone which will make the most profit for the company \footnote{The client agent thus acts as if it is the manager, responsible for the real client, trying to maximize the profit the company can make on this client}. It will send the drone a message to inform him of the contract. All other drones will be informed that their proposal has been declined. If later on, more proposals would arrive, the client will decline them as well. 
 
 Because drones won't bid if it is not economically interesting, all bids are satisfactory for the client.
 
-Once the drone has received the contract from the client, it will start executing it. Once it has picked up the package at the warehouse, it will inform the client of this. When it has delivered the package, it will also inform the client of this. In case the drone would crash, it would sent one last signal to the client to inform him of this failure\footnote{In practice, a polling approach might be used instead.}. This client would then send out a call for proposals again.
+Once the drone has received the contract from the client, it will start executing it. After picking up the package at the warehouse, the drone will inform the client about this. When it has delivered the package, a message is sent as well. In case the drone would crash, it would sent one last signal to the client to inform him of the crash\footnote{In practice, outside a simulator, a polling approach might be used instead.}. The client would then start sending out calls for proposals again.
 
-As said earlier, once a bid has been placed, a drone cannot bid unless the current task has been executed or he did not get the contract. While \cite{CNET} suggest that this might increase delay significantly, we assumed the effect would be smaller in our design where clients assign contracts from the moments they receive bids. As only 1 contract is possible, there is no need for a local scheduler within the drone.
+As said earlier, once a bid has been placed, a drone cannot bid unless the current task has been executed or his bid was declined. While \cite{CNET} suggest that this might increase delay significantly, we assumed the effect would be smaller in our design where clients assign contracts from the moments they receive bids. As a drone can only hold 1 contract, there is no need for a local scheduler within the drone.
 
-To reduce the message count significantly, drones send explicit refuse messages to clients. In these messages, the reason for refusal is added. There are 3 possibilities: \texttt{BUSY}\footnote{The drone is executing another delivery}, \texttt{LOW\_RANKING}\footnote{The drone prefers the proposal of another client.} and \texttt{INELIGIBLE}\footnote{It is not economically profitable for the drone to deliver to this client}. Clients will act smart based on these refusal reasons. If a \texttt{LOW\_RANKING} is received, it can send a new call for proposal immediately as it is likely that a drone was refused the contract it preferred. If only \texttt{BUSY} or \texttt{INELIGIBLE} refusals are received, a new immediate call for proposal has little chance of succeeding. We know that the drones are busy delivering other packages or are too far away. Clients can thus wait until a drone becomes available again. \cite{CNET} suggests that drones could declare when they are available and what kind of tasks they can execute so the clients can propose them instead of the other way around. We decided to give extra information to the refusal message: If busy, the refusal message also contains a lower limit on when the drone will become available again. The client can now wait with sending out new calls for proposals until this lower limit has passed.
+To reduce the message count significantly, drones send explicit refuse messages to clients (as answer to a call for proposal). In these messages, the reason for refusal is added. There are 3 possibilities: \texttt{BUSY}\footnote{The drone is executing another delivery}, \texttt{LOW\_RANKING}\footnote{The drone prefers the proposal of another client.} and \texttt{INELIGIBLE}\footnote{It is not economically profitable for the drone to deliver to this client}. Clients will act smart based on these refusal reasons. If a \texttt{LOW\_RANKING} is received, it can send a new call for proposal immediately as it is likely that a drone was refused the contract it preferred. If only \texttt{BUSY} or \texttt{INELIGIBLE} refusals are received, a new immediate call for proposal has little chance of succeeding. We know that the drones are busy delivering other packages or are too far away. Clients can thus wait until a drone becomes available again. \cite{CNET} suggests that drones could declare when they are available and what kind of tasks they can execute so the clients can propose them instead of the other way around. We decided to give extra information to the refusal message: If busy, the refusal message also contains a lower limit on when the drone will become available again. The client can now wait with sending out new calls for proposals until this lower limit has passed.
 
-\subsection{Contract Net with Confirmation} The earlier solution suffers from 1 major flaw: drones have to commit to their bid until the client accepts or declines their bid. They are not allowed to bid on other task announcements while they have a bid outstanding. As their are $n$ drones and $m$ clients, $n*m$ bids are possible in theory. In practice, only $n$ bids are sent out. In the worst case, where all drones rank the clients in the same order $O(m)$ rounds of bidding are necessary to assign all clients to drones.
+\subsection{Contract Net with Confirmation} The earlier solution suffers from 1 major flaw: drones have to commit to their bid until the client accepts or declines their bid. They are not allowed to bid on other task announcements while they have a bid outstanding. As their are $n$ drones and $m$ clients, $n*m$ bids are possible in theory. In practice, only $n$ bids are sent out. In the worst case, where all drones rank the clients in the same order $O(m)$ rounds of bidding are necessary to assign all clients to drones in CNET.
 
-In CNCP, the drones are allowed to sent out multiple bids. Only when a drone receives an \texttt{AcceptProposal} message should it commit to the bid. It case it receives multiple bids, it can choose to which bid to commit. The client to which is committed is sent an \texttt{Agree} message. From that moment on, the drone starts executing the delivery\footnote{In \cite{CNCP} they first sent a \texttt{Request} message and only upon the \texttt{Agree} message of the client, the \texttt{AcceptProposal} is sent. These two messages from the client to the drone are merged together in our design}. All other clients are sent a \texttt{Disagree} message. When a client receives a \texttt{Disagree} message, it will send out a new call for proposal. This behaviour differs from \cite{CNCP}: when a client receives proposals, it will rank them and send out an \texttt{AcceptProposal} to the first one. If the first drone declines, the second drone will be sent an \texttt{AcceptProposal} and so on, until all (satisfactory) drones are sent an \texttt{AcceptProposal}. Because of the short deadlines and the high chance that the second drone has in the mean time committed to another client, we preferred to start a new bidding round.
+In CNCP, the drones are allowed to sent out multiple bids. Only when a drone receives an \texttt{AcceptProposal} message, should it commit to a bid. In case it receives multiple bids, it can choose to which bid to commit. The client to which is committed is sent an \texttt{Agree} message. From that moment on, the drone starts executing the delivery\footnote{In \cite{CNCP} they first sent a \texttt{Request} message and only upon the \texttt{Agree} message of the client, the \texttt{AcceptProposal} is sent. These two messages from the client to the drone are merged together in our design}. All other clients are sent a \texttt{Disagree} message. When a client receives a \texttt{Disagree} message, it will send out a new call for proposal. This behaviour differs from \cite{CNCP}: when a client receives proposals, it will rank them and send out an \texttt{AcceptProposal} to the first one. If the first drone declines, the second drone will be sent an \texttt{AcceptProposal} and so on, until all (satisfactory) drones are sent an \texttt{AcceptProposal}. Because of the short deadlines and the high chance that the second drone has in the mean time committed to another client, we preferred to start a new bidding round.
 \commentY{Disagree: note van dat dit een ACL-refuse message is? of via diagram?} 
 
 While CNCP as described in \cite{CNCP} requires an extra $O(2*n)$ messages, our design only requires one extra message per bidding round. We believe the number of bidding rounds will be reduced drastically, and therefore the total message count as well (compared to CNET).
@@ -127,6 +111,38 @@ A potential risk of DynCNET is oscillation of tasks between drones. \cite{DynCNE
 \commentY{Synchronization van DynCNET: }
 \commentV{This latter then sends a message to confirm the abort.
 moeten we verbreken contract bevestigen? zie DynCNET + CW566: 3.3. Synchronization of abort messages}
+
+
+\subsection{Agent Architecture} Both the drone and client agents have very simple architectures. They can be modeled using simple finite state machines. 
+
+
+\commentY{Hoort sectie over agent architecture hier? Of eventueel in andere sectie?}
+\commentY{FSM of toch proberen onderbrengen onder BDI? BDI kan, maar hij probeert niet echt opnieuw (met lagere bieding) als hij intention heeft van bepaalde client. Al kunt ge zeggen dat intention pas is bij het binnenhalen van client.}
+
+Figure~\ref{fig:droneFSM} gives the FSM for the drone agent in the different protocols\footnote{Not represented in the figure is the failed state, in case the drone crashes. A drone can enter this state from all other states and can never leave it again}. The \texttt{PROPOSED\_BID} state is only used in CNET, not in CNCP nor DynCNET. In CNET and CNCP, a drone can bid in the green states. In DynCNET, a drone can bid in the green and yellow states. DynCNET also has two extra transitions: from \texttt{PICKING\_UP} and \texttt{CHARGING\_FOR\_CONTRACT} back to \texttt{IDLE} in case the client cancels the contract. CNCP and DynCNET also have the \texttt{gotContract} transition from \texttt{IDLE} and \texttt{CHARGING\_FOR\_CONTRACT} to \texttt{PICKING\_UP}, while in CNET the drone has to pass through the \texttt{PROPOSED\_BID} state.
+
+\begin{figure}[htp]
+    \centering
+    \includegraphics[width=\columnwidth]{Drone}
+    \caption{A finite state machine of the drone agent (the blue transitions and state only apply to CNET. The red transitions only to DynCNET and the green transitions to CNCP and DynCNET)}
+    \label{fig:droneFSM}
+\end{figure}
+
+\commentY{Ook "biedingen" beter op FSM weergeven? Of dat laten voor sequence diagram}
+
+The drone starts of in the \texttt{IDLE} state. In this state, it will move to the closet warehouse. When it gets there, it will enter the \texttt{CHARGING} state and start charging. In CNET, a drone will enter the \texttt{PROPOSED\_BID} state once it has sent a bid to a client. It will reenter the \texttt{IDLE} state if the client declines or move to the \texttt{PICKING\_UP} state when the client accepts. In the \texttt{PICKING\_UP} state it will start moving to the cheapest warehouse. When it gets there, it will start charging until it is sufficiently charged or it is time to leave (because the deadline of the client is coming up). Then it will pick up the package and enter the \texttt{DELIVERING} state. From then on, it will keep flying to the client until it has arrived, upon which it will deliver the package to the client and enter the \texttt{IDLE} state.
+
+\begin{figure}[htp]
+    \centering
+    \includegraphics[width=\columnwidth]{Client}
+    \caption{A finite state machine of the client agent (the red transition only applies to DynCNET)}
+    \label{fig:clientFSM}
+\end{figure}
+
+The client FSM, in figure~\ref{fig:clientFSM}, is even simpler. The clients starts in the \texttt{AWARDING} state. When a contract is negotiated, it enters the \texttt{ASSIGNED} state. From then on, it is a straight path to the \texttt{EXECUTING} and \texttt{DELIVERED} state. Only a drone failure, or the cancellation of a contract in DynCNET, can change the state flow. If the maximum delivery time for the client has passed before a drone delivered the package, the client will enter the \texttt{OVERTIME} state.
+
+In CNET and CNCP, a client can only send calls for proposals while in the \texttt{AWARDING} state. In DynCNET, it can also send calls for proposals in the \texttt{ASSIGNED} state.
+
 
 \section{Multi-agent system design}
 \outline{Wat wij concreet doen}
