@@ -35,7 +35,7 @@ object DroneExperiment {
                 //.addScenario(createScenario(MAX_TIME_SCENARIO, DroneProblemClass(true, ProtocolType.CONTRACT_NET_CONFIRMATION, 4, 3, 10, 10)))
                 //.addScenario(createScenario(MAX_TIME_SCENARIO, DroneProblemClass(true, ProtocolType.DYNAMIC_CONTRACT_NET, 4, 3, 10, 10)))
                 //.addScenarios(createScenariosForExperiment(MAX_TIME_SCENARIO, Integer.parseInt(args[0])))
-                .addScenarios(createScenariosForSecondExperiment(MAX_TIME_SCENARIO))
+                .addScenarios(createScenariosForSecondExperiment(MAX_TIME_SCENARIO, Integer.parseInt(args[0])))
                 .withRandomSeed(RANDOM_SEED)
                 .usePostProcessor(ExperimentPostProcessor())
 
@@ -123,15 +123,16 @@ object DroneExperiment {
             }
     }
 
-    internal fun createScenariosForSecondExperiment(scenarioLength: Long): List<Scenario> {
-        return (5..100 step 5).flatMap { nbInitialClients ->
+    internal fun createScenariosForSecondExperiment(scenarioLength: Long, runNumber: Int): List<Scenario> {
+        //return (5..100 step 5).flatMap { nbInitialClients ->
+        return ((5+runNumber*10)..(10+runNumber*10) step 5).flatMap { nbInitialClients ->
                 (10..200 step 5).flatMap { nbDynamicClients ->
-                    listOf(
-                            createScenario(scenarioLength, DroneProblemClass(true, ProtocolType.CONTRACT_NET, 10, 10, nbInitialClients, nbDynamicClients)),
-                            createScenario(scenarioLength, DroneProblemClass(true, ProtocolType.CONTRACT_NET_CONFIRMATION, 10, 10, nbInitialClients, nbDynamicClients)),
-                            createScenario(scenarioLength, DroneProblemClass(true, ProtocolType.DYNAMIC_CONTRACT_NET, 10, 10, nbInitialClients, nbDynamicClients))
-                    )
-                }
+                listOf(
+                        createScenario(scenarioLength, DroneProblemClass(true, ProtocolType.CONTRACT_NET, 10, 10, nbInitialClients, nbDynamicClients)),
+                        createScenario(scenarioLength, DroneProblemClass(true, ProtocolType.CONTRACT_NET_CONFIRMATION, 10, 10, nbInitialClients, nbDynamicClients)),
+                        createScenario(scenarioLength, DroneProblemClass(true, ProtocolType.DYNAMIC_CONTRACT_NET, 10, 10, nbInitialClients, nbDynamicClients))
+                )
             }
+        }
     }
 }
