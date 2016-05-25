@@ -1,4 +1,4 @@
-\documentclass[10pt,a4paper,twocolumn]{article}
+\documentclass[10pt,a4paper]{article}
 
 \usepackage[english]{babel}
 \usepackage[utf8]{inputenc}
@@ -16,8 +16,8 @@
 \newcommand{\proposalY}[1]{\todo[inline, color=green]{Proposal (by Yens): #1}}
 \newcommand{\proposalV}[1]{\todo[inline, color=green]{Proposal (by Victor): #1}}
 
-\newcommand{\commentY}[1]{\todo[inline, color=yellow]{Yens: "#1"}}
-\newcommand{\commentV}[1]{\todo[inline, color=yellow]{Victor: "#1"}}
+\newcommand{\commentY}[1]{\todo[inline, color=yellow]{Yens: #1}}
+\newcommand{\commentV}[1]{\todo[inline, color=yellow]{Victor: #1}}
 
 \newcommand{\taskY}[1]{\todo[inline, color=red]{@Yens, fix: #1}}
 \newcommand{\taskV}[1]{\todo[inline, color=red]{@Victor, fix: #1}}
@@ -30,52 +30,57 @@
 \begin{document}
 \maketitle
 
-\commentY{In 2 kolommen? => geeft wel ander aantal pagina's, dus opletten met theorie sectie dan. Maar in mijn ogen is het wel een pak beter}
+\commentY{In 2 kolommen? => geeft wel ander aantal pagina's, dus opletten met theorie sectie dan. Maar in mijn ogen is het wel een pak beter\commentV{In finaal verslag: ja - veel beter; in werkdocument zou ik het afzetten zodat we een goed idee hebben van de lengte}}
 
 \section{Introduction}
 \proposalY{Nog voor Objectives een context sectie hebben?}
 \commentV{Zie https://bitbucket.org/VictorLP/mas/wiki/Notities}
 \commentY{Normaal staan alle comments van de wiki in het verslag nu}
+\commentV{The last paragraph of the introduction traditionally says “This report is organised as
+follows. Section 1 introduces . . . ”.}
 \subsection{Objectives}
 \outline{\proposalV{Investigate the performance changes between DynCNET/confirmation and CNET. (bijbehorende question: what is the relative performance of cnet, confirmation and dyncnet)}}
-The objective of this paper is to compare 2 extensions of Contract Net (CNET)\cite{CNETStandard,CNET}, namely Contract Net with Confirmation Protocol (CNCP)\cite{CNCP} and Dynamic Contract Net (DynCNET)\cite{DynCNET} to CNET itself. 
+The objective of this paper is to compare 2 extensions of Contract Net (CNET)\cite{CNETStandard,CNET}, namely Contract Net with Confirmation Protocol (CNCP)\cite{CNCP} and Dynamic Contract Net (DynCNET)\cite{DynCNET} to CNET itself. \commentV{extensions should be measurable \proposalV{to investigate whether these two extensions (CNCP/DynCNET) are an improvement on CNET} }
 
 We do this in a drone delivery setting where all agents (both the drones and the clients) try to maximize (locally) the profit for the company. Drones can fail and are constrained by their batteries. The company needs to pay a fine for every client that is not delivered in time. The drones can pick up the packages in multiple warehouses (with infinite stock), each with a different price per package. Drones cannot collide with each other.
-\commentY{De setting moet nog serieus herschreven worden, bovenstaand stukje is niet duidelijk. Zeker in vergelijking met sectie 2: Context van de opgave.}
+\commentY{De setting moet nog serieus herschreven worden, bovenstaand stukje is niet duidelijk. Zeker in vergelijking met sectie 2: Context van de opgave.\proposalV{We do this in a drone delivery setting where a company owns a fleet of drones that receives orders from clients, collects the ordered parcel at one of several warehouses and delivers them to that client. The drones autonomously receive, process and deliver the client orders. The goal is to maximize the company's profit, by having the most suitable drone serve each order. Clients have a time limit for their deliveries, after which the company needs to pay a fine.  Drones can break down and are constrained by their batteries. Drones cannot collide with each other.}}
 
 We investigate whether any of the aforementioned protocols are suited for a drone company to be profitable in the described setting. We will also check the influence of the number of drones, clients and warehouses on the profit the company can make.
 \subsection{Hypotheses}
-\commentY{Vraag-antwoord style of eerder voor doorlopende tekst gaan?}
-\noindent\textit{Is there a difference between CNET, CNCP and DynCNET in the profit the company can make?} \\
-We expect that the company can make more profit using DynCNET than using CNCP, which should be more profitable than CNET. \\
+\commentY{Vraag-antwoord style of eerder voor doorlopende tekst gaan?\commentV{puntjeslijst lijkt me goed}}
+We formulate the following questions and provide our hypotheses for the answers to them.
+\begin{itemize}
+\item \textit{Is there a difference between CNET, CNCP and DynCNET in the profit the company can make?} \\
+We expect that the company can make more profit using DynCNET than using CNCP, which should be more profitable than CNET.
+\item\textit{Is there a difference in average delivery time between CNET, CNCP and DynCNET?} \\
+We expect that CNCP and CNET will deliver faster than DynCNET (as DynCNET wastes time when it switches). We don't expect a difference between CNCP and CNET as both will start delivering fast and won't waste any time by switching.
 
-\noindent\textit{Is there a difference in average delivery time between CNET, CNCP and DynCNET?} \\
-We expect that CNCP and CNET will deliver faster than DynCNET (as DynCNET wastes time when it switches). We don't expect a difference between CNCP and CNET as both will start delivering fast and won't waste any time by switching.\\
+\item\textit{Is there a difference in the number of clients that are not delivered between CNET, CNCP and DynCNET?} \\
+We expect that CNET and CNCP will deliver the same amount of clients and DynCNET less. Again because of the switching between clients.
 
-\noindent\textit{Is there a difference in the number of clients that are not delivered between CNET, CNCP and DynCNET?} \\
-We expect that CNET and CNCP will deliver the same amount of clients and DynCNET less. Again because of the switching between clients.\\
+\item\textit{Is there a difference in the number of messages that needs to be exchanged between CNET, CNCP and DynCNET?}\\
+We expect that CNCP will need less messages because we expect less rounds of bidding. CNET will take more messages but still less than DynCNET which needs a lot of messages to make sure the best contract is being executed. 
 
-\noindent\textit{Is there a difference in the number of messages that needs to be exchanged between CNET, CNCP and DynCNET?}\\
-We expect that CNCP will need less messages because we expect less rounds of bidding. CNET will take more messages but still less than DynCNET which needs a lot of messages to make sure the best contract is being executed. \\
+\item\textit{Is it possible to make a profit using any of the 3 approaches?}\\
+We expect that all 3 approaches should be profitable give the right number of warehouses, drones and clients.
 
-\noindent\textit{Is it possible to make a profit using any of the 3 approaches?}\\
-We expect that all 3 approaches should be profitable give the right number of warehouses, drones and clients.\\
+\item\textit{What is the influence of the number of drones on the profit?}\\
+We expect the profit to scale linearly with the number of drones. Once all clients start to get delivered, saturation will set in.
 
-\noindent\textit{What is the influence of the number of drones on the profit?}\\
-We expect the profit to scale linearly with the number of drones. Once all clients start to get delivered, saturation will set in.\\
+\item\textit{What is the influence of the number of warehouses on the profit?}\\
+We expect the profit to scale with the number of warehouses. As more warehouses become available, it will become more likely to have a warehouse with a low price for the product near the customer.
 
-\noindent\textit{What is the influence of the number of warehouses on the profit?}\\
-We expect the profit to scale with the number of warehouses. As more warehouses become available, it will become more likely to have a warehouse with a low price for the product near the customer.\\
-
-\noindent\textit{What is the influence of the number of clients on the profit?}\\
-We expect the profit to rise until the fines of not delivering start to become too large.\\
+\item\textit{What is the influence of the number of clients on the profit?}\\
+We expect the profit to rise until the fines of not delivering start to become too large.
+\end{itemize}
 
 \outline{In profit: DynCNET better than Confirmation better than CNET \\ In messages: CNET better than confirmation better than DynCNET}
 
 \section{Theory}
 \outline{Theoretische uiteenzetting van wat in de drie relevante papers staat}
+\commentV{Theory nog iets algemener, meer van onze eigen dingen in system design zetten? zie ook hoofdstuk 7 Schut}
 
-In this section we describe how the theory of multi-agent systems maps onto our implementation. We first discuss the theory of contract net. Followed by the variations in CNCP and DynCNET. We conclude with a description of the agent architectures.
+In this section we describe how the theory of multi-agent systems maps onto our implementation. We first discuss the theory of contract net, followed by the variations made in CNCP and DynCNET. We conclude with a description of the agent architectures.
 
 \taskS{Add sequence diagrams of 3 protocols (mss met kleuren werken om verschillen aan te duiden?). Best met zelfde kleuren als grafieken dan: CNET rood, CNCP groen en DynCNET blauw}
 
@@ -176,7 +181,7 @@ In the literature, other extensions of CNET can be found. \cite{TentativeBidding
 
 The tentative bidding of \cite{TentativeBidding} and ICN are very similar. Both protocols can be mapped onto each other.\commentY{Dat erin laten van het mappen op elkaar? Ik denk dat dat het geval is, als ik diagrammen vergelijk} One of the main differences is that ICN issues new calls for proposals and can thus actively try to increase the price of the contract.  In our setting however, both protocols do not make much sense. Drones bid using the estimated profit. They cannot increase their bid, unless the estimated profit changes.
 
-\cite{LeveledCommitment} uses game theory to proof that leveled commitment is to be preferred in all situations over full commitment. In the negotiation of a contract, a decommitting penalty is agreed upon. (This penalty might be different for both agents). When an agent wants to cancel the contract, he has to pay his decommitting fee to the other agent. This not only gives a way to calculate whether or not to cancel a contract in favor of another contract\footnote{They proof (again using game theory) that it is harder than just checking if the profit of the new contract is higher than the fee, because the other agent might decommit if this agent doesn't decommit.}. It also allows contracts that were not possible using full commitment: it is possible that the benefit from a contract is lower than the expected benefit from other contracts that have not yet been announced. But by having the right decommitting fees, a leveled commitment contract might still be interesting for both parties.
+\cite{LeveledCommitment} uses game theory to proof that leveled commitment is to be preferred in all situations over full commitment. In the negotiation of a contract, a decommitting penalty is agreed upon. (This penalty might be different for both agents). When an agent wants to cancel the contract, he has to pay his decommitting fee to the other agent. This not only gives a way to calculate whether or not to cancel a contract in favor of another contract\footnote{They prove (again using game theory) that it is harder than just checking if the profit of the new contract is higher than the fee, because the other agent might decommit if this agent doesn't decommit.}. It also allows contracts that were not possible using full commitment: it is possible that the benefit from a contract is lower than the expected benefit from other contracts that have not yet been announced. But by having the right decommitting fees, a leveled commitment contract might still be interesting for both parties.
 
 It is important to note, that in our design, bids are satisfactory if the expected profit is above the fine for not delivering to this client. (It does not take into account that new clients or drones might become available). The agents described in \cite{LeveledCommitment} take the expected profit of new clients or busy drones into account.
 
@@ -186,6 +191,7 @@ It is important to note, that in our design, bids are satisfactory if the expect
         \item independent: aantal drones, warehouses, clients
         \item dependent: profit, aantal clients delivered, aantal messages, delivery time, ... (\texttt{ExperimentResult})
         \item other: battery drain, kost pakketjes, oplaadkost, ... (\texttt{Variables.kt} + \texttt{PackageType.kt})
+        \item beschrijving computer
     \end{itemize}}
 \subsection{Results}
 \commentY{Ook 95 \% Confidence interval (CI) op grafieken? Prof is daar precies fan van => Misschien beter om te doen. Ik ben niet 100\% zeker van correctheid, maar misschien wel, omdat het CI is van de variabele, niet het verschil tussen 2 variabelen. Dus zolang variabele normaal verdeeld is, is het waarschijnlijk wel ok.}
@@ -196,6 +202,7 @@ It is important to note, that in our design, bids are satisfactory if the expect
 \commentV{CW566: TABLE 1: INTERFACE DEFINITIONS FOR A TRANSPORT AGENT AND AN AGV AGENT
 nakijken of we die allemaal hebben}
 \commentY{Ook http://www.fipa.org/specs/fipa00037/SC00037J.html als referentie voor de ACL acts?}
+
 \bibliographystyle{plain}
 \bibliography{report}
 
