@@ -37,10 +37,9 @@
 \outline{Bevat waarom verslag moet lezen (samen met conclusie 1 geheel). The last paragraph of the introduction traditionally says “This report is organised as
 follows. Section 1 introduces . . . ”.}
 \subsection{Objectives}
-\outline{\proposalV{Investigate the performance changes between DynCNET/confirmation and CNET. (bijbehorende question: what is the relative performance of cnet, confirmation and dyncnet)\commentY{Voor mij is dit klaar}}}
-The objective of this paper is to investigate whether two extensions of Contract Net (CNET)\cite{CNETStandard,CNET}, namely Contract Net with Confirmation Protocol (CNCP)\cite{CNCP} and Dynamic Contract Net (DynCNET)\cite{DynCNET} are an improvement on CNET itself.
+The objective of this paper is to investigate whether two extensions of Contract Net (CNET) \cite{CNETStandard,CNET}, namely Contract Net with Confirmation Protocol (CNCP) \cite{CNCP} and Dynamic Contract Net (DynCNET) \cite{DynCNET} are an improvement on CNET itself.
 
-We do this in a drone delivery setting where a company owns a fleet of drones that receives orders from clients, collects the ordered parcel at one of several warehouses and delivers them to that client. The drones autonomously receive, process and deliver the client orders. The goal is to maximize the company's profit, by having the most suitable drone serve each order. Clients have a time limit for their deliveries, after which the company needs to pay a fine.  Drones can break down and are constrained by their batteries. Drones cannot collide with each other.\commentY{Al een pak beter. nog paar kleine dingen: - parcel of package: moeten 1 term gebruiken voor heel het document, denk ik. - Niets over waar opladen?}
+We do this in a drone delivery setting where a company owns a fleet of drones that receives orders from clients, collects the ordered package at one of several warehouses and delivers them to that client. The drones autonomously receive, process and deliver the client orders. The goal is to maximize the company's profit, by having the most suitable drone serve each order. Clients have a time limit for their deliveries, after which the company needs to pay a fine.  Drones can break down and are constrained by their batteries, which can be charged at a warehouse. Drones cannot collide with each other.
 
 We investigate whether any of the aforementioned protocols are suited for a drone company to be profitable in the described setting. We will also check the influence of the number of drones, clients and warehouses on the profit the company can make.
 \subsection{Hypotheses}
@@ -49,31 +48,28 @@ We formulate the following questions and provide our hypotheses for the answers 
 \item \textit{Is there a difference between CNET, CNCP and DynCNET in the profit the company can make?} \\
 We expect that the company can make more profit using DynCNET than using CNCP, which should be more profitable than CNET.
 \item\textit{Is there a difference in average delivery time between CNET, CNCP and DynCNET?} \\
-We expect that CNCP and CNET will deliver faster than DynCNET (as DynCNET wastes time when it switches). We don't expect a difference between CNCP and CNET as both will start delivering fast and won't waste any time by switching.
+We expect that CNCP and CNET will deliver faster than DynCNET (as DynCNET wastes time when it switches). We don't expect a difference between CNCP and CNET as both will start delivering quickly and won't waste any time by switching.
 
 \item\textit{Is there a difference in the number of clients that are not delivered between CNET, CNCP and DynCNET?} \\
-We expect that CNET and CNCP will deliver the same amount of clients and DynCNET less. Again because of the switching between clients.
+We expect that CNET and CNCP will deliver the same amount of clients and DynCNET less, again because of the switching between clients.
 
 \item\textit{Is there a difference in the number of messages that needs to be exchanged between CNET, CNCP and DynCNET?}\\
-We expect that CNCP will need less messages because we expect less rounds of bidding. CNET will take more messages but still less than DynCNET which needs a lot of messages to make sure the best contract is being executed. 
+We expect that CNCP will need less messages because we expect less rounds of bidding. CNET will need more messages but still less than DynCNET, which needs a lot of messages due to the dynamism to make sure the best contract is being executed. 
 
 \item\textit{Is it possible to make a profit using any of the 3 approaches?}\\
-We expect that all 3 approaches should be profitable give the right number of warehouses, drones and clients.
+We expect that all three approaches should be profitable given the right number of warehouses, drones and clients.
 
 \item\textit{What is the influence of the number of drones on the profit?}\\
 We expect the profit to scale linearly with the number of drones. Once all clients start to get delivered, saturation will set in.
 
 \item\textit{What is the influence of the number of warehouses on the profit?}\\
-We expect the profit to scale with the number of warehouses. As more warehouses become available, it will become more likely to have a warehouse with a low price for the product near the customer.
+We expect the profit to scale with the number of warehouses. As more warehouses become available, it will become more likely to have a warehouse with a low price for the product near the client.
 
 \item\textit{What is the influence of the number of clients on the profit?}\\
-We expect the profit to rise until the fines of not delivering start to become too large.
+We expect the profit to rise until there are too many clients, after which the fines of not delivering start to become too large.
 \end{itemize}
 
-\outline{In profit: DynCNET better than Confirmation better than CNET \\ In messages: CNET better than confirmation better than DynCNET\commentY{Voor mij is dit klaar}}
-
 \section{Theory}
-\outline{Theoretische uiteenzetting van wat in de drie relevante papers staat\commentY{Voor mij is dit klaar}}
 
 In this section we describe the theory of the Contract Net Protocol and the two extensions CNCP and DynCNET. We use the literature on these protocols to highlight their characteristics and differences.
 
@@ -98,7 +94,7 @@ The bidding process can be extended to allow agents that cannot or do not want t
 The FIPA version of the Contract Net Protocol \cite{CNETStandard} differs from the original protocol by adding acceptance and rejection of a bid by a manager. This means a contractor is notified if its bid was rejected.
 
 \subsection{Contract Net with Confirmation} 
-The Contract Net With Confirmation Protocol, or CNCP, was conceived as an extension to the Contract Net Protocol by Knabe et al. in 2002. \cite{CNCP}
+The Contract Net with Confirmation Protocol, or CNCP, was conceived as an extension to the Contract Net Protocol by Knabe et al. in 2002. \cite{CNCP}
 
 The major shortcoming of CNET that CNCP tries to address is the early commitment by agents. If multiple managers announce a task at the same time, a contractor is only allowed to bid on one of these tasks, after which it already allocates some resources to that task. The agent will choose the task that seems most interesting at that time. The problem is that if a task is somehow very popular, many agents would bid on it but only one would be awarded the task. The other agents then have to wait for the next opportunity to restart the bidding process and try to receive a task. Furthermore the agent has allocated some resources to that popular task, which possibly are only freed after the task announcement expires. This means the agent has less available resources to bid on other tasks later on.
 
