@@ -34,36 +34,15 @@ MASplot = function(xAxis, yAxis, filterQuery = "", title = "", xlabel = xAxis, y
     ylab(ylabel) +
     ggtitle(title)
 }
+
+
 MASplot("nbDrones", "totalProfit")
 MASplot("nbWarehouses", "totalProfit")
 MASplot("nbInitialClients", "totalProfit")
 MASplot("nbDynamicClients", "totalProfit")
-
 MASplot("nbWarehouses", "totalProfit", "nbDrones >= 7")
 MASplot("nbInitialClients", "totalProfit", "nbDrones >= 7")
 MASplot("nbDynamicClients", "totalProfit", "nbDrones >= 7")
-
-MASplot("nbDrones", "averageDeliveryTime")
-MASplot("nbWarehouses", "averageDeliveryTime")
-MASplot("nbInitialClients", "averageDeliveryTime")
-MASplot("nbDynamicClients", "averageDeliveryTime")
-
-MASplot("nbDrones", "averageDeliveryTime", "nbDrones >= 7")
-MASplot("nbWarehouses", "averageDeliveryTime", "nbDrones >= 7")
-MASplot("nbInitialClients", "averageDeliveryTime", "nbDrones >= 7")
-MASplot("nbDynamicClients", "averageDeliveryTime", "nbDrones >= 7")
-
-MASplot("nbDrones", "nbClientsNotDelivered")
-MASplot("nbWarehouses", "nbClientsNotDelivered")
-MASplot("nbInitialClients", "nbClientsNotDelivered")
-MASplot("nbDynamicClients", "nbClientsNotDelivered")
-MASplot("nbDrones", "nbClientsNotDelivered", "nbInitialClients < 20 & nbDynamicClients < 50")
-MASplot("nbInitialClients", "nbClientsNotDelivered", "nbDrones >= 7")
-MASplot("nbInitialClients", "nbClientsNotDelivered", "nbDrones < 7")
-MASplot("nbDynamicClients", "nbClientsNotDelivered", "nbDrones < 7")
-MASplot("nbDynamicClients", "nbClientsNotDelivered", "nbDrones >= 7")
-
-
 #############################################################
 # Question 1: difference in profit?
 MASplot("nbDrones", "totalProfit")
@@ -96,6 +75,15 @@ posthocTGH(subset$totalProfit, subset$protocolType, method="games-howell");
 # >= 7: correct
 #############################################################
 
+
+MASplot("nbDrones", "averageDeliveryTime")
+MASplot("nbWarehouses", "averageDeliveryTime")
+MASplot("nbInitialClients", "averageDeliveryTime")
+MASplot("nbDynamicClients", "averageDeliveryTime")
+MASplot("nbDrones", "averageDeliveryTime", "nbDrones >= 7")
+MASplot("nbWarehouses", "averageDeliveryTime", "nbDrones >= 7")
+MASplot("nbInitialClients", "averageDeliveryTime", "nbDrones >= 7")
+MASplot("nbDynamicClients", "averageDeliveryTime", "nbDrones >= 7")
 #############################################################
 # Question 2: difference in averageDeliveryTime?
 MASplot("nbDrones", "averageDeliveryTime")
@@ -126,7 +114,15 @@ posthocTGH(subset$averageDeliveryTime, subset$protocolType, method="games-howell
 #############################################################
 
 
-
+MASplot("nbDrones", "nbClientsNotDelivered")
+MASplot("nbWarehouses", "nbClientsNotDelivered")
+MASplot("nbInitialClients", "nbClientsNotDelivered")
+MASplot("nbDynamicClients", "nbClientsNotDelivered")
+MASplot("nbDrones", "nbClientsNotDelivered", "nbInitialClients < 20 & nbDynamicClients < 50")
+MASplot("nbInitialClients", "nbClientsNotDelivered", "nbDrones >= 7")
+MASplot("nbInitialClients", "nbClientsNotDelivered", "nbDrones < 7")
+MASplot("nbDynamicClients", "nbClientsNotDelivered", "nbDrones < 7")
+MASplot("nbDynamicClients", "nbClientsNotDelivered", "nbDrones >= 7")
 #############################################################
 # Question 3: difference in nbClientsNotDelivered?
 MASplot("nbDrones", "nbClientsNotDelivered")
@@ -176,30 +172,69 @@ posthocTGH(subset$nbClientsNotDelivered, subset$protocolType, method="games-howe
 #############################################################
 
 
+MASplot("nbDrones", "nbMessages")
+MASplot("nbWarehouses", "nbMessages")
+MASplot("nbInitialClients", "nbMessages")
+MASplot("nbDynamicClients", "nbMessages")
+MASplot("nbDrones", "nbMessages", "protocolType %in% c('CONTRACT_NET', 'CONTRACT_NET_CONFIRMATION')")
+MASplot("nbDynamicClients", "nbMessages", "protocolType %in% c('CONTRACT_NET', 'CONTRACT_NET_CONFIRMATION')")
+MASplot("nbInitialClients", "nbMessages", "protocolType %in% c('CONTRACT_NET', 'CONTRACT_NET_CONFIRMATION')")
+MASplot("nbWarehouses", "nbMessages", "protocolType %in% c('CONTRACT_NET', 'CONTRACT_NET_CONFIRMATION')")
+#############################################################
+# Question 4: difference in nbMessages?
+MASplot("nbDynamicClients", "nbMessages")
+MASplot("nbInitialClients", "nbMessages")
+MASplot("nbDrones", "nbMessages")
+MASplot("nbDrones", "nbMessages", "nbDynamicClients == 10 & nbInitialClients == 5")
+# as nbClients rises, nbMessages rise exponential, instead of linear (but not research question!)
+# as nbDrones rises, nbMessages drops
+
+# little clients
+subset = results %>% filter(nbDynamicClients == 10 & nbInitialClients == 5)
+leveneTest(nbMessages ~ protocolType, subset)
+posthocTGH(subset$nbMessages, subset$protocolType, method="games-howell");
+# no difference between CNET and CNCP
+
+# no filter
+subset = results
+leveneTest(nbMessages ~ protocolType, subset)
+posthocTGH(subset$nbMessages, subset$protocolType, method="games-howell");
+# difference between CNET and CNCP: CNCP MEER messages nodig
+
+# Hypothese:
+#   - fout: CNCP heeft wel meer messages nodig dan CNET
+#   - correct: DynCNET heeft inderdaad wel meer messages nodig dan andere 2
+#############################################################
 
 
+MASplot("nbDrones", "totalProfit")
+MASplot("nbWarehouses", "totalProfit")
+MASplot("nbInitialClients", "totalProfit")
+MASplot("nbDynamicClients", "totalProfit")
+MASplot("nbWarehouses", "totalProfit", "nbDrones >= 7")
+MASplot("nbInitialClients", "totalProfit", "nbDrones >= 7")
+MASplot("nbDynamicClients", "totalProfit", "nbDrones >= 7")
+MASplot("nbWarehouses", "totalProfit", "nbDrones < 5")
+MASplot("nbInitialClients", "totalProfit", "nbDrones < 5")
+MASplot("nbDynamicClients", "totalProfit", "nbDrones < 5")
+#############################################################
+# Question 5: possible to make a profit?
+MASplot("nbDrones", "totalProfit")
+# => genoeg drones nodig!
+MASplot("nbWarehouses", "totalProfit", "nbDrones < 5 & nbDynamicClients < 50")
+# => als er niet genoeg drones zijn, moeten er wel genoeg warehouses zijn
 
+MASplot("nbInitialClients", "totalProfit", "nbDrones < 4")
+MASplot("nbDynamicClients", "totalProfit", "nbDrones < 5")
+# als er te veel clients zijn (voor het aantal drones), dan gaat het mis
 
+MASplot("nbInitialClients", "totalProfit", "nbDrones == 5")
+MASplot("nbDynamicClients", "totalProfit", "nbDrones == 5")
+MASplot("nbDynamicClients", "totalProfit", "nbDrones < 7")
+# Dynamic kent wel een breakdown!
 
-# Old stuff
-s = results %>% filter(nbDrones == 8 & nbWarehouses == 10)
-# Test for homoskedasticiteit: mag niet significant zijn, Pr(>F) moet >0.05 zijn, of er mogen dus geen sterretje(s) naast resultaat staan
-# Anders werkt TukeyHSD NIET!
-leveneTest(totalProfit ~ protocolType, s)
-boxplot(totalProfit ~ protocolType, s)
-s.aov = aov(totalProfit ~ protocolType, s)
-summary(s.aov)
-TukeyHSD(s.aov)
-posthocTGH(s$totalProfit, s$protocolType, method="tukey")
-posthocTGH(s$totalProfit, s$protocolType, method="games-howell")
-
-s = results %>% filter(nbDrones == 3 & nbDynamicClients == 40 & nbInitialClients == 10 & nbWarehouses == 8)
-boxplot(totalProfit ~ protocolType, s)
-leveneTest(totalProfit ~ protocolType, s)
-s.aov = aov(totalProfit ~ protocolType, s)
-summary(s.aov)
-TukeyHSD(s.aov)
-posthocTGH(s$totalProfit, s$protocolType, method="tukey")
-posthocTGH(s$totalProfit, s$protocolType, method="games-howell")
+# Hypothese:
+#   - correct: given the right number of drones, warehouses and clients this is possible
+#############################################################
 
 
