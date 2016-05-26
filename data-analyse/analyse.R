@@ -75,19 +75,19 @@ MASplot("nbDynamicClients", "totalProfit", "nbDrones < 7")
 
 # >= 7
 subset = results %>% filter(nbDrones >= 7)
-leveneTest(totalProfit ~ protocolType, subset)
+#leveneTest(totalProfit ~ protocolType, subset)
 posthocTGH(subset$totalProfit, subset$protocolType, method="games-howell");
 # verschil tussen alle 3
 
 # ertussen
 subset = results %>% filter(nbDrones < 7 & nbDrones >= 4)
-leveneTest(totalProfit ~ protocolType, subset)
+#leveneTest(totalProfit ~ protocolType, subset)
 posthocTGH(subset$totalProfit, subset$protocolType, method="games-howell");
 # verschil tussen alle 3
 
 # < 4
 subset = results %>% filter(nbDrones < 4)
-leveneTest(totalProfit ~ protocolType, subset)
+#leveneTest(totalProfit ~ protocolType, subset)
 posthocTGH(subset$totalProfit, subset$protocolType, method="games-howell");
 # geen verschil tussen CNET en CNCP
 
@@ -113,20 +113,20 @@ MASplot("nbDrones", "averageDeliveryTime")
 
 # 1 Drone
 subset = results %>% filter(nbDrones == 1)
-leveneTest(averageDeliveryTime ~ protocolType, subset)
+#leveneTest(averageDeliveryTime ~ protocolType, subset)
 posthocTGH(subset$averageDeliveryTime, subset$protocolType, method="games-howell");
 # voor 1 Drone: geen verschil tussen CNET en CNCP, wel tussen DynCNET en andere 2
 
 # 2 Drone
 MASplot("nbDrones", "averageDeliveryTime", "nbDrones == 2")
 subset = results %>% filter(nbDrones == 2)
-leveneTest(averageDeliveryTime ~ protocolType, subset)
+#leveneTest(averageDeliveryTime ~ protocolType, subset)
 posthocTGH(subset$averageDeliveryTime, subset$protocolType, method="games-howell");
 # voor 2 Drones: verschil tussen alle 3!
 
 # 3 Drone
 subset = results %>% filter(nbDrones == 3)
-leveneTest(averageDeliveryTime ~ protocolType, subset)
+#leveneTest(averageDeliveryTime ~ protocolType, subset)
 posthocTGH(subset$averageDeliveryTime, subset$protocolType, method="games-howell");
 # voor 3 Drones: verschil tussen alle 3!
 
@@ -154,37 +154,37 @@ MASplot("nbDrones", "nbClientsNotDelivered", "nbInitialClients < 20 & nbDynamicC
 
 # Not too many clients
 subset = results %>% filter(nbInitialClients < 20 & nbDynamicClients < 50)
-leveneTest(nbClientsNotDelivered ~ protocolType, subset)
+#leveneTest(nbClientsNotDelivered ~ protocolType, subset)
 posthocTGH(subset$nbClientsNotDelivered, subset$protocolType, method="games-howell");
 # => Difference between all 3
 
 # 10 Drones
 subset = results %>% filter(nbDrones == 10)
-leveneTest(nbClientsNotDelivered ~ protocolType, subset)
+#leveneTest(nbClientsNotDelivered ~ protocolType, subset)
 posthocTGH(subset$nbClientsNotDelivered, subset$protocolType, method="games-howell");
 # CNET onder DynCNET
 
 # 9 Drones
 subset = results %>% filter(nbDrones == 9)
-leveneTest(nbClientsNotDelivered ~ protocolType, subset)
+#leveneTest(nbClientsNotDelivered ~ protocolType, subset)
 posthocTGH(subset$nbClientsNotDelivered, subset$protocolType, method="games-howell");
 # geen verschil tussen CNET en DynCNET
 
 # 4 Drones
 subset = results %>% filter(nbDrones == 4)
-leveneTest(nbClientsNotDelivered ~ protocolType, subset)
+#leveneTest(nbClientsNotDelivered ~ protocolType, subset)
 posthocTGH(subset$nbClientsNotDelivered, subset$protocolType, method="games-howell");
 # wel verschil tussen CNET en DynCNET
 
 # 8 Drones
 subset = results %>% filter(nbDrones == 8)
-leveneTest(nbClientsNotDelivered ~ protocolType, subset)
+#leveneTest(nbClientsNotDelivered ~ protocolType, subset)
 posthocTGH(subset$nbClientsNotDelivered, subset$protocolType, method="games-howell");
 # DynCNET < CNET
 
 # <=2 Drones
 subset = results %>% filter(nbDrones <= 2)
-leveneTest(nbClientsNotDelivered ~ protocolType, subset)
+#leveneTest(nbClientsNotDelivered ~ protocolType, subset)
 posthocTGH(subset$nbClientsNotDelivered, subset$protocolType, method="games-howell");
 # CNET = CNCP
 
@@ -213,13 +213,13 @@ MASplot("nbDrones", "nbMessages", "nbDynamicClients == 10 & nbInitialClients == 
 
 # little clients
 subset = results %>% filter(nbDynamicClients == 10 & nbInitialClients == 5)
-leveneTest(nbMessages ~ protocolType, subset)
+#leveneTest(nbMessages ~ protocolType, subset)
 posthocTGH(subset$nbMessages, subset$protocolType, method="games-howell");
 # no difference between CNET and CNCP
 
 # no filter
 subset = results
-leveneTest(nbMessages ~ protocolType, subset)
+#leveneTest(nbMessages ~ protocolType, subset)
 posthocTGH(subset$nbMessages, subset$protocolType, method="games-howell");
 # difference between CNET and CNCP: CNCP MEER messages nodig
 
