@@ -11,9 +11,16 @@ label.DynCNET = "DynCNET"
 results = read.csv("masresults.csv", sep = ";", header = TRUE)
 results$protocolType = revalue(results$protocolType, c("DYNAMIC_CONTRACT_NET"=label.DynCNET, "CONTRACT_NET"=label.CNET, "CONTRACT_NET_CONFIRMATION"=label.CNCP))
 grid2 = read.csv("grid2.csv", sep = ";", header = TRUE)
+grid2$protocolType = revalue(grid2$protocolType, c("DYNAMIC_CONTRACT_NET"=label.DynCNET, "CONTRACT_NET"=label.CNET, "CONTRACT_NET_CONFIRMATION"=label.CNCP))
 
-MASplot = function(xAxis, yAxis, filterQuery = "", title = "", xlabel = xAxis, ylabel = yAxis, data = results) {
+MASplot = function(xAxis, yAxis, filterQuery = "", title = "", xlabel = xAxis, ylabel = yAxis, use.grid2 = FALSE) {
   alfa = 0.05
+
+  if(use.grid2){
+    data = grid2
+  } else {
+    data = results
+  }
 
   if(filterQuery == ""){
     if(title == ""){
@@ -26,6 +33,10 @@ MASplot = function(xAxis, yAxis, filterQuery = "", title = "", xlabel = xAxis, y
       title = paste(title, "(", filterQuery,")")
     }
     data = data %>% filter_(filterQuery)
+  }
+
+  if(use.grid2){
+    title = paste(title, "over grid2")
   }
 
   data = data %>%
@@ -53,10 +64,6 @@ MASplot = function(xAxis, yAxis, filterQuery = "", title = "", xlabel = xAxis, y
 #  qqline(subsetDyn)
 #}
 #MASqqplot(subset, "totalProfit")
-
-
-
-# Normality was tested using QQplots
 
 MASplot("nbDrones", "totalProfit")
 MASplot("nbWarehouses", "totalProfit")
@@ -291,8 +298,17 @@ MASplot("nbInitialClients", "totalProfit")
 MASplot("nbDynamicClients", "totalProfit")
 # => correct
 
-MASplot("nbDynamicClients", "totalProfit", "nbDrones > 7")
+MASplot("nbInitialClients", "totalProfit", use.grid2 = TRUE)
+MASplot("nbDynamicClients", "totalProfit", use.grid2 = TRUE)
+# => correct, DynCNET saturates first and collapses harder
+
+MASplot("nbInitialClients", "averageNbSwitchesPerClient", use.grid2 = TRUE)
+MASplot("nbDynamicClients", "averageNbSwitchesPerClient", use.grid2 = TRUE)
+# => gemiddeld 70% van clients switcht 1 keer van drone, bij saturatie
+MASplot("nbInitialClients", "averageNbSwitchesPerDrone", use.grid2 = TRUE)
+MASplot("nbDynamicClients", "averageNbSwitchesPerDrone", use.grid2 = TRUE)
+# aantal switches per drone stijgt lineair met aantal clients
 
 # Hypothese:
-#  - hypothese was correct
+#  - hypothese was correct, maar DynCNET crasht echt
 #############################################################
