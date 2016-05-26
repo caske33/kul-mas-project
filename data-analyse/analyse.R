@@ -35,6 +35,7 @@ MASplot = function(xAxis, yAxis, filterQuery = "", title = "", xlabel = xAxis, y
     ggtitle(title)
 }
 
+# Normality was tested using QQplots
 
 MASplot("nbDrones", "totalProfit")
 MASplot("nbWarehouses", "totalProfit")
@@ -238,3 +239,33 @@ MASplot("nbDynamicClients", "totalProfit", "nbDrones < 7")
 #############################################################
 
 
+MASplot("nbDrones", "totalProfit")
+#############################################################
+# Question 6: influence of nbDrones on profit
+MASplot("nbDrones", "totalProfit")
+MASplot("nbDrones", "totalProfit", "nbDynamicClients == 50 & nbInitialClients == 25")
+
+# Hypothese:
+#  - as saturation starts to set in quickly, it's not clear if it's really linear, even with maximum number of clients
+#############################################################
+
+#############################################################
+# Question 7: influence of nbWarehouses on profit
+MASplot("nbWarehouses", "totalProfit")
+MASplot("nbWarehouses", "totalProfit", "nbDrones < 3")
+
+subset1 = results %>% filter(nbDrones < 3 & nbWarehouses == 8)
+subset2 = results %>% filter(nbDrones < 3 & nbWarehouses == 9)
+var.test(subset1$totalProfit, subset2$totalProfit)
+t.test(subset1$totalProfit, subset2$totalProfit, var.equal = TRUE)
+# no increase from 8 to 9 warehouses for 1 or 2 drones
+
+# Hypothese:
+# => in some cases, adding 1 warehouse does not help, but in general it helps
+#############################################################
+
+#############################################################
+# Question 8: influence of nbClients on profit
+# Hypothese:
+#  -
+#############################################################
