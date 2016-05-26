@@ -2,51 +2,59 @@ library(dplyr)
 library(ggplot2)
 library(car)
 
-results = read.csv("masresults.csv", sep = ";", header = FALSE, col.names = c("chargesInWarehouse", "protocolType", "nbWarehouses", "nbDrones", "nbInitialClients", "nbDynamicClients", "nbCrashes", "totalProfit", "nbClients", "nbClientsNotDelivered", "averageDeliveryTime", "nbDrones", "averageDistanceTravelledPerDrone", "maximumNbOrdersPerDrone", "estimatedTotalProfit", "estimatedNbCrashes", "nbMessages", "averageNbCallsForProposals", "nbCrashesByBattery"))
+alfa = 0.05
 
-MASplot = function(xAxis, yAxis) {
-  results %>%
+results = read.csv("masresults.csv", sep = ";", header = TRUE)
+
+MASplot = function(xAxis, yAxis, filterQuery = "", title = "", xlabel = xAxis, ylabel = yAxis) {
+  z = qnorm(1-alfa/2)
+
+  if(filterQuery == ""){
+    if(title == ""){
+      title = "Using all results"
+    }
+    data = results
+  } else {
+    if(title == ""){
+      title = filterQuery
+    }else{
+      title = paste(title, "(", filterQuery,")")
+    }
+    data = results %>% filter_(filterQuery)
+  }
+
+  data = data %>%
     group_by_("protocolType", xAxis) %>%
-    summarise_(aggregatedY = yAxis, x=paste("first(",xAxis,")")) %>%
-    ggplot(aes(x=x, y=aggregatedY, col = protocolType)) +
-      geom_line() +
-      geom_point() +
-      xlab(xAxis) +
-      ylab(yAxis) +
-      ggtitle("All results")
+    summarise_(aggregatedY = paste("mean(",yAxis,")"), x=paste("first(",xAxis,")"), se = paste("sd(",yAxis,")/sqrt(n())"))
+
+  ggplot(data, aes(x=x, y=aggregatedY, col = protocolType)) +
+    geom_line() +
+    geom_point() +
+    geom_errorbar(aes(ymin = aggregatedY - z*se, ymax = aggregatedY + z*se), width = .3) +
+    xlab(xlabel) +
+    ylab(ylabel) +
+    ggtitle(title)
 }
-MASplotFilter = function(xAxis, yAxis, filterQuery) {
-  results %>%
-    filter_(filterQuery) %>%
-    group_by_("protocolType", xAxis) %>%
-    summarise_(aggregatedY = yAxis, x=paste("first(",xAxis,")")) %>%
-    ggplot(aes(x=x, y=aggregatedY, col = protocolType)) +
-      geom_line() +
-      geom_point() +
-      xlab(xAxis) +
-      ylab(yAxis) +
-      ggtitle(filterQuery)
-}
-MASplot("nbDrones", "mean(totalProfit)")
-MASplot("nbWarehouses", "mean(totalProfit)")
-MASplot("nbInitialClients", "mean(totalProfit)")
-MASplot("nbDynamicClients", "mean(totalProfit)")
+MASplot("nbDrones", "totalProfit")
+MASplot("nbWarehouses", "totalProfit")
+MASplot("nbInitialClients", "totalProfit")
+MASplot("nbDynamicClients", "totalProfit")
 
-MASplotFilter("nbWarehouses", "mean(totalProfit)", "nbDrones >= 7")
-MASplotMinDrones("nbInitialClients", "mean(totalProfit)", "nbDrones >= 7")
-MASplotMinDrones("nbDynamicClients", "mean(totalProfit)", "nbDrones >= 7")
+MASplot("nbWarehouses", "totalProfit", "nbDrones >= 7")
+MASplot("nbInitialClients", "totalProfit", "nbDrones >= 7")
+MASplot("nbDynamicClients", "totalProfit", "nbDrones >= 7")
 
-MASplot("nbDrones", "mean(averageDeliveryTime)")
-MASplot("nbWarehouses", "mean(averageDeliveryTime)")
-MASplot("nbInitialClients", "mean(averageDeliveryTime)")
-MASplot("nbDynamicClients", "mean(averageDeliveryTime)")
+MASplot("nbDrones", "averageDeliveryTime")
+MASplot("nbWarehouses", "averageDeliveryTime")
+MASplot("nbInitialClients", "averageDeliveryTime")
+MASplot("nbDynamicClients", "averageDeliveryTime")
 
-MASplotFilter("nbDrones", "mean(averageDeliveryTime)", "nbDrones >= 7")
-MASplotFilter("nbWarehouses", "mean(averageDeliveryTime)", "nbDrones >= 7")
-MASplotFilter("nbInitialClients", "mean(averageDeliveryTime)", "nbDrones >= 7")
-MASplotFilter("nbDynamicClients", "mean(averageDeliveryTime)", "nbDrones >= 7")
+MASplot("nbDrones", "averageDeliveryTime", "nbDrones >= 7")
+MASplot("nbWarehouses", "averageDeliveryTime", "nbDrones >= 7")
+MASplot("nbInitialClients", "averageDeliveryTime", "nbDrones >= 7")
+MASplot("nbDynamicClients", "averageDeliveryTime", "nbDrones >= 7")
 
-MASplotFilter("nbClients", "mean(totalProfit)", "nbDrones >= 8")
+MASplot("nbClients", "totalProfit", "nbDrones >= 8")
 
 
 
