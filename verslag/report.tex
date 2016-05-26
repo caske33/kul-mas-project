@@ -33,9 +33,7 @@
 \commentY{In 2 kolommen? => geeft wel ander aantal pagina's, dus opletten met theorie sectie dan. Maar in mijn ogen is het wel een pak beter\commentV{In finaal verslag: ja - veel beter; in werkdocument zou ik het afzetten zodat we een goed idee hebben van de lengte}}
 
 \section{Introduction}
-\proposalY{Nog voor Objectives een context sectie hebben?}
-\commentV{Zie https://bitbucket.org/VictorLP/mas/wiki/Notities}
-\commentY{Normaal staan alle comments van de wiki in het verslag nu}
+\commentV{Zie https://bitbucket.org/VictorLP/mas/wiki/Notities\commentY{Normaal staan alle comments van de wiki in het verslag nu}}
 \commentV{The last paragraph of the introduction traditionally says “This report is organised as
 follows. Section 1 introduces . . . ”.}
 \subsection{Objectives}
@@ -76,14 +74,9 @@ We expect the profit to rise until the fines of not delivering start to become t
 \outline{In profit: DynCNET better than Confirmation better than CNET \\ In messages: CNET better than confirmation better than DynCNET\commentY{Done?}}
 
 \section{Theory}
-\outline{Theoretische uiteenzetting van wat in de drie relevante papers staat}
-\commentV{Theory nog iets algemener, meer van onze eigen dingen in system design zetten? zie ook hoofdstuk 7 Schut\commentY{jup}}
+\outline{Theoretische uiteenzetting van wat in de drie relevante papers staat\commentY{Voor mij is dit klaar}}
 
 In this section we describe the theory of the Contract Net Protocol and the two extensions CNCP and DynCNET. We use the literature on these protocols to highlight their characteristics and differences.
-
-\proposalY{In this section we describe how the theory of multi-agent systems maps onto our implementation. We first discuss the theory of contract net, followed by the variations made in CNCP and DynCNET. We conclude with a description of the agent architectures.}
-
-\taskS{Add sequence diagrams of 3 protocols (mss met kleuren werken om verschillen aan te duiden?). Best met zelfde kleuren als grafieken dan: CNET rood, CNCP groen en DynCNET blauw\commentY{Als we het doen, dus in design sectie?}}
 
 \subsection{Contract Net} The Contract Net Protocol, or CNET, was conceived by Smith in 1980. \cite{CNET} It is a high-level protocol for communication between agents to allow distributed task execution. The high-level protocol messages have a particular structure and meaning, which means the agents can interpret them to receive information on tasks and allocations and to send replies such as bids. 
 
@@ -123,8 +116,19 @@ DynCNET changes the acceptance of task by a winning contractor to a provisional 
 
 The synchronization between managers and contractor to assess their current state requires some additional messaging. If a manager cancels a contract, it needs to notify the original contractor that the task has been awarded to another agent. Inversely, a contractor that takes up another task needs to notify the manager of the original task that it is no longer committed to executing that original task. Finally the contractor needs to send a message to the manager when it starts executing the task, so the manager can stop announcing the task to other agents.
 
+\section{Multi-agent system design}
+\outline{Wat wij concreet doen}
+\subsection{Design}
+\outline{\begin{itemize}
+        \item drones leveren orders uit warehouses aan clients (1 order per client)
+        \item bid berekening (statistisch relevant)
+        \item messaging gedetailleerd bespreken of niet?
+        \item tijd tijdens opladen wordt niet meegerekend bij estimated cost (footnote)
+    \end{itemize}}
 
-\subsection{Agent Architecture} 
+\commentY{Add sequence diagrams of 3 protocols???}
+
+\subsection{Agent FSM's} 
 \commentV{waar moet dit best komen?\proposalY{Ik zou het er nu misschien zelfs uitlaten. Daarvoor was het ook deels nodig om aan onze 3 pagina's te komen. Dus bij design eventueel wel nog FSM's zetten, maar zeker niet "Agent Architecture" erbij zetten.}}
 Both the drone and client agents have very simple architectures. They can be modeled using simple finite state machines.
 
@@ -155,15 +159,7 @@ In CNET and CNCP, a client can only send calls for proposals while in the \textt
 \commentY{Table met communication primitives as in \cite{TentativeBidding}?}
 
 
-\section{Multi-agent system design}
-\outline{Wat wij concreet doen}
-\subsection{Design}
-\outline{\begin{itemize}
-        \item drones leveren orders uit warehouses aan clients (1 order per client)
-        \item bid berekening (statistisch relevant)
-        \item messaging gedetailleerd bespreken of niet?
-        \item tijd tijdens opladen wordt niet meegerekend bij estimated cost (footnote)
-    \end{itemize}}
+\taskS{Haal uit proposalY de verschillen met CNET, CNCP en DynCNET}
     
 \proposalY{\textbf{CNET: } Our system has two types of agents: clients (who represent a package that needs to be delivered) and a drone. The two types of agents each fulfill a different role in CNET: clients fulfill the role of manager, while the drones fulfill the role of contractor. When clients enter the world, they will announce a call for proposal to all agents \textbf{footnote}{This includes other clients, which will ignore all calls for proposals. RinSim does not (yet) provide a broadcast to a subset, the drones, of all agents.} through the means of broadcasting. This task announcement is simplified from the original paper \cite{CNET}. As all drones are eligible, no eligibility information is provided. The bid specification is missing as well. There is no expiration time on the call for proposal, as drones should bid as quickly as they can.
     
