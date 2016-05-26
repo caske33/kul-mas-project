@@ -1,25 +1,31 @@
+library(plyr)
 library(dplyr)
 library(ggplot2)
 library(car)
 library(userfriendlyscience)
 
-alfa = 0.05
+label.CNET = "CNET"
+label.CNCP = "CNCP"
+label.DynCNET = "DynCNET"
 
 results = read.csv("masresults.csv", sep = ";", header = TRUE)
+results$protocolType = revalue(results$protocolType, c("DYNAMIC_CONTRACT_NET"=label.DynCNET, "CONTRACT_NET"=label.CNET, "CONTRACT_NET_CONFIRMATION"=label.CNCP))
+grid2 = read.csv("grid2.csv", sep = ";", header = TRUE)
 
-MASplot = function(xAxis, yAxis, filterQuery = "", title = "", xlabel = xAxis, ylabel = yAxis) {
+MASplot = function(xAxis, yAxis, filterQuery = "", title = "", xlabel = xAxis, ylabel = yAxis, data = results) {
+  alfa = 0.05
+
   if(filterQuery == ""){
     if(title == ""){
       title = "Using all results"
     }
-    data = results
   } else {
     if(title == ""){
       title = filterQuery
     }else{
       title = paste(title, "(", filterQuery,")")
     }
-    data = results %>% filter_(filterQuery)
+    data = data %>% filter_(filterQuery)
   }
 
   data = data %>%
@@ -34,6 +40,21 @@ MASplot = function(xAxis, yAxis, filterQuery = "", title = "", xlabel = xAxis, y
     ylab(ylabel) +
     ggtitle(title)
 }
+#MASqqplot = function(subset, field) {
+#  subsetCNET = unlist((subset %>% filter(protocolType == label.CNET))[field])
+#  subsetCNCP = unlist((subset %>% filter(protocolType == label.CNCP))[field])
+#  subsetDyn = unlist((subset %>% filter(protocolType == label.DynCNET))[field])
+#
+#  qqnorm(subsetCNET, main = "CNET")
+#  qqline(subsetCNET)
+#  qqnorm(subsetCNCP, main = "CNCP")
+#  qqline(subsetCNCP)
+#  qqnorm(subsetDyn, main = "DynCNET")
+#  qqline(subsetDyn)
+#}
+#MASqqplot(subset, "totalProfit")
+
+
 
 # Normality was tested using QQplots
 
@@ -177,10 +198,10 @@ MASplot("nbDrones", "nbMessages")
 MASplot("nbWarehouses", "nbMessages")
 MASplot("nbInitialClients", "nbMessages")
 MASplot("nbDynamicClients", "nbMessages")
-MASplot("nbDrones", "nbMessages", "protocolType %in% c('CONTRACT_NET', 'CONTRACT_NET_CONFIRMATION')")
-MASplot("nbDynamicClients", "nbMessages", "protocolType %in% c('CONTRACT_NET', 'CONTRACT_NET_CONFIRMATION')")
-MASplot("nbInitialClients", "nbMessages", "protocolType %in% c('CONTRACT_NET', 'CONTRACT_NET_CONFIRMATION')")
-MASplot("nbWarehouses", "nbMessages", "protocolType %in% c('CONTRACT_NET', 'CONTRACT_NET_CONFIRMATION')")
+MASplot("nbDrones", "nbMessages", "protocolType %in% c('CNET', 'CNCP')")
+MASplot("nbDynamicClients", "nbMessages", "protocolType %in% c('CNET', 'CNCP')")
+MASplot("nbInitialClients", "nbMessages", "protocolType %in% c('CNET', 'CNCP')")
+MASplot("nbWarehouses", "nbMessages", "protocolType %in% c('CNET', 'CNCP')")
 #############################################################
 # Question 4: difference in nbMessages?
 MASplot("nbDynamicClients", "nbMessages")
@@ -266,6 +287,12 @@ t.test(subset1$totalProfit, subset2$totalProfit, var.equal = TRUE)
 
 #############################################################
 # Question 8: influence of nbClients on profit
+MASplot("nbInitialClients", "totalProfit")
+MASplot("nbDynamicClients", "totalProfit")
+# => correct
+
+MASplot("nbDynamicClients", "totalProfit", "nbDrones > 7")
+
 # Hypothese:
-#  -
+#  - hypothese was correct
 #############################################################
