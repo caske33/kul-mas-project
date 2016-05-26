@@ -7,8 +7,6 @@ alfa = 0.05
 results = read.csv("masresults.csv", sep = ";", header = TRUE)
 
 MASplot = function(xAxis, yAxis, filterQuery = "", title = "", xlabel = xAxis, ylabel = yAxis) {
-  z = qnorm(1-alfa/2)
-
   if(filterQuery == ""){
     if(title == ""){
       title = "Using all results"
@@ -25,12 +23,12 @@ MASplot = function(xAxis, yAxis, filterQuery = "", title = "", xlabel = xAxis, y
 
   data = data %>%
     group_by_("protocolType", xAxis) %>%
-    summarise_(aggregatedY = paste("mean(",yAxis,")"), x=paste("first(",xAxis,")"), se = paste("sd(",yAxis,")/sqrt(n())"))
+    summarise_(aggregatedY = paste("mean(",yAxis,")"), x=paste("first(",xAxis,")"), se = paste("sd(",yAxis,")/sqrt(n())"), n = "n()")
 
   ggplot(data, aes(x=x, y=aggregatedY, col = protocolType)) +
     geom_line() +
     geom_point() +
-    geom_errorbar(aes(ymin = aggregatedY - z*se, ymax = aggregatedY + z*se), width = .3) +
+    geom_errorbar(aes(ymin = aggregatedY - se*qt(1-alfa/2, df=n), ymax = aggregatedY + se*qt(1-alfa/2, df=n)), width = .3) +
     xlab(xlabel) +
     ylab(ylabel) +
     ggtitle(title)
