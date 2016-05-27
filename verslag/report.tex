@@ -135,6 +135,12 @@ Once a drone has received a task, it starts executing the task by flying to the 
 
 In DynCNET, during the phase where the drone is flying to the warehouse to pick up the package, both the drone and the client are allowed to continue negotiations with other agents, respectively by submitting bids and sending out task announcements. When a drone has been awarded a task with a lower cost than its current task, it cancels the task and notifies that task's client. This client will then reannounce the task. Inversely, if a client can award the task to another drone whose task is lower, it will cancel the contract with the drone that was previously awarded the task. This drone will then start bidding on other tasks. Only when the drone has picked up the package, will both the client and the drone fully commit to the contract and stop negotiating until the package has been delivered.
 
+In case the drone would crash, the notification of this failure to the client is modeled by sending one last signal to the client. In practice, outside a simulator, a polling approach might be used. After the client is aware of the failure, the client announces the task again.
+
+For simplification, all agents are completely aware of the whole world and can message all other agents. 
+
+\commentV{customers arrive randomly}
+
 \outline{\begin{itemize}
         \item drones leveren orders uit warehouses aan clients (1 order per client)
         \item bid berekening (statistisch relevant)
@@ -186,8 +192,6 @@ In CNET and CNCP, a client can only send task announcements while in the \texttt
     
 \proposalY{\textbf{CNET: } 
     
-In case the drone would crash, it would sent one last signal to the client to inform him of the crash \textbf{footnote}{In practice, outside a simulator, a polling approach might be used instead.}. The client would then start sending out calls for proposals again.
-
 As said earlier, once a bid has been placed, a drone cannot bid unless the current task has been executed or his bid was declined. While \cite{CNET} suggest that this might increase delay significantly, we assumed the effect would be smaller in our design where clients assign contracts from the moments they receive bids. As a drone can only hold 1 contract, there is no need for a local scheduler within the drone.}
 
 \proposalY{\textbf{CNCP:} The earlier solution suffers from 1 major flaw: drones have to commit to their bid until the client accepts or declines their bid. They are not allowed to bid on other task announcements while they have a bid outstanding. As their are $n$ drones and $m$ clients, $n*m$ bids are possible in theory. In practice, only $n$ bids are sent out. In the worst case, where all drones rank the clients in the same order $O(m)$ rounds of bidding are necessary to assign all clients to drones in CNET.
@@ -199,9 +203,9 @@ While CNCP as described in \cite{CNCP} requires an extra $O(2*n)$ messages, our 
 
 \proposalY{\textbf{DynCNET: }
 
-CNCP still suffers from one problem: while a drone is flying to the warehouse (and while he is charging in the warehouse before delivering the package), the world might change. Maybe another drone becomes available, or another client announces a new task. In both scenarios, it might be better to cancel the contract and start a new one. Neither CNET nor CNCP allow a drone or client to change a contract after they have committed to each other. In DynCNET, a drone can still cancel the contract, as long as it has not yet picked up the package in the warehouse. So if a better client comes along, a drone could cancel the old contract and start a new contract with this new client. Similarly, a client can break up the contract with a drone as long as this drone has not yet picked up the package. If a better drone becomes available (after it has delivered another package), the client might switch drones. It will let the old drone known that the contract has been canceled.
+%CNCP still suffers from one problem: while a drone is flying to the warehouse (and while he is charging in the warehouse before delivering the package), the world might change. Maybe another drone becomes available, or another client announces a new task. In both scenarios, it might be better to cancel the contract and start a new one. Neither CNET nor CNCP allow a drone or client to change a contract after they have committed to each other. In DynCNET, a drone can still cancel the contract, as long as it has not yet picked up the package in the warehouse. So if a better client comes along, a drone could cancel the old contract and start a new contract with this new client. Similarly, a client can break up the contract with a drone as long as this drone has not yet picked up the package. If a better drone becomes available (after it has delivered another package), the client might switch drones. It will let the old drone known that the contract has been canceled.
 
-This means that in practice, the client will keep sending calls for proposals until the drone has picked up the package. Similarly, the drone will keep bidding on task announcements until it picks up the package. From then on, both agents are 100\% committed to the contract.
+%This means that in practice, the client will keep sending calls for proposals until the drone has picked up the package. Similarly, the drone will keep bidding on task announcements until it picks up the package. From then on, both agents are 100\% committed to the contract.
 
 A potential risk of DynCNET is oscillation of tasks between drones. \cite{DynCNET} describes a solution by limiting the areas of interest. In our design, the agents are only limited by the battery constraint of the drones. We did not take special action to prevent the oscillation of tasks between drones.
 
@@ -246,6 +250,7 @@ It is important to note, that in our design, bids are satisfactory if the expect
         \item dependent: profit, aantal clients delivered, aantal messages, delivery time, ... (\texttt{ExperimentResult})
         \item other: battery drain, kost pakketjes, oplaadkost, ... (\texttt{Variables.kt} + \texttt{PackageType.kt})
         \item beschrijving computer + RinSim 4.1.0
+        \item  square area of 100 km$^2$
     \end{itemize}}
 \subsection{Results}
 \commentY{Ook 95 \% Confidence interval (CI) op grafieken? Prof is daar precies fan van => Misschien beter om te doen. Ik ben niet 100\% zeker van correctheid, maar misschien wel, omdat het CI is van de variabele, niet het verschil tussen 2 variabelen. Dus zolang variabele normaal verdeeld is, is het waarschijnlijk wel ok.}
