@@ -13,7 +13,7 @@ results$protocolType = revalue(results$protocolType, c("DYNAMIC_CONTRACT_NET"=la
 grid2 = read.csv("grid2.csv", sep = ";", header = TRUE)
 grid2$protocolType = revalue(grid2$protocolType, c("DYNAMIC_CONTRACT_NET"=label.DynCNET, "CONTRACT_NET"=label.CNET, "CONTRACT_NET_CONFIRMATION"=label.CNCP))
 
-MASplot = function(xAxis, yAxis, filterQuery = "", title = "", xlabel = xAxis, ylabel = yAxis, use.grid2 = FALSE) {
+MASplot = function(xAxis, yAxis, filterQuery = "", title = "", xlabel = xAxis, ylabel = yAxis, use.grid2 = FALSE, filename = "") {
   alfa = 0.05
 
   if(use.grid2){
@@ -22,34 +22,34 @@ MASplot = function(xAxis, yAxis, filterQuery = "", title = "", xlabel = xAxis, y
     data = results
   }
 
-  if(filterQuery == ""){
-    if(title == ""){
-      title = "Using all results"
-    }
-  } else {
+  if(filterQuery != ""){
     if(title == ""){
       title = filterQuery
-    }else{
-      title = paste(title, "(", filterQuery,")")
     }
     data = data %>% filter_(filterQuery)
   }
 
-  if(use.grid2){
-    title = paste(title, "over grid2")
-  }
+  #if(use.grid2){
+  #  title = paste(title, "over grid2")
+  #}
 
   data = data %>%
     group_by_("protocolType", xAxis) %>%
     summarise_(aggregatedY = paste("mean(",yAxis,")"), x=paste("first(",xAxis,")"), se = paste("sd(",yAxis,")/sqrt(n())"), n = "n()")
 
-  ggplot(data, aes(x=x, y=aggregatedY, col = protocolType)) +
+  plot = ggplot(data, aes(x=x, y=aggregatedY, col = protocolType)) +
     geom_line() +
     geom_point() +
     geom_errorbar(aes(ymin = aggregatedY - se*qt(1-alfa/2, df=n), ymax = aggregatedY + se*qt(1-alfa/2, df=n)), width = .3) +
     xlab(xlabel) +
     ylab(ylabel) +
     ggtitle(title)
+
+  if(filename != ""){
+    ggsave(file = paste("../verslag/images/",filename,".pdf", sep = ""), plot = plot)
+  }
+
+  plot
 }
 #MASqqplot = function(subset, field) {
 #  subsetCNET = unlist((subset %>% filter(protocolType == label.CNET))[field])
@@ -157,43 +157,50 @@ MASplot("nbDynamicClients", "nbClientsNotDelivered", "nbDrones >= 7")
 MASplot("nbDrones", "nbClientsNotDelivered")
 MASplot("nbDrones", "nbClientsNotDelivered", "nbDrones > 5")
 MASplot("nbDrones", "nbClientsNotDelivered", "nbInitialClients < 20 & nbDynamicClients < 50")
+MASplot("nbDynamicClients", "nbClientsNotDelivered", "nbInitialClients == 25", use.grid2 = T)
 # => Complex situation (interaction between Drones and clients)
 
 # Not too many clients
 subset = results %>% filter(nbInitialClients < 20 & nbDynamicClients < 50)
 #leveneTest(nbClientsNotDelivered ~ protocolType, subset)
 posthocTGH(subset$nbClientsNotDelivered, subset$protocolType, method="games-howell");
-# => Difference between all 3
+# CNCP < CNET < DynCNET
 
 # 10 Drones
 subset = results %>% filter(nbDrones == 10)
 #leveneTest(nbClientsNotDelivered ~ protocolType, subset)
 posthocTGH(subset$nbClientsNotDelivered, subset$protocolType, method="games-howell");
-# CNET onder DynCNET
+# CNCP < CNET < DynCNET
 
 # 9 Drones
 subset = results %>% filter(nbDrones == 9)
 #leveneTest(nbClientsNotDelivered ~ protocolType, subset)
 posthocTGH(subset$nbClientsNotDelivered, subset$protocolType, method="games-howell");
-# geen verschil tussen CNET en DynCNET
-
-# 4 Drones
-subset = results %>% filter(nbDrones == 4)
-#leveneTest(nbClientsNotDelivered ~ protocolType, subset)
-posthocTGH(subset$nbClientsNotDelivered, subset$protocolType, method="games-howell");
-# wel verschil tussen CNET en DynCNET
+# CNCP <  CNET = DynCNET
 
 # 8 Drones
 subset = results %>% filter(nbDrones == 8)
 #leveneTest(nbClientsNotDelivered ~ protocolType, subset)
 posthocTGH(subset$nbClientsNotDelivered, subset$protocolType, method="games-howell");
-# DynCNET < CNET
+# CNCP < DynCNET < CNET
+
+# 4 Drones
+subset = results %>% filter(nbDrones == 4)
+#leveneTest(nbClientsNotDelivered ~ protocolType, subset)
+posthocTGH(subset$nbClientsNotDelivered, subset$protocolType, method="games-howell");
+# CNCP < CNET < DynCNET
 
 # <=2 Drones
 subset = results %>% filter(nbDrones <= 2)
 #leveneTest(nbClientsNotDelivered ~ protocolType, subset)
 posthocTGH(subset$nbClientsNotDelivered, subset$protocolType, method="games-howell");
-# CNET = CNCP
+# CNET = CNCP < DynCNET
+
+# Large number of clients
+subset = grid2 %>% filter(nbDynamicClients > 100)
+#leveneTest(nbClientsNotDelivered ~ protocolType, subset)
+posthocTGH(subset$nbClientsNotDelivered, subset$protocolType, method="games-howell");
+# => Difference between all 3, DynCNET < CNCP < CNET
 
 # Hypothese:
 # - Only when nbDrones is low, will CNET and CNCP have the same number of clients not delivered, otherwise, CNCP will outperform CNCP
@@ -220,6 +227,12 @@ MASplot("nbDrones", "nbMessages", "nbDynamicClients == 10 & nbInitialClients == 
 
 # little clients
 subset = results %>% filter(nbDynamicClients == 10 & nbInitialClients == 5)
+#leveneTest(nbMessages ~ protocolType, subset)
+posthocTGH(subset$nbMessages, subset$protocolType, method="games-howell");
+# no difference between CNET and CNCP
+
+# 1 nbDrones
+subset = results %>% filter(nbDrones == 2)
 #leveneTest(nbMessages ~ protocolType, subset)
 posthocTGH(subset$nbMessages, subset$protocolType, method="games-howell");
 # no difference between CNET and CNCP
@@ -312,3 +325,23 @@ MASplot("nbDynamicClients", "averageNbSwitchesPerDrone", use.grid2 = TRUE)
 # Hypothese:
 #  - hypothese was correct, maar DynCNET crasht echt
 #############################################################
+
+
+##########################
+##########################
+####   -------------   ###
+####   PLOTS VERSLAG   ###
+####   -------------   ###
+##########################
+##########################
+MASplot("nbDrones", "totalProfit", title = "Influence of drones on profit",xlabel = "Number of drones", ylabel = "Profit [€]", filename = "drones-profit")
+MASplot("nbWarehouses", "totalProfit", title = "Influence of warehouses on profit",xlabel = "Number of warehouses", ylabel = "Profit [€]", filename = "warehouses-profit")
+MASplot("nbInitialClients", "totalProfit", title = "Influence of initial clients on profit",xlabel = "Number of initial clients", ylabel = "Profit [€]", filename = "initialclients-profit")
+MASplot("nbDynamicClients", "totalProfit", title = "Influence of extra clients on profit",xlabel = "Number of extra clients", ylabel = "Profit [€]", filename = "dynamicclients-profit")
+MASplot("nbDynamicClients", "totalProfit", filter = "nbDrones >= 7", title = "No breakdown for large number of drones (7 or more)", xlabel = "Number of extra clients", ylabel = "Profit [€]", filename = "dynamicclients-profit-largeNbDrones")
+
+MASplot("nbDrones", "averageDeliveryTime", title = "Influence of number of drones on delivery time", xlabel = "Number of Drones", ylabel = "average delivery time [ms]", filename = "drones-deliverytime")
+
+MASplot("nbDynamicClients", "nbClientsNotDelivered", "nbInitialClients == 25 & nbDynamicClients < 100", xlabel = "number of extra clients", ylabel = "number of clients not delivered", title = "Influence of number of extra clients on the number of clients that er delivered", use.grid2 = T, filename = "dynamicclients-delivered-grid2")
+
+MASplot("nbDynamicClients", "totalProfit", title = "Influence of number of extra clients on the profit (experiment2)", xlabel = "number of extra clients", ylabel = "Profit [€]", use.grid2 = TRUE ,filename = "dynamicclients-profit-grid2")

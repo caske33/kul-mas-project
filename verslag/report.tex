@@ -23,9 +23,18 @@
 \newcommand{\taskV}[1]{\todo[inline, color=red]{@Victor, fix: #1}}
 \newcommand{\taskS}[1]{\todo[inline, color=red]{@???, fix: #1}}
 
+\newcommand{\MASplot}[2]{
+\begin{figure}[htp]
+    \centering
+    \includegraphics[width=\columnwidth]{#1}
+    \caption{#2}
+    \label{fig:#1}
+\end{figure}
+}
+
 \newcommand{\outline}[1]{\todo[inline, caption={}, color=cyan]{\emph{Outline of what should come here}: #1}}
 
-\graphicspath{ {./vpp/} }
+\graphicspath{ {./vpp/}{./images/} }
 
 \begin{document}
 \maketitle
@@ -249,17 +258,50 @@ It is important to note, that in our design, bids are satisfactory if the expect
         \item beschrijving computer + RinSim 4.1.0
         \item  square area of 100 km$^2$
     \end{itemize}}
+\taskS{Experiment 1 en experiment 2!}
 \subsection{Results}
-\commentY{Ook 95 \% Confidence interval (CI) op grafieken? Prof is daar precies fan van => Misschien beter om te doen. Ik ben niet 100\% zeker van correctheid, maar misschien wel, omdat het CI is van de variabele, niet het verschil tussen 2 variabelen. Dus zolang variabele normaal verdeeld is, is het waarschijnlijk wel ok.}
+\commentY{Een deel van de figuren naar appendix verplaatsen?}
+Figures \taskY{nummers} show the results of our experiments. The error-bars represent the 95\%-confidence interval.
+
+\MASplot{drones-profit}{The influence of the number of drones on the profit}
+\MASplot{warehouses-profit}{The influence of the number of warehouses on the profit}
+\MASplot{initialclients-profit}{The influence of the number of clients at the start of the simulation on the profit}
+\MASplot{dynamicclients-profit}{The influence of the number of clients that appear after the start of the simulation on the profit}
+\MASplot{dynamicclients-profit-largeNbDrones}{The influence of the number of clients that appear after the start of the simulation on the profit, with a large number of drones}
+
+\MASplot{drones-deliverytime}{The influence of the number of drones on the delivery time}\commentY{omzetten naar seconden ipv milliseconden?}
+\MASplot{dynamicclients-delivered-grid2}{The influence of the number of clients that appear after the start of the simulation on the number of clients that are not delivered (in the second experiment) }
+\MASplot{dynamicclients-profit-grid2}{The influence of the number of clients that appear after the start of the simulation on the profit (in the second experiment)}
+
+
 \subsection{Analysis}
+\commentY{Echte analyse doen of ook echt expliciet vergelijken met onze hypothese?}
+\commentY{In volgorde van de research questions laten of herordenen?}
+To test our hypotheses, we used the Games-Howell\taskY{referentie} test. As the data is heteroscedastic, the TukeyHSD-method will have too many Type-I errors.\taskY{Referentie Hubert}. \taskY{referentie} showed that Games-Howell is also robust with non-normal data, which is the case with some of our results. A significance level of 95\% was used for all tests.
+
+Figure~\ref{fig:drones-profit} makes it clear that the number of Drones has an influence on which protocol maximizes profit. In case there are many drones (7 or more), DynCNET is better than CNCP, which outperforms CNET. For an average number of drones (4 to 6), CNCP outperforms CNET and DynCNET. For 3 drones or less, there is no difference between CNET and CNCP, but both outperform DynCNET. As figure~\ref{fig:dynamicclients-profit} and \ref{fig:dynamicclients-profit-largeNbDrones} show, no breakdown happens when enough drones are present. This explains the different relative performance of DynCNET depending on the number of drones.
+
+Figure~\ref{fig:drones-deliverytime} shows the influence of the number of drones on the delivery time. For 1 Drone, DynCNET delivers fastest. There is no significant difference between CNET and CNCP\footnote{in case of 1 drone, both protocols don't differ much}. If 2 or more drones are present in the world, CNCP will deliver faster than CNET, which will deliver faster than DynCNET.
+
+The influence of the protocol on the number of clients that don't get delivered also depend on the number of clients and the number of drones. For a smaller number of clients (less than 20 clients initially and less than 50 clients after the start) or a large number of drones (10 drones), CNCP delivers the most, followed by CNET and DynCNET. In case of 9 drones, no significant difference was found between CNET and DynCNET. In case of 8 drones, DynCNET outperforms CNET. For a smaller number of drones (4 drones), CNET outperforms DynCNET again. Finally, for a very small number of drones (1 or 2 drones), no significant difference was found between CNET and CNCP. In our first experiment, CNCP always outperformed DynCNET. However, figure~\ref{fig:dynamicclients-delivered-grid2} shows that when the number of clients increases, DynCNET starts to outperform CNCP. No region was found, in neither experiment, where CNET outperforms CNCP. Only with 1 or 2 drones in the world, does CNET keep up with CNCP. In that case, both protocols act very similarly anyways.
+
+When there are little number of clients (5 initial clients and 10 extra clients), no significant difference in the number of exchanged messages could be found between CNET and CNCP. However, in general, CNCP needs more messages than CNET. DynCNET always needs more messages than the other two protocols.
+
+As figure~\ref{fig:drones-profit} to \ref{fig:dynamicclients-profit} show, a company can make a profit using any of the three protocols, given the right number of drones and warehouses for the given number of clients in the world.
+
+When increasing the number of drones, the profit increases as well until enough drones are present in the world and saturation is achieved. As saturation sets in quickly in our experiment, no linear region could be found.
+
+When increasing the number of warehouses, the profit increases as well. Figure~\ref{fig:warehouses-profit} shows that this increase seems to slow down as the number of warehouses is further increased. But more experiments would have to be conducted to test this hypothesis. 
+
+When increasing the number of clients (figure~\ref{fig:dynamicclients-profit-grid2}), the profit first increases as well. When the number of clients increases further, the number of clients that aren't delivered increases as well (figure~\ref{fig:dynamicclients-delivered-grid2}). Therefore the profit starts to fall, as the extra fines start to dominate the extra profits. DynCNET outperforms CNET and CNCP in the number of clients that get delivered when increasing the number of clients. Still, in terms of profit, the fall is way steeper. This can be explained using the number of times a drone switches client after being awarded the contract. This number increases linearly with the number of clients up to an average of 15 switches per drone when 200 clients appear after the start of the simulation.
+
 \commentY{Reference Statistische modellen en data-analyse boek van Mia Hubert voor onze statischische methodologie}
+\taskS{Reference voor Games-Howell statistische test. \proposalY{http://stats.stackexchange.com/questions/38207/what-are-the-assumptions-of-the-games-howell-multiple-comparisons-procedure, Games, P. A., Keselman, H. J., \& Clinch, J. J. Tests for homogeneity of variance in factorial designs. Psychological Bulletin, 86, 978-984, maar kan hem niet vinden}}
 
 \section{Conclusion}
 \commentV{CW566: TABLE 1: INTERFACE DEFINITIONS FOR A TRANSPORT AGENT AND AN AGV AGENT
 nakijken of we die allemaal hebben}
 \commentY{Ook http://www.fipa.org/specs/fipa00037/SC00037J.html als referentie voor de ACL acts?}
-
-\taskS{Reference voor Games-Howell statistische test. \proposalY{http://stats.stackexchange.com/questions/38207/what-are-the-assumptions-of-the-games-howell-multiple-comparisons-procedure, Games, P. A., Keselman, H. J., \& Clinch, J. J. Tests for homogeneity of variance in factorial designs. Psychological Bulletin, 86, 978-984, maar kan hem niet vinden}}
 \bibliographystyle{plain}
 \bibliography{report}
 
