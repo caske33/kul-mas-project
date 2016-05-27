@@ -141,24 +141,31 @@ In DynCNET, during the phase where the drone is flying to the warehouse to pick 
         \item tijd tijdens opladen wordt niet meegerekend bij estimated cost (footnote)
     \end{itemize}}
 
-\commentY{Add sequence diagrams of 3 protocols???}
+\commentY{Add sequence diagrams of 3 protocols??? \commentV{als er nog plaats is in het verslag...}}
 
-\subsubsection{Agent FSM's} 
+\commentV{Agent architecture: zie section 2.3 https://lirias.kuleuven.be/bitstream/123456789/156687/1/CW478.pdf}
+\subsubsection{Agent state machines} 
 \commentV{waar moet dit best komen?\proposalY{Ik zou het er nu misschien zelfs uitlaten. Daarvoor was het ook deels nodig om aan onze 3 pagina's te komen. Dus bij design eventueel wel nog FSM's zetten, maar zeker niet "Agent Architecture" erbij zetten.\commentV{ik vind hier nog wel goed}}}
-Both the drone and client agents have very simple architectures. They can be modeled using simple finite state machines.
-
-Figure~\ref{fig:droneFSM} gives the FSM for the drone agent in the different protocols\footnote{Not represented in the figure is the failed state, in case the drone crashes. A drone can enter this state from all other states and can never leave it again}. The \texttt{PROPOSED\_BID} state is only used in CNET, not in CNCP nor DynCNET. In CNET and CNCP, a drone can bid in the green states. In DynCNET, a drone can bid in the green and yellow states. DynCNET also has two extra transitions: from \texttt{PICKING\_UP} and \texttt{CHARGING\_FOR\_CONTRACT} back to \texttt{IDLE} in case the client cancels the contract. CNCP and DynCNET also have the \texttt{gotContract} transition from \texttt{IDLE} and \texttt{CHARGING\_FOR\_CONTRACT} to \texttt{PICKING\_UP}, while in CNET the drone has to pass through the \texttt{PROPOSED\_BID} state.
+Both the drone and client use finite state machines to define in which phase of the negotiation they are situated.
 
 \begin{figure}[htp]
     \centering
     \includegraphics[width=\columnwidth]{Drone}
-    \caption{A finite state machine of the drone agent (the blue transitions and state only apply to CNET. The red transitions only to DynCNET and the green transitions to CNCP and DynCNET)}
+    \caption{A finite state machine of the drone agent. The blue transitions and state only apply to CNET, the red transitions only to DynCNET and the green transitions to CNCP and DynCNET.}
     \label{fig:droneFSM}
 \end{figure}
 
+Figure~\ref{fig:droneFSM} shows the FSM for the drone agent in the three different protocols\footnote{Not represented in the figure is the failed state, in case the drone crashes. A drone can enter this state from all other states and can never leave it again}. The drone starts in the \texttt{IDLE} state. In this state, it will move to the closest warehouse, where it will enter the \texttt{CHARGING} state and start charging. In CNET and CNCP, a drone can bid in the green states. In DynCNET, a drone can bid in the green and yellow states. In CNET, a drone will enter the \texttt{PROPOSED\_BID} state once it has submitted a bid. It will reenter the \texttt{IDLE} state if the client declines. In CNCP and DynCNET, the drone stays in either \texttt{IDLE} or \texttt{CHARGING} and may continue bidding.
+
+If the client awards the task to the drone, the drone goes into the \texttt{PICKING\_UP} state. There it will start moving to the warehouse for which the estimated cost was the lowest. When it gets there, it will go to the \texttt{CHARGING\_FOR\_CONTRACT} state and start charging until either it is sufficiently charged or until it is time to leave due to the client's delivery deadline. In DynCNET, the drone may continue bidding in the \texttt{PICKING\_UP} and \texttt{CHARGING\_FOR\_CONTRACT} states. If it wins another contract, it will stay in or go to the \texttt{PICKING\_UP} state. When the drone leaves, it will pick up the package from the warehouse and enter the \texttt{DELIVERING} state. From then on, it will keep flying to the client until it has arrived, upon which it will deliver the package to the client and enter the \texttt{IDLE} state, thereby moving to the closest warehouse.
+
+The \texttt{PROPOSED\_BID} state is only used in CNET, not in CNCP nor DynCNET.  DynCNET also has two extra transitions: from \texttt{PICKING\_UP} and \texttt{CHARGING\_FOR\_CONTRACT} back to \texttt{IDLE}, in case the client cancels the contract. CNCP and DynCNET also have a direct \texttt{gotContract} transition from \texttt{IDLE} and \texttt{CHARGING\_FOR\_CONTRACT} to \texttt{PICKING\_UP}. In CNET the drone first has to pass through the \texttt{PROPOSED\_BID} state.
+
+
+
 \commentY{Ook "biedingen" beter op FSM weergeven? Of dat laten voor sequence diagram}
 
-The drone starts of in the \texttt{IDLE} state. In this state, it will move to the closet warehouse. When it gets there, it will enter the \texttt{CHARGING} state and start charging. In CNET, a drone will enter the \texttt{PROPOSED\_BID} state once it has sent a bid to a client. It will reenter the \texttt{IDLE} state if the client declines or move to the \texttt{PICKING\_UP} state when the client accepts. In the \texttt{PICKING\_UP} state it will start moving to the cheapest warehouse. When it gets there, it will start charging until it is sufficiently charged or it is time to leave (because the deadline of the client is coming up). Then it will pick up the package and enter the \texttt{DELIVERING} state. From then on, it will keep flying to the client until it has arrived, upon which it will deliver the package to the client and enter the \texttt{IDLE} state.
+
 
 \begin{figure}[htp]
     \centering
@@ -167,11 +174,11 @@ The drone starts of in the \texttt{IDLE} state. In this state, it will move to t
     \label{fig:clientFSM}
 \end{figure}
 
-The client FSM, in figure~\ref{fig:clientFSM}, is even simpler. The client starts in the \texttt{AWARDING} state. When a contract is negotiated, it enters the \texttt{ASSIGNED} state. From then on, it is a straight path to the \texttt{EXECUTING} and \texttt{DELIVERED} state. Only a drone failure, or the cancellation of a contract in DynCNET, can change the state flow. If the maximum delivery time for the client has passed before a drone delivered the package, the client will enter the \texttt{OVERTIME} state.
+Figure~\ref{fig:clientFSM} shows the FSM for the client agent in the three different protocols. The client starts in the \texttt{AWARDING} state. When the task has been awarded, it enters the \texttt{ASSIGNED} state. From then on, the client will go to the \texttt{EXECUTING} and \texttt{DELIVERED} state respectively when the drone picks up and delivers the package. Only a drone failure or the cancellation of a contract in DynCNET can change the state flow, by having the client return to the \texttt{AWARDING} state. If the maximum delivery time for the client has passed before a drone delivered the package, the client will enter the (final) \texttt{OVERTIME} state.
 
-In CNET and CNCP, a client can only send calls for proposals while in the \texttt{AWARDING} state. In DynCNET, it can also send calls for proposals in the \texttt{ASSIGNED} state.
+In CNET and CNCP, a client can only send task announcements while in the \texttt{AWARDING} state. In DynCNET, it can also send task announcements in the \texttt{ASSIGNED} state, until the package is picked up by the drone and the client enters the \texttt{EXECUTING} state.
 
-\commentY{Table met communication primitives as in \cite{TentativeBidding}?}
+\commentY{Table met communication primitives as in \cite{TentativeBidding}? \commentV{als er nog plaats is in het verslag...}}
 
 \subsubsection{temp section for Yens' proposal}
 \taskS{Haal uit proposalY de verschillen met CNET, CNCP en DynCNET}
