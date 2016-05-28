@@ -334,14 +334,14 @@ MASplot("nbDynamicClients", "averageNbSwitchesPerDrone", use.grid2 = TRUE)
 ####   -------------   ###
 ##########################
 ##########################
-MASplot("nbDrones", "totalProfit", title = "Influence of drones on profit",xlabel = "Number of drones", ylabel = "Profit [€]", filename = "drones-profit")
-MASplot("nbWarehouses", "totalProfit", title = "Influence of warehouses on profit",xlabel = "Number of warehouses", ylabel = "Profit [€]", filename = "warehouses-profit")
-MASplot("nbInitialClients", "totalProfit", title = "Influence of initial clients on profit",xlabel = "Number of initial clients", ylabel = "Profit [€]", filename = "initialclients-profit")
-MASplot("nbDynamicClients", "totalProfit", title = "Influence of extra clients on profit",xlabel = "Number of extra clients", ylabel = "Profit [€]", filename = "dynamicclients-profit")
-MASplot("nbDynamicClients", "totalProfit", filter = "nbDrones >= 7", title = "No breakdown for large number of drones (7 or more)", xlabel = "Number of extra clients", ylabel = "Profit [€]", filename = "dynamicclients-profit-largeNbDrones")
+MASplot("nbDrones", "totalProfit", title = "Influence of drones on profit",xlabel = "Number of drones", ylabel = "Profit [EUR]", filename = "drones-profit")
+MASplot("nbWarehouses", "totalProfit", title = "Influence of warehouses on profit",xlabel = "Number of warehouses", ylabel = "Profit [EUR]", filename = "warehouses-profit")
+MASplot("nbInitialClients", "totalProfit", title = "Influence of initial clients on profit",xlabel = "Number of initial clients", ylabel = "Profit [EUR]", filename = "initialclients-profit")
+MASplot("nbDynamicClients", "totalProfit", title = "Influence of extra clients on profit",xlabel = "Number of extra clients", ylabel = "Profit [EUR]", filename = "dynamicclients-profit")
+MASplot("nbDynamicClients", "totalProfit", filter = "nbDrones >= 7", title = "No breakdown for large number of drones (7 or more)", xlabel = "Number of extra clients", ylabel = "Profit [EUR]", filename = "dynamicclients-profit-largeNbDrones")
 
 MASplot("nbDrones", "averageDeliveryTime", title = "Influence of number of drones on delivery time", xlabel = "Number of drones", ylabel = "average delivery time [ms]", filename = "drones-deliverytime")
 
 MASplot("nbDynamicClients", "nbClientsNotDelivered", "nbInitialClients == 25 & nbDynamicClients < 100", xlabel = "number of extra clients", ylabel = "number of clients not delivered", title = "Influence of number of extra clients on the number of clients that er delivered", use.grid2 = T, filename = "dynamicclients-delivered-grid2")
 
-MASplot("nbDynamicClients", "totalProfit", title = "Influence of number of extra clients on the profit (experiment2)", xlabel = "number of extra clients", ylabel = "Profit [€]", use.grid2 = TRUE ,filename = "dynamicclients-profit-grid2")
+MASplot("nbDynamicClients", "totalProfit", title = "Influence of number of extra clients on the profit (experiment2)", xlabel = "number of extra clients", ylabel = "Profit [EUR]", use.grid2 = TRUE ,filename = "dynamicclients-profit-grid2")
