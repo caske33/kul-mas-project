@@ -257,6 +257,7 @@ A potential risk of DynCNET is oscillation of tasks between drones. \cite{DynCNE
     }
 
 \section{Experiments}
+\taskV{mini-inleiding}
 \subsection{Setup}
 \outline{\begin{itemize}
         \item independent: aantal drones, warehouses, clients
@@ -266,13 +267,13 @@ A potential risk of DynCNET is oscillation of tasks between drones. \cite{DynCNE
         \item  square area of 100 km$^2$
     \end{itemize}}
 
-We decided to run two experiments. In the first one, we varied the number of drones, warehouses, initial clients and \textit{extra clients}, i.e. the clients that appear randomly after the start of the simulation. The different values can be found in table~\ref{tbl:independent}. \\
-As figure~\ref{fig:dynamicclients-profit} and \ref{fig:dynamicclients-profit-largeNbDrones} show, DynCNET has troubles with breakdown when there are many clients compared to the number of drones. Therefore, the second experiment is aiming at exploring these circumstances for a large number of drones.
+We have run two experiments. In the first one, we varied the number of drones, warehouses, initial clients and \textit{extra clients}, i.e. the clients that appear randomly after the start of the simulation. 
 
-Multiple variables were measured. They can be found in table~\ref{tbl:dependent}.
-All raw data is kept and can be found in attachment to this report. The values for other variables can be found in table~\ref{tbl:other}.
+After running the first experiment, we noticed that DynCNET has a breakdown when there are many clients compared to the number of drones, as figures~\ref{fig:dynamicclients-profit} and \ref{fig:dynamicclients-profit-largeNbDrones} show. The second experiment therefore aims at exploring these circumstances by running an experiment with a large number of drones and a bigger range for the number of clients.
 
-All experiments were run using RinSim 4.1.0 on computers at the P\&O lab at the Department of Computer Science. These computers have a 3.4 GHz quad-core processor and 8 GB of RAM. 150 simulations were performed for each combination of values for the independent variables\footnote{For a total of 1417500 and 351000 simulations respectively for experiment 1 and 2.}
+The values for the independent variables for both experiments can be found in table~\ref{tbl:independent}. Multiple dependent variables were measured in these experiments. These can be found in table~\ref{tbl:dependent}.  The values of the other variables, that were not varied and were chosen to be as realistic as possible, can be found in table~\ref{tbl:other}.
+
+All experiments were run using RinSim 4.1.0 on computers at the P\&O lab at the Department of Computer Science. These computers have a 3.4 GHz quad-core processor and 8 GB of RAM. For each combination of values for the independent variables, 150 simulations were performed\footnote{For a total of 1417500 and 351000 simulations respectively for experiment 1 and 2.} to rule out that one random experiment could skew the results. All raw data has been kept and can be found in attachment to this report.
 
 \begin{table}[hp]
 	\begin{center}
