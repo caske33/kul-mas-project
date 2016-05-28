@@ -266,7 +266,7 @@ Figures \taskY{nummers} show the results of our experiments. The error-bars repr
 \subsection{Analysis}
 \commentY{Echte analyse doen of ook echt expliciet vergelijken met onze hypothese?}
 \commentY{In volgorde van de research questions laten of herordenen?}
-To test our hypotheses, we used the Games-Howell\taskY{referentie} test. As the data is heteroscedastic, the TukeyHSD-method will have too many Type-I errors \cite{SMDA}. \taskY{referentie} showed that Games-Howell is also robust with non-normal data, which is the case with some of our results. A significance level of 95\% was used for all tests.
+To test our hypotheses, we used the Games-Howell test. As the data is heteroscedastic, the TukeyHSD-method will have too many Type-I errors \cite{SMDA}. \cite{games1979tests} showed that Games-Howell is also robust with non-normal data, which is the case with some of our results. A significance level of 95\% was used for all tests.
 
 Figure~\ref{fig:drones-profit} makes it clear that the number of Drones has an influence on which protocol maximizes profit. In case there are many drones (7 or more), DynCNET is better than CNCP, which outperforms CNET. For an average number of drones (4 to 6), CNCP outperforms CNET and DynCNET. For 3 drones or less, there is no difference between CNET and CNCP, but both outperform DynCNET. As figure~\ref{fig:dynamicclients-profit} and \ref{fig:dynamicclients-profit-largeNbDrones} show, no breakdown happens when enough drones are present. This explains the different relative performance of DynCNET depending on the number of drones.
 
@@ -283,9 +283,6 @@ When increasing the number of drones, the profit increases as well until enough 
 When increasing the number of warehouses, the profit increases as well. Figure~\ref{fig:warehouses-profit} shows that this increase seems to slow down as the number of warehouses is further increased. But more experiments would have to be conducted to test this hypothesis. 
 
 When increasing the number of clients (figure~\ref{fig:dynamicclients-profit-grid2}), the profit first increases as well. When the number of clients increases further, the number of clients that aren't delivered increases as well (figure~\ref{fig:dynamicclients-delivered-grid2}). Therefore the profit starts to fall, as the extra fines start to dominate the extra profits. DynCNET outperforms CNET and CNCP in the number of clients that get delivered when increasing the number of clients. Still, in terms of profit, the fall is a lot steeper. This can be explained by the number of times a drone switches client after being awarded the contract. This number increases linearly with the number of clients up to an average of 15 switches per drone when 200 clients appear after the start of the simulation.
-
-\commentY{Reference Statistische modellen en data-analyse boek van Mia Hubert voor onze statischische methodologie \cite{SMDA}}
-\taskS{Reference voor Games-Howell statistische test. \proposalY{http://stats.stackexchange.com/questions/38207/what-are-the-assumptions-of-the-games-howell-multiple-comparisons-procedure, Games, P. A., Keselman, H. J., \& Clinch, J. J. Tests for homogeneity of variance in factorial designs. Psychological Bulletin, 86, 978-984, maar kan hem niet vinden}}
 
 \section{Conclusion}
 \commentV{CW566: TABLE 1: INTERFACE DEFINITIONS FOR A TRANSPORT AGENT AND AN AGV AGENT
