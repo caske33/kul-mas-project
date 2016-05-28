@@ -263,21 +263,32 @@ A potential risk of DynCNET is oscillation of tasks between drones. \cite{DynCNE
         \item beschrijving computer + RinSim 4.1.0
         \item  square area of 100 km$^2$
     \end{itemize}}
-\begin{table}
+
+We decided to run two experiments. In the first one, we varied the number of drones, warehouses, initial clients and \textit{extra clients}, i.e. the clients that appear randomly after the start of the simulation. The different values can be found in table~\ref{tbl:independent}. \\
+As figure~\ref{fig:dynamicclients-profit} and \ref{fig:dynamicclients-profit-largeNbDrones} show, DynCNET has troubles with breakdown when there are many clients compared to the number of drones. Therefore, the second experiment is aiming at exploring these circumstances for a large number of drones.
+
+Multiple variables were measured. They can be found in table~\ref{tbl:dependent}.
+All raw data is kept and can be found in attachment to this report. The values for other variables can be found in table~\ref{tbl:other}.
+
+All experiments were run using RinSim 4.1.0 on computers at the P\&O lab at the Department of Computer Science. These computers have a 3.4 GHz quad-core processor and 8 GB of RAM. 150 simulations were performed for each combination of values for the independent variables\footnote{For a total of 1417500 and 351000 simulations respectively for experiment 1 and 2.}
+
+\begin{table}[hp]
 	\begin{center}
 		\begin{tabular}{ lcc }
 			\hline
 			Variable & Experiment 1 & Experiment 2 \\ \hline
 			\# drones & 1..10 & 10 \\
 			\# warehouses & 4..10 & 10 \\
-			\# initial clients & 5..25 (step 5) & 5..100 (step 5) \\
-			\# extra clients & 10..50 (step 5) & 10..200 (step 5) \\
+			\# initial clients & 5..25 step 5 & 5..100 step 5 \\
+			\# extra clients & 10..50 step 5 & 10..200 step 5 \\
+			protocol & all 3 & all 3 \\
 			\hline
 		\end{tabular}
 	\end{center}
-	\caption{Independent variables and their ranges}
+	\caption{Independent variables and their ranges (with inclusive boundaries)\commentY{wat vindt ge van notatie "all 3" voor protocol? Moet die er zelfs bij?}}
+	\label{tbl:independent}
 \end{table}
-\begin{table}
+\begin{table}[htp]
 	\begin{center}
 		\begin{tabular}{ p{0.4\columnwidth}p{0.5\columnwidth} }
 			\hline
@@ -297,9 +308,10 @@ A potential risk of DynCNET is oscillation of tasks between drones. \cite{DynCNE
 			\hline
 		\end{tabular}
 	\end{center}
-	\caption{Dependant variables and their meaning\commentY{wat doen we met dependant variables die in csv voorkomen maar niet in de grafieken?}}
+	\caption{Dependant variables and their meaning\commentY{wat doen we met dependant variables die in csv voorkomen maar niet in de grafieken? Is het ok dat ik sommige variabelen hernoemd heb om in tabel te passen?}}
+	\label{tbl:dependent}
 \end{table}
-\begin{table}
+\begin{table}[htp]
 	\begin{center}
 		\begin{tabular}{ p{0.4\columnwidth}p{0.5\columnwidth} }
 			\hline
@@ -320,15 +332,13 @@ A potential risk of DynCNET is oscillation of tasks between drones. \cite{DynCNE
 		\end{tabular}
 	\end{center}
 	\caption{Other variables and their values}
+	\label{tbl:other}
 \end{table}
 
-
-\taskS{Experiment 1 en experiment 2!}
 \subsection{Results}
-\commentY{Een deel van de figuren naar appendix verplaatsen?}
-Figures \taskY{nummers} show the results of our experiments. The error-bars represent the 95\%-confidence interval.
+\taskS{Check dat er geen figuur is bijgekomen.}
+Figures \ref{fig:drones-profit} to \ref{fig:dynamicclients-profit-grid2} show the results of our experiments. The error-bars represent the 95\%-confidence interval.
 
-\taskS{euro-symbool wordt niet goed weergegeven op y-label van profit, EUR proberen?}
 \commentY{Er is nog plaats voor 1 figuur.}
 \MASplotThree
 {drones-profit}{The influence of the number of drones on the profit}
@@ -337,7 +347,7 @@ Figures \taskY{nummers} show the results of our experiments. The error-bars repr
 
 \MASplotThree{dynamicclients-profit}{The influence of the number of clients that appear after the start of the simulation on the profit}
 {dynamicclients-profit-largeNbDrones}{The influence of the number of clients that appear after the start of the simulation on the profit, with a large number of drones}
-{drones-deliverytime}{The influence of the number of drones on the delivery time}\commentY{omzetten naar seconden ipv milliseconden?}
+{drones-deliverytime}{The influence of the number of drones on the delivery time\commentY{omzetten naar seconden ipv milliseconden?}}
 
 \MASplotTwo{dynamicclients-delivered-grid2}{The influence of the number of clients that appear after the start of the simulation on the number of clients that are not delivered (in the second experiment) }
 {dynamicclients-profit-grid2}{The influence of the number of clients that appear after the start of the simulation on the profit (in the second experiment)}
