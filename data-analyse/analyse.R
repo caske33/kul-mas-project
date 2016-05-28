@@ -190,8 +190,14 @@ subset = results %>% filter(nbDrones == 4)
 posthocTGH(subset$nbClientsNotDelivered, subset$protocolType, method="games-howell");
 # CNCP < CNET < DynCNET
 
+# ==2 Drones
+subset = results %>% filter(nbDrones == 2)
+#leveneTest(nbClientsNotDelivered ~ protocolType, subset)
+posthocTGH(subset$nbClientsNotDelivered, subset$protocolType, method="games-howell");
+# CNCP < CNET < DynCNET
+
 # <=2 Drones
-subset = results %>% filter(nbDrones <= 2)
+subset = results %>% filter(nbDrones == 1)
 #leveneTest(nbClientsNotDelivered ~ protocolType, subset)
 posthocTGH(subset$nbClientsNotDelivered, subset$protocolType, method="games-howell");
 # CNET = CNCP < DynCNET
@@ -347,3 +353,4 @@ MASplot("nbDynamicClients", "nbClientsNotDelivered", "nbInitialClients == 25 & n
 MASplot("nbDynamicClients", "totalProfit", title = "Influence of number of extra clients on the profit (experiment2)", xlabel = "number of extra clients", ylabel = "Profit [EUR]", use.grid2 = TRUE, filename = "dynamicclients-profit-grid2")
 
 MASplot("nbDynamicClients", "averageNbSwitchesPerDrone", title = "Influence of number of extra clients on the number of switches (experiment2)", xlabel = "number of extra clients", ylabel = "Average number of switches per drone", use.grid2 = TRUE, filename = "dynamicclients-switchesdrone-grid2")
+MASplot("nbDrones", "nbClientsNotDelivered", title = "Influence of number of drones on the number of clients that are delivered", xlabel = "number of drones", ylabel = "number of clients not delivered", filename = "drones-delivered")
