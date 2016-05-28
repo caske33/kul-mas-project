@@ -265,7 +265,7 @@ A potential risk of DynCNET is oscillation of tasks between drones. \cite{DynCNE
     \end{itemize}}
 \begin{table}
 	\begin{center}
-		\begin{tabular}{ |l|c|c| }
+		\begin{tabular}{ lcc }
 			\hline
 			Variable & Experiment 1 & Experiment 2 \\ \hline
 			\# drones & 1..10 & 10 \\
@@ -279,7 +279,29 @@ A potential risk of DynCNET is oscillation of tasks between drones. \cite{DynCNE
 \end{table}
 \begin{table}
 	\begin{center}
-		\begin{tabular}{ |p{0.4\columnwidth}|p{0.5\columnwidth}| }
+		\begin{tabular}{ p{0.4\columnwidth}p{0.5\columnwidth} }
+			\hline
+			Variable & Meaning \\ \hline
+			nbCrashes & The number of drones that crashed \\
+			profit & The profit the company made (in \euro{}) \\
+			nbClientsNotDelivered & The number of clients that weren't delivered \\
+			averageDeliveryTime & The average delivery time in milliseconds (for the clients that are delivered) \\
+			averageDistance & The average distance (in km) a drone travelled\\
+			maximumOrders & The maximum orders 1 drone delivered\\
+			estimatedProfit & The sum of the estimated profits of the accepted contracts (in \euro{})\\
+			estimatedCrashes & The estimated number of crashes (for the accepted contracts) \\
+			nbMessages & The number of messages exchanged \\
+			nbCallsForProposal & The number of task announcements (on average) \\
+			switchesPerDrone & The (average) number of times a drone switched contracts \\
+			switchesPerClient & The (average) number of times a client switched contracts \\
+			\hline
+		\end{tabular}
+	\end{center}
+	\caption{Dependant variables and their meaning\commentY{wat doen we met dependant variables die in csv voorkomen maar niet in de grafieken?}}
+\end{table}
+\begin{table}
+	\begin{center}
+		\begin{tabular}{ p{0.4\columnwidth}p{0.5\columnwidth} }
 			\hline
 			Variable & Value \\ \hline
 			Prices packages & \euro{100}, \euro{200}, \euro{500}, \euro{1000} \\
