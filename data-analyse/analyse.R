@@ -46,7 +46,7 @@ MASplot = function(xAxis, yAxis, filterQuery = "", title = "", xlabel = xAxis, y
     ggtitle(title)
 
   if(filename != ""){
-    ggsave(file = paste("../verslag/images/",filename,".pdf", sep = ""), plot = plot)
+    ggsave(file = paste("../verslag/images/",filename,".pdf", sep = ""), plot = plot, width = 7.7, height = 5.1, units = "in")
   }
 
   plot
