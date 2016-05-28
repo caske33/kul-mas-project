@@ -194,9 +194,10 @@ posthocTGH(subset$nbClientsNotDelivered, subset$protocolType, method="games-howe
 subset = results %>% filter(nbDrones == 2)
 #leveneTest(nbClientsNotDelivered ~ protocolType, subset)
 posthocTGH(subset$nbClientsNotDelivered, subset$protocolType, method="games-howell");
+subset %>% group_by(protocolType) %>% summarise(m = mean(nbClientsNotDelivered))
 # CNCP < CNET < DynCNET
 
-# <=2 Drones
+# ==1 Drones
 subset = results %>% filter(nbDrones == 1)
 #leveneTest(nbClientsNotDelivered ~ protocolType, subset)
 posthocTGH(subset$nbClientsNotDelivered, subset$protocolType, method="games-howell");
