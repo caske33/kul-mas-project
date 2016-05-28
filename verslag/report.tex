@@ -6,6 +6,7 @@
 \usepackage{graphicx}
 \usepackage{todonotes}
 \usepackage{url}
+\usepackage{caption}
 
 \title{Extensions on Contract Net Protocol for AGVs \\ \normalsize Multi-agent systems}
 
@@ -23,12 +24,40 @@
 \newcommand{\taskV}[1]{\todo[inline, color=red]{@Victor, fix: #1}}
 \newcommand{\taskS}[1]{\todo[inline, color=red]{@???, fix: #1}}
 
-\newcommand{\MASplot}[2]{
+\newcommand{\MASplotHelper}[2]{
+	\centering
+	\includegraphics[width=\columnwidth]{#1}
+	\caption{#2}
+	\label{fig:#1}
+}
+\newcommand{\MASplotOne}[2]{
+\begin{figure}[htp]
+    \MASplotHelper{#1}{#2}
+\end{figure}
+}
+\newcommand{\MASplotTwo}[4]{
 \begin{figure}[htp]
     \centering
-    \includegraphics[width=\columnwidth]{#1}
-    \caption{#2}
-    \label{fig:#1}
+    \begin{minipage}{\columnwidth}
+        \MASplotHelper{#1}{#2}
+    \end{minipage}
+    \begin{minipage}{\columnwidth}
+        \MASplotHelper{#3}{#4}
+    \end{minipage}
+\end{figure}
+}
+\newcommand{\MASplotThree}[6]{
+\begin{figure}[htp]
+    \centering
+    \begin{minipage}{\columnwidth}
+        \MASplotHelper{#1}{#2}
+    \end{minipage}
+    \begin{minipage}{\columnwidth}
+        \MASplotHelper{#3}{#4}
+    \end{minipage}
+    \begin{minipage}{\columnwidth}
+        \MASplotHelper{#5}{#6}
+    \end{minipage}
 \end{figure}
 }
 
@@ -252,15 +281,19 @@ A potential risk of DynCNET is oscillation of tasks between drones. \cite{DynCNE
 \commentY{Een deel van de figuren naar appendix verplaatsen?}
 Figures \taskY{nummers} show the results of our experiments. The error-bars represent the 95\%-confidence interval.
 
-\MASplot{drones-profit}{The influence of the number of drones on the profit}
-\MASplot{warehouses-profit}{The influence of the number of warehouses on the profit}
-\MASplot{initialclients-profit}{The influence of the number of clients at the start of the simulation on the profit}
-\MASplot{dynamicclients-profit}{The influence of the number of clients that appear after the start of the simulation on the profit}
-\MASplot{dynamicclients-profit-largeNbDrones}{The influence of the number of clients that appear after the start of the simulation on the profit, with a large number of drones}
+\taskS{euro-symbool wordt niet goed weergegeven op y-label van profit, EUR proberen?}
+\commentY{Er is nog plaats voor 1 figuur.}
+\MASplotThree
+{drones-profit}{The influence of the number of drones on the profit}
+{warehouses-profit}{The influence of the number of warehouses on the profit}
+{initialclients-profit}{The influence of the number of clients at the start of the simulation on the profit}
 
-\MASplot{drones-deliverytime}{The influence of the number of drones on the delivery time}\commentY{omzetten naar seconden ipv milliseconden?}
-\MASplot{dynamicclients-delivered-grid2}{The influence of the number of clients that appear after the start of the simulation on the number of clients that are not delivered (in the second experiment) }
-\MASplot{dynamicclients-profit-grid2}{The influence of the number of clients that appear after the start of the simulation on the profit (in the second experiment)}
+\MASplotThree{dynamicclients-profit}{The influence of the number of clients that appear after the start of the simulation on the profit}
+{dynamicclients-profit-largeNbDrones}{The influence of the number of clients that appear after the start of the simulation on the profit, with a large number of drones}
+{drones-deliverytime}{The influence of the number of drones on the delivery time}\commentY{omzetten naar seconden ipv milliseconden?}
+
+\MASplotTwo{dynamicclients-delivered-grid2}{The influence of the number of clients that appear after the start of the simulation on the number of clients that are not delivered (in the second experiment) }
+{dynamicclients-profit-grid2}{The influence of the number of clients that appear after the start of the simulation on the profit (in the second experiment)}
 
 
 \subsection{Analysis}
