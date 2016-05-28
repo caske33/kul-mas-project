@@ -336,10 +336,10 @@ All experiments were run using RinSim 4.1.0 on computers at the P\&O lab at the 
 \end{table}
 
 \subsection{Results}
-\taskS{Check dat er geen figuur is bijgekomen.}
+\taskS{Update maxlimiet van figures hieronder met laatste figuur!}
 Figures \ref{fig:drones-profit} to \ref{fig:dynamicclients-profit-grid2} show the results of our experiments. The error-bars represent the 95\%-confidence interval.
 
-\commentY{Er is nog plaats voor 1 figuur.}
+\commentY{Er is nog plaats voor 1 figuur.\proposalY{Figuur~\ref{fig:dynamicclients-switchesdrone-grid2}}}
 \MASplotThree
 {drones-profit}{The influence of the number of drones on the profit}
 {warehouses-profit}{The influence of the number of warehouses on the profit}
@@ -349,8 +349,9 @@ Figures \ref{fig:drones-profit} to \ref{fig:dynamicclients-profit-grid2} show th
 {dynamicclients-profit-largeNbDrones}{The influence of the number of clients that appear after the start of the simulation on the profit, with a large number of drones}
 {drones-deliverytime}{The influence of the number of drones on the delivery time\commentY{omzetten naar seconden ipv milliseconden?}}
 
-\MASplotTwo{dynamicclients-delivered-grid2}{The influence of the number of clients that appear after the start of the simulation on the number of clients that are not delivered (in the second experiment) }
+\MASplotThree{dynamicclients-delivered-grid2}{The influence of the number of clients that appear after the start of the simulation on the number of clients that are not delivered (in the second experiment) }
 {dynamicclients-profit-grid2}{The influence of the number of clients that appear after the start of the simulation on the profit (in the second experiment)}
+{dynamicclients-switchesdrone-grid2}{The influence of the number of clients that appear after the start of the simulation on the average number of times a drones switches clients (in the second experiment)}
 
 
 \subsection{Analysis}
@@ -372,7 +373,7 @@ When increasing the number of drones, the profit increases as well until enough 
 
 When increasing the number of warehouses, the profit increases as well. Figure~\ref{fig:warehouses-profit} shows that this increase seems to slow down as the number of warehouses is further increased. But more experiments would have to be conducted to test this hypothesis. 
 
-When increasing the number of clients (figure~\ref{fig:dynamicclients-profit-grid2}), the profit first increases as well. When the number of clients increases further, the number of clients that aren't delivered increases as well (figure~\ref{fig:dynamicclients-delivered-grid2}). Therefore the profit starts to fall, as the extra fines start to dominate the extra profits. DynCNET outperforms CNET and CNCP in the number of clients that get delivered when increasing the number of clients. Still, in terms of profit, the fall is a lot steeper. This can be explained by the number of times a drone switches client after being awarded the contract. This number increases linearly with the number of clients up to an average of 15 switches per drone when 200 clients appear after the start of the simulation.
+When increasing the number of clients (figure~\ref{fig:dynamicclients-profit-grid2}), the profit first increases as well. When the number of clients increases further, the number of clients that aren't delivered increases as well (figure~\ref{fig:dynamicclients-delivered-grid2}). Therefore the profit starts to fall, as the extra fines start to dominate the extra profits. DynCNET outperforms CNET and CNCP in the number of clients that get delivered when increasing the number of clients. Still, in terms of profit, the fall is a lot steeper. This can be explained by the number of times a drone switches client after being awarded the contract. This number increases linearly with the number of clients up to an average of 15 switches per drone when 200 clients appear after the start of the simulation (figure~\ref{fig:extraclients-switchesdrone-grid2}).
 
 \section{Conclusion}
 \commentV{CW566: TABLE 1: INTERFACE DEFINITIONS FOR A TRANSPORT AGENT AND AN AGV AGENT

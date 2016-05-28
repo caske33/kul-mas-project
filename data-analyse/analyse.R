@@ -344,4 +344,6 @@ MASplot("nbDrones", "averageDeliveryTime", title = "Influence of number of drone
 
 MASplot("nbDynamicClients", "nbClientsNotDelivered", "nbInitialClients == 25 & nbDynamicClients < 100", xlabel = "number of extra clients", ylabel = "number of clients not delivered", title = "Influence of number of extra clients on the number of clients that er delivered", use.grid2 = T, filename = "dynamicclients-delivered-grid2")
 
-MASplot("nbDynamicClients", "totalProfit", title = "Influence of number of extra clients on the profit (experiment2)", xlabel = "number of extra clients", ylabel = "Profit [EUR]", use.grid2 = TRUE ,filename = "dynamicclients-profit-grid2")
+MASplot("nbDynamicClients", "totalProfit", title = "Influence of number of extra clients on the profit (experiment2)", xlabel = "number of extra clients", ylabel = "Profit [EUR]", use.grid2 = TRUE, filename = "dynamicclients-profit-grid2")
+
+MASplot("nbDynamicClients", "averageNbSwitchesPerDrone", title = "Influence of number of extra clients on the number of switches (experiment2)", xlabel = "number of extra clients", ylabel = "Average number of switches per drone", use.grid2 = TRUE, filename = "dynamicclients-switchesdrone-grid2")
