@@ -1,4 +1,4 @@
-\documentclass[10pt,a4paper]{article}
+\documentclass[10pt,a4paper,twocolumn]{article}
 
 \usepackage[english]{babel}
 \usepackage[utf8]{inputenc}
@@ -7,6 +7,7 @@
 \usepackage{todonotes}
 \usepackage{url}
 \usepackage{caption}
+\usepackage[gen]{eurosym}
 
 \title{Extensions on Contract Net Protocol for AGVs \\ \normalsize Multi-agent systems}
 
@@ -276,6 +277,44 @@ A potential risk of DynCNET is oscillation of tasks between drones. \cite{DynCNE
         \item beschrijving computer + RinSim 4.1.0
         \item  square area of 100 km$^2$
     \end{itemize}}
+\begin{table}
+	\begin{center}
+		\begin{tabular}{ |l|c|c| }
+			\hline
+			Variable & Experiment 1 & Experiment 2 \\ \hline
+			\# drones & 1..10 & 10 \\
+			\# warehouses & 4..10 & 10 \\
+			\# initial clients & 5..25 (step 5) & 5..100 (step 5) \\
+			\# extra clients & 10..50 (step 5) & 10..200 (step 5) \\
+			\hline
+		\end{tabular}
+	\end{center}
+	\caption{Independent variables and their ranges}
+\end{table}
+\begin{table}
+	\begin{center}
+		\begin{tabular}{ |p{0.4\columnwidth}|p{0.5\columnwidth}| }
+			\hline
+			Variable & Value \\ \hline
+			Prices packages & \euro{100}, \euro{200}, \euro{500}, \euro{1000} \\
+			Speed drone & 50 km/h \\
+			Range battery & 15 km \\
+			World size & 10km x 10km \\
+			Failure lambda drone & 0.1 \small($< 10\%$ battery)\normalsize, 0.01 \small($< 20\%$)\normalsize, 0.0001 /km\\
+			Price drone & \euro{3000} \\
+			Cost energy & \euro{2}/km \\
+			Pay-off client & between $1.2$ and $1.3 * marketPrice$ \\
+			Fine (undelivered) client & $0.5 * marketPrice$ \\
+			Delivery window client & between 1000 and 5000 seconds (after first announcement) \\
+			Last client enter time & 1 hour \\
+			Battery charging rate & 50s to fully charge \\
+			\hline
+		\end{tabular}
+	\end{center}
+	\caption{Other variables and their values}
+\end{table}
+
+
 \taskS{Experiment 1 en experiment 2!}
 \subsection{Results}
 \commentY{Een deel van de figuren naar appendix verplaatsen?}

@@ -20,7 +20,7 @@ val MIN_CLIENT_PRICE = 1.2 // relative tov marketPrice
 val MAX_CLIENT_PRICE = 1.3 // relative tov marketPrice
 val FINE_PERCENTAGE = 0.5 // percentage of marketPrice for fine
 
-val BATTERY_CHARGING_RATE = 0.000002 // battery per time unit
+val BATTERY_CHARGING_RATE = 0.000002 // battery per millisecond
 
 val MIN_POINT = Point(0.0, 0.0)
 val MAX_POINT = Point(10.0, 10.0)
