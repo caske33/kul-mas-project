@@ -70,12 +70,7 @@
 
 \begin{document}
 \maketitle
-
-\taskS{2 kolommen}
-
-\commentV{Zie https://bitbucket.org/VictorLP/mas/wiki/Notities\commentY{Normaal staan alle comments van de wiki in het verslag nu}}
 \section{Introduction}
-\outline{Bevat waarom verslag moet lezen (samen met conclusie 1 geheel).}
 \subsection{Objectives}
 The objective of this report is to investigate whether two extensions of Contract Net (CNET) \cite{CNETStandard,CNET}, namely Contract Net with Confirmation Protocol (CNCP) \cite{CNCP} and Dynamic Contract Net (DynCNET) \cite{DynCNET} are an improvement on CNET itself.
 
@@ -164,13 +159,9 @@ If this bid is still better than all the tentative bids from the other participa
 
 One of the main differences between \cite{TentativeBidding} and ICN is that in ICN new task announcements are issued, while the same task announcement is reused in \cite{TentativeBidding}. An initiator in the ICN protocol can thus actively try to increase the price of the contract.  
 
-\cite{LeveledCommitment} uses game theory to prove that a leveled commitment is to be preferred over full commitment in all situations. In the negotiation of a contract in this protocol, a decommitting penalty is agreed, which might be different for both agents. When an agent wants to cancel the contract, it then has to pay this decommitting fee to the other agent. The fee becomes a factor in calculating whether or not it is interesting to cancel the current contract in favor of another contract.\footnote{The paper proves, using the chicken game from game theory, that the consideration by an agent of canceling a contract is more than just checking if the added profit of the new contract is more than the decommitting fee that would then have to be paid. The other agent might decommit at some point, which means that this agent gets released from the contract without paying a fee and even receives the fee from the other agent.} It also allows for contracts that were not possible using full commitment. Normally the benefit from an offered contract could be lower than the expected benefit from other contracts that have not yet been announced, which means the agent would wait and not commit to that offered contract. By having the right decommitting fees, this offered leveled commitment contract could become interesting and could be taken up.
-
-\commentV{uitleggen dat we deze niet geimplementeerd hebben\commentY{Dan in design sectie?\commentV{wat bedoel je?}}}
-\proposalV{As these protocols are not part of our objective, we have not implemented our design for them.}
+\cite{LeveledCommitment} uses game theory to prove that a leveled commitment is to be preferred over full commitment in all situations. In the negotiation of a contract in this protocol, a decommitting penalty is agreed, which might be different for both agents. When an agent wants to cancel the contract, it then has to pay this decommitting fee to the other agent. The fee becomes a factor in calculating whether or not it is interesting to cancel the current contract in favor of another contract.\footnote{The paper proves, using the chicken game from game theory, that the consideration by an agent of canceling a contract is more than just checking if the added profit of the new contract is more than the decommitting fee that would then have to be paid. The other agent might decommit at some point, which means that this agent gets released from the contract without paying a fee and even receives the fee from the other agent.} It also allows for contracts that were not possible using full commitment. Normally the benefit from an offered contract could be lower than the expected benefit from other contracts that have not yet been announced, which means the agent would wait and not commit to that offered contract. By having the right decommitting fees, this offered leveled commitment contract could become interesting and could be taken up. As these protocols are not part of our objective, we have not implemented our design for them.
 
 \section{Multi-agent system design}\label{sec:masdesign}
-\outline{Wat wij concreet doen}
 \subsection{Design}
 We consider a logistics problem where a company serves an area with a fleet of drones. In this area, a number of clients appear with an order for a specific product. One of the drones takes up the order and is dispatched to a warehouse to collect a package with that product. Finally it flies to the client to deliver the package. The goal is to maximize the profit earned on making these deliveries.
 
@@ -180,30 +171,28 @@ Drones can unexpectedly crash and fail. The drone is then written off and the co
 
 A client has only one order and when that order is delivered, the client stops participating. Client with multiple orders can be reduced to this model by creating multiple clients with one order each. The order consists of the type of package a client wants, the end time by which it wants to have received the package, the price it is willing to pay and the fine it levies if the package is not delivered before the end time. The price and the fine vary around the market price. There are both clients that are initially present in the world and clients that appear randomly afterwards, uniformly distributed over time.
 
-For simplification, all agents are completely aware of the whole world and can send messages to all other agents. 
+For simplification, all agents are completely aware of the whole world and can send messages to all other agents with 100\% reliability. 
 
 The failures of drones are based on a Poisson distribution and are used in calculating the bid that drones will make on tasks. The bid is based on the estimated minimal cost for a drone to serve the client. The estimated cost consists of four parts: the cost to buy the package from a warehouse; the cost of charging for the battery drain caused by moving between the drone's current location, the warehouse, the client and back to a warehouse to charge; the probabilistic cost of a drone failure on that trajectory; and the price the client is willing to pay (which is subtracted from the other costs). The drone will decide for which warehouse this combined cost is the lowest and submit that as its bid, on the condition that the cost is lower than the fine (then it would just be better not to bother delivering), that it can reach with some battery power left and that it can deliver before the end time of the order.
 
-\outline{\begin{itemize}
-        \item drones leveren orders uit warehouses aan clients (1 order per client)\commentY{OK}
-        \item bid berekening (statistisch relevant)\commentY{OK}
-        \item messaging gedetailleerd bespreken of niet?\commentY{OK}
-        \item tijd tijdens opladen wordt niet meegerekend bij estimated cost (footnote)\commentY{Nog niet maar OK voor mij}
-    \end{itemize}}
-
-\commentY{Add sequence diagrams of 3 protocols??? \commentV{als er nog plaats is in het verslag...}}
-
-\commentV{Agent architecture: zie section 2.3 https://lirias.kuleuven.be/bitstream/123456789/156687/1/CW478.pdf\commentY{Dat is toch veel complexer dan hoe onze architectuur eruit ziet?}}
 \subsubsection{Agent state machines}
-\commentY{Moet dit er eigenlijk nog in?}
 Both the drone and client use finite state machines to define in which phase of the contract negotiation they are situated.
 
-\begin{figure}[htp]
+\begin{figure*}[htp]
     \centering
-    \includegraphics[width=\columnwidth]{Drone}
-    \caption{A finite state machine of the drone agent. The blue transitions and state only apply to CNET, the red transitions only to DynCNET and the green transitions to CNCP and DynCNET.  \commentV{te klein in twocolumn?}}
-    \label{fig:droneFSM}
-\end{figure}
+    \begin{minipage}{\textwidth}
+        \centering
+        \includegraphics[width=0.6\linewidth]{Drone}
+        \captionof{figure}{A finite state machine of the drone agent. The blue transitions and state only apply to CNET, the red transitions only to DynCNET and the green transitions to CNCP and DynCNET.}
+        \label{fig:droneFSM}
+    \end{minipage}
+    \begin{minipage}{\textwidth}
+        \centering
+        \includegraphics[width=0.7\linewidth]{Client}
+        \captionof{figure}{A finite state machine of the client agent (the red transition only applies to DynCNET)}
+        \label{fig:clientFSM}
+    \end{minipage}
+\end{figure*}
 
 Figure~\ref{fig:droneFSM} shows the FSM for the drone agent in the three different protocols\footnote{Not represented in the figure is the failed state, in case the drone crashes. A drone can enter this state from all other states and can never leave it again}. The drone starts in the \texttt{IDLE} state. In this state, it will move to the closest warehouse, where it will enter the \texttt{CHARGING} state and start charging its battery. In CNET and CNCP, a drone can bid in the green states. In DynCNET, a drone can bid in the green and yellow states. In CNET, a drone will enter the \texttt{PROPOSED\_BID} state once it has submitted a bid. It will reenter the \texttt{IDLE} state if the client declines. In CNCP and DynCNET, the drone stays in either \texttt{IDLE} or \texttt{CHARGING} and may continue bidding.
 
@@ -211,22 +200,9 @@ If the client awards the task to the drone, the drone goes into the \texttt{PICK
 
 The \texttt{PROPOSED\_BID} state is only used in CNET, not in CNCP nor DynCNET.  DynCNET also has two extra transitions: from \texttt{PICKING\_UP} and \texttt{CHARGING\_FOR\_CONTRACT} back to \texttt{IDLE}, in case the client cancels the contract. CNCP and DynCNET also have a direct \texttt{gotContract} transition from \texttt{IDLE} and \texttt{CHARGING\_FOR\_CONTRACT} to \texttt{PICKING\_UP}. In CNET the drone first has to pass through the \texttt{PROPOSED\_BID} state.
 
-\begin{figure}[htp]
-    \centering
-    \includegraphics[width=\columnwidth]{Client}
-    \caption{A finite state machine of the client agent (the red transition only applies to DynCNET) \commentV{te klein in twocolumn?}}
-    \label{fig:clientFSM}
-\end{figure}
-
 Figure~\ref{fig:clientFSM} shows the FSM for the client agent in the three different protocols. The client starts in the \texttt{AWARDING} state. When the task has been awarded, it enters the \texttt{ASSIGNED} state. From then on, the client will go to the \texttt{EXECUTING} and \texttt{DELIVERED} state respectively when the drone picks up and delivers the package. Only a drone failure or the cancellation of a contract in DynCNET can change the state flow, by having the client return to the \texttt{AWARDING} state. If the maximum delivery time for the client has passed before a drone delivered the package, the client will enter the (final) \texttt{OVERTIME} state.
 
 In CNET and CNCP, a client can only send task announcements while in the \texttt{AWARDING} state. In DynCNET, it can also send task announcements in the \texttt{ASSIGNED} state, until the package is picked up by the drone and the client enters the \texttt{EXECUTING} state.
-
-\commentY{Table met communication primitives as in \cite{TentativeBidding}? \commentV{als er nog plaats is in het verslag...}}
-
-\commentY{Message loss? houden we geen rekening mee\commentY{Maar staat bij design dus geen nood om nog eens te benadrukken, denk ik?}}
-\commentY{Synchronization van DynCNET: \commentV{(van de wiki) This latter then sends a message to confirm the abort.
-moeten we verbreken contract bevestigen? zie DynCNET + CW566: 3.3. Synchronization of abort messages}}
 
 \subsection{Comparison with existing MAS from literature}
 When clients enter the world, they will act as managers and broadcast their task announcement to all agents.\footnote{This includes other clients, who will ignore all task announcements. RinSim does not (yet) provide a broadcast to a subset of all agents, in this case the drones.} This task announcement consists only of the order that a client has. All drones are considered to be eligible. As there is only one type of bid, the bid specification defined in CNET is implicit and left out of the task announcement. There is no separate expiration time for bidding: drones are expected to bid immediately and the task announcement will be sent at the latest on the end time of the order. 
@@ -250,29 +226,11 @@ Once a drone has received a task, it starts executing the task by flying to the 
 In case the drone would crash, the notification of this failure to the client is modeled by sending one last signal to the client. In practice, outside a simulator, a polling approach might be used. After the client is aware of the failure, the client announces the task again.
 
 A potential risk of DynCNET is oscillation of tasks between drones. \cite{DynCNET} describes a solution by limiting the areas of interest, e.g. by broadcasting task announcement only within a limited range. In our design, the agents are limited only by their battery, but not with a communications range. We did not take any special action to prevent the oscillation of tasks between drones.
-\outline{
-\commentY{Volgens mij klopt outline niet meer en is deze sectie in orde?}
-    \begin{itemize}
-        \item warehouses oneindige capaciteit
-        \item tasks uit literature zijn orders bij ons
-        \item verschillen in messaging
-        \item concretere berekening bid
-        \item Feit dat ze enkel kunnen opladen als ze IDLE (CHARGING) zijn of in CHARGING\_FOR\_WAREHOUSE? En dus niet in andere warehouses. En ook niet voor ze naar andere warehouse vertrekken.
-    \end{itemize}
-    }
 
 \section{Experiments}\label{sec:experiments}
 To test our hypotheses in our multi-agent system design, we experiment using implementations of this design for the three protocols.
 \subsection{Setup}
-\outline{\begin{itemize}
-        \item independent: aantal drones, warehouses, clients
-        \item dependent: profit, aantal clients delivered, aantal messages, delivery time, ... (\texttt{ExperimentResult})
-        \item other: battery drain, kost pakketjes, oplaadkost, ... (\texttt{Variables.kt} + \texttt{PackageType.kt})
-        \item beschrijving computer + RinSim 4.1.0
-        \item  square area of 100 km$^2$
-    \end{itemize}}
-
-We have run two experiments. In the first one, we varied the number of drones, warehouses, initial clients and \textit{extra clients}, i.e. the clients that appear randomly after the start of the simulation. 
+We ran two experiments. In the first one, we varied the number of drones, warehouses, initial clients and \textit{extra clients}, i.e. the clients that appear randomly after the start of the simulation. 
 
 After running the first experiment, we noticed that DynCNET has a breakdown when there are many clients compared to the number of drones, as figures~\ref{fig:dynamicclients-profit} and \ref{fig:dynamicclients-profit-largeNbDrones} show. The second experiment therefore aims at exploring these circumstances by running an experiment with a large number of drones and a bigger range for the number of clients.
 
@@ -357,7 +315,7 @@ Figures \ref{fig:drones-profit} to \ref{fig:dynamicclients-profit-grid2} show th
 
 \MASplotThree
 {drones-delivered}{The influence of the number of drones on the number of clients that are not delivered}
-{dynamicclients-delivered-grid2}{The influence of the number of clients that appear after the start of the simulation on the number of clients that are not delivered (in the second experiment) }
+{dynamicclients-delivered-grid2}{The influence of the number of clients that appear after the start of the simulation on the number of clients that are not delivered (in the second experiment, for 25 initial clients) }
 {dynamicclients-profit-grid2}{The influence of the number of clients that appear after the start of the simulation on the profit (in the second experiment)}
 %{dynamicclients-switchesdrone-grid2}{The influence of the number of clients that appear after the start of the simulation on the average number of times a drones switches clients (in the second experiment)}
 
@@ -374,7 +332,7 @@ When increasing the number of drones, the profit also increases until enough dro
 
 When increasing the number of warehouses, the profit increases as well. Figure~\ref{fig:warehouses-profit} shows that this increase seems to slow down as the number of warehouses is further increased. More experiments would have to be conducted to fully test this hypothesis.
 
-When increasing the number of clients (figure~\ref{fig:dynamicclients-profit-grid2}), the profit first increases as well. When the number of clients increases even further, the number of clients whose packages aren't delivered also increases (figure~\ref{fig:dynamicclients-delivered-grid2}). This means the profit starts to fall, as the extra fines start to dominate the extra profits. DynCNET outperforms CNET and CNCP in the number of clients that get delivered when the number of clients increases. However the fall of the profit for DynCNET is a lot steeper, which means in DynCNET actually less profit is earned than in CNET and CNCP. This can be explained by the number of times a drone switches their contract. This number increases linearly with the number of clients up to an average of 15 switches per drone when 200 clients appear after the start of the simulation.\proposalY{Taking actions to prevent oscillations might pay off in the case of a large number of clients.} \commentV{verdere verklaring? drones moeten langer vliegen -> meer crashes? (natrekken met nbCrashes en avgDistance?)\commentY{Ik denk gewoon dat er een vorm van oscillatie is in onze implementatie.\commentV{dat is de oorzaak van de switches, maar hoe zijn de switches de oorzaak van de sterker dalende profit?}}}
+When increasing the number of clients (figure~\ref{fig:dynamicclients-profit-grid2}), the profit first increases as well. When the number of clients increases even further, the number of clients whose packages aren't delivered also increases (figure~\ref{fig:dynamicclients-delivered-grid2}). This means the profit starts to fall, as the extra fines start to dominate the extra profits. DynCNET outperforms CNET and CNCP in the number of clients that get delivered when the number of clients increases. However the fall of the profit for DynCNET is a lot steeper, which means in DynCNET actually less profit is earned than in CNET and CNCP. This can be explained by the number of times a drone switches their contract and thereby wasting time turning around. This number increases linearly with the number of clients up to an average of 15 switches per drone when 200 clients appear after the start of the simulation. Taking actions to prevent oscillations might pay off in the case of a large number of clients.
 
 Figure~\ref{fig:drones-deliverytime} shows the influence of the number of drones on the delivery time. For 1 drone, DynCNET delivers the fastest, while there is no significant difference between CNET and CNCP as both protocols don't behave differently if there is only one drone. If two or more drones are present in the world, CNCP will deliver faster than CNET, which will deliver faster than DynCNET.
 
@@ -398,14 +356,8 @@ While we expected CNCP and CNET to deliver the same amount of clients, in practi
 
 As expected, DynCNET needs more messages than the other two protocols due to messaging continuing when both agents are not fully committed to the contract they have. CNCP however needs more messages than CNET when there are a large number of clients. For a small number of clients, CNET and CNCP need about the same number of messages.
 
-\proposalV{
-In conclusion we could say that overall CNCP and DynCNET are an improvement on CNET. Between the two extensions the choice for our setting is less clear cut. The largest factor that determines the relative performance is the proportion of clients to drones. DynCNET performs better when there are enough drones so that all clients can be delivered and there is little competition between clients for the drones, i.e. the number of switches is low. When too many switches start to occur, CNCP becomes the better protocol. 
-}
-\taskV{heel algemene conclusie? (zoiets als DynCNET is over het algemeen beter/slechter)\commentY{Dan moet conclusie zijn dat het afhangt van de hoeveelheid drones t.o.v. clients enzo? Bijvoorbeeld best om te starten met DynCNET tot als gedetecteerd wordt dat er te veel swicthes zijn, dan moeten ze CNCP beginnen praten?}}
+In conclusion we could say that overall CNCP and DynCNET are an improvement on CNET. Between the two extensions the choice for our setting is less clear cut. The largest factor that determines the relative performance is the proportion of clients to drones. DynCNET performs better when there are enough drones so that all clients can be delivered and there is little competition between clients for the drones, i.e. the number of times a drone switches contracts is low. When too many switches start to occur, CNCP becomes the better protocol.
 
-\commentV{CW566: TABLE 1: INTERFACE DEFINITIONS FOR A TRANSPORT AGENT AND AN AGV AGENT
-nakijken of we die allemaal hebben}
-\commentY{Ook http://www.fipa.org/specs/fipa00037/SC00037J.html als referentie voor de ACL acts?}
 \bibliographystyle{plain}
 \bibliography{report}
 
