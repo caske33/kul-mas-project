@@ -75,15 +75,13 @@
 
 \commentV{Zie https://bitbucket.org/VictorLP/mas/wiki/Notities\commentY{Normaal staan alle comments van de wiki in het verslag nu}}
 \section{Introduction}
-\outline{Bevat waarom verslag moet lezen (samen met conclusie 1 geheel). The last paragraph of the introduction traditionally says “This report is organised as
-follows. Section 1 introduces . . . ”.}
-\commentV{pickup-and-delivery problem}
+\outline{Bevat waarom verslag moet lezen (samen met conclusie 1 geheel).}
 \subsection{Objectives}
 The objective of this report is to investigate whether two extensions of Contract Net (CNET) \cite{CNETStandard,CNET}, namely Contract Net with Confirmation Protocol (CNCP) \cite{CNCP} and Dynamic Contract Net (DynCNET) \cite{DynCNET} are an improvement on CNET itself.
 
 We do this in a drone delivery setting where a company owns a fleet of drones (or UAVs, unmanned aerial vehicles) that receives orders from clients, collects the ordered package at one of several warehouses and delivers them to that client. The drones autonomously receive, process and deliver the client orders. The goal is to maximize the company's profit, by having the most suitable drone serve each order. Clients have a time limit for their deliveries, after which the company needs to pay a fine.  Drones can break down and are constrained by their batteries, which can be charged at a warehouse. Drones cannot collide with each other.
 
-We investigate whether any of the aforementioned protocols are suited for a drone company to be profitable in the described setting. We will also check the influence of the number of drones, clients and warehouses on the profit the company can make.
+We investigate whether any of the aforementioned protocols are suited for a drone company to be profitable in the described pickup and delivery problem. We will also check the influence of the number of drones, clients and warehouses on the profit the company can make.
 \subsection{Hypotheses}
 We formulate the following questions and provide our hypotheses for the answers to them.
 \begin{enumerate}
@@ -322,7 +320,7 @@ All experiments were run using RinSim 4.1.0 on computers at the P\&O lab at the 
 \end{table}
 \begin{table}[htp]
 	\begin{center}
-		\begin{tabular}{ p{0.4\columnwidth}p{0.5\columnwidth} }
+		\begin{tabular}{ lp{0.4\columnwidth}p{0.5\columnwidth} }
 			\hline
 			Variable & Value \\ \hline
 			Prices packages & \euro{100}, \euro{200}, \euro{500}, \euro{1000} \\
