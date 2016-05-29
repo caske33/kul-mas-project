@@ -314,7 +314,7 @@ All experiments were run using RinSim 4.1.0 on computers at the P\&O lab at the 
 			\hline
 		\end{tabular}
 	\end{center}
-	\caption{Dependant variables and their meaning\commentY{wat doen we met dependant variables die in csv voorkomen maar niet in de grafieken? \commentV{niet vermelden zou ik zeggen }}}
+	\caption{Dependant variables and their meaning}
 	\label{tbl:dependent}
 \end{table}
 \begin{table}[htp]
@@ -342,7 +342,6 @@ All experiments were run using RinSim 4.1.0 on computers at the P\&O lab at the 
 \end{table}
 
 \subsection{Results}
-\taskS{Update maxlimiet van figures hieronder met laatste figuur!}
 Figures \ref{fig:drones-profit} to \ref{fig:dynamicclients-profit-grid2} show the results of our experiments. The error bars represent the 95\% confidence interval.
 
 \MASplotThree
@@ -363,7 +362,6 @@ Figures \ref{fig:drones-profit} to \ref{fig:dynamicclients-profit-grid2} show th
 
 
 \subsection{Analysis}
-\commentY{Echte analyse doen of ook echt expliciet vergelijken met onze hypothese? \commentV{we moeten ook wel zeggen of onze hypothese nu klopte of niet\commentY{Heb het er deels in verwerkt. Is hypothese kloppen ook niet meer voor een conclusie? Al dan niet een conclusie binnen sectie analyse\commentV{past inderdaad wel in conclusie, zie ook Schut: Fourthly, you report the analysis of the results. This includes descriptions of the tests that you used for the testing of the hypotheses. - You finish your report with a Section with conclusions. This Section is best structured by first briefly repeating the objectives and research questions, then a summary of the analysis of the results and close with a set of conclusions based on your findings.}}}}
 To test whether the experimental data we obtained proves or disproves our hypotheses, we used the Games-Howell test. As the data is heteroscedastic, the TukeyHSD method will have too many Type I errors \cite{SMDA}. \cite{games1979tests} showed that Games-Howell is also robust with non-normal data, which is the case for some of our results. A significance level of 95\% was used for all tests.
 
 Figure~\ref{fig:drones-profit} makes it clear that the number of drones has an influence on which protocol maximizes profit. When there are many drones (7 or more), DynCNET is better than CNCP, which outperforms CNET. For an average number of drones (4 to 6), CNCP outperforms CNET and DynCNET. For 3 drones or less, there is no difference between CNET and CNCP, but both outperform DynCNET. As figure~\ref{fig:dynamicclients-profit} and \ref{fig:dynamicclients-profit-largeNbDrones} show, no breakdown happens when enough drones are present. DynCNET is thus only able to outperform CNCP and CNET with enough drones. Otherwise, it performs worse. CNCP outperforms CNET for an average or large number of drones.
@@ -375,7 +373,7 @@ When increasing the number of drones, the profit also increases until enough dro
 
 When increasing the number of warehouses, the profit increases as well. Figure~\ref{fig:warehouses-profit} shows that this increase seems to slow down as the number of warehouses is further increased. More experiments would have to be conducted to fully test this hypothesis.
 
-When increasing the number of clients (figure~\ref{fig:dynamicclients-profit-grid2}), the profit first increases as well. When the number of clients increases even further, the number of clients whose packages aren't delivered also increases (figure~\ref{fig:dynamicclients-delivered-grid2}). This means the profit starts to fall, as the extra fines start to dominate the extra profits. DynCNET outperforms CNET and CNCP in the number of clients that get delivered when the number of clients increases. However the fall of the profit for DynCNET is a lot steeper, which means in DynCNET actually less profit is earned than in CNET and CNCP. This can be explained by the number of times a drone switches their contract. This number increases linearly with the number of clients up to an average of 15 switches per drone when 200 clients appear after the start of the simulation. \commentV{verdere verklaring? drones moeten langer vliegen -> meer crashes? (natrekken met nbCrashes en avgDistance?)\commentY{Ik denk gewoon dat er een vorm van oscillatie is in onze implementatie.}}
+When increasing the number of clients (figure~\ref{fig:dynamicclients-profit-grid2}), the profit first increases as well. When the number of clients increases even further, the number of clients whose packages aren't delivered also increases (figure~\ref{fig:dynamicclients-delivered-grid2}). This means the profit starts to fall, as the extra fines start to dominate the extra profits. DynCNET outperforms CNET and CNCP in the number of clients that get delivered when the number of clients increases. However the fall of the profit for DynCNET is a lot steeper, which means in DynCNET actually less profit is earned than in CNET and CNCP. This can be explained by the number of times a drone switches their contract. This number increases linearly with the number of clients up to an average of 15 switches per drone when 200 clients appear after the start of the simulation.\proposalY{Taking actions to prevent oscillations might pay off in the case of a large number of clients.} \commentV{verdere verklaring? drones moeten langer vliegen -> meer crashes? (natrekken met nbCrashes en avgDistance?)\commentY{Ik denk gewoon dat er een vorm van oscillatie is in onze implementatie.}}
 
 Figure~\ref{fig:drones-deliverytime} shows the influence of the number of drones on the delivery time. For 1 drone, DynCNET delivers the fastest, while there is no significant difference between CNET and CNCP as both protocols don't behave differently if there is only one drone. If two or more drones are present in the world, CNCP will deliver faster than CNET, which will deliver faster than DynCNET.
 
@@ -399,7 +397,7 @@ While we expected CNCP and CNET to deliver the same amount of clients, in practi
 
 As expected, DynCNET needs more messages than the other two protocols due to messaging continuing when both agents are not fully committed to the contract they have. CNCP however needs more messages than CNET when there are a large number of clients. For a small number of clients, CNET and CNCP need about the same number of messages.
 
-\taskV{heel algemene conclusie? (zoiets als DynCNET is over het algemeen beter/slechter)}
+\taskV{heel algemene conclusie? (zoiets als DynCNET is over het algemeen beter/slechter)\commentY{Dan moet conclusie zijn dat het afhangt van de hoeveelheid drones t.o.v. clients enzo? Bijvoorbeeld best om te starten met DynCNET tot als gedetecteerd wordt dat er te veel swicthes zijn, dan moeten ze CNCP beginnen praten?}}
 
 \commentV{CW566: TABLE 1: INTERFACE DEFINITIONS FOR A TRANSPORT AGENT AND AN AGV AGENT
 nakijken of we die allemaal hebben}
