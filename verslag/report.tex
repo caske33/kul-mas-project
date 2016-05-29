@@ -273,7 +273,7 @@ We have run two experiments. In the first one, we varied the number of drones, w
 
 After running the first experiment, we noticed that DynCNET has a breakdown when there are many clients compared to the number of drones, as figures~\ref{fig:dynamicclients-profit} and \ref{fig:dynamicclients-profit-largeNbDrones} show. The second experiment therefore aims at exploring these circumstances by running an experiment with a large number of drones and a bigger range for the number of clients.
 
-The values for the independent variables for both experiments can be found in table~\ref{tbl:independent}. Multiple dependent variables were measured in these experiments. These can be found in table~\ref{tbl:dependent}.  The values of the other variables, that were not varied and were chosen to be as realistic as possible, can be found in table~\ref{tbl:other}.
+The values for the independent variables for both experiments can be found in table~\ref{tbl:independent} (for succinctness, the protocol is excluded from the table). Multiple dependent variables were measured in these experiments. These can be found in table~\ref{tbl:dependent}.  The values of the other variables, that were not varied and were chosen to be as realistic as possible, can be found in table~\ref{tbl:other}.
 
 All experiments were run using RinSim 4.1.0 on computers at the P\&O lab at the Department of Computer Science. These computers have a 3.4 GHz quad-core processor and 8 GB of RAM. For each combination of values for the independent variables, 150 simulations were performed\footnote{For a total of 1417500 and 351000 simulations for respectively experiment 1 and 2.} to rule out that one random experiment could skew the results. All raw data has been kept and can be found in attachment to this report.
 
@@ -286,11 +286,10 @@ All experiments were run using RinSim 4.1.0 on computers at the P\&O lab at the 
 			\# warehouses & 4..10 & 10 \\
 			\# initial clients & 5..25 step 5 & 5..100 step 5 \\
 			\# extra clients & 10..50 step 5 & 10..200 step 5 \\
-			protocol & all 3 & all 3 \\
 			\hline
 		\end{tabular}
 	\end{center}
-	\caption{Independent variables and their ranges (with inclusive boundaries)\commentY{wat vindt ge van notatie "all 3" voor protocol? Moet die er zelfs bij? \commentV{misschien eerder in de tekst vermelden?}}}
+	\caption{Independent variables and their ranges (with inclusive boundaries)}
 	\label{tbl:independent}
 \end{table}
 \begin{table}[htp]
@@ -298,22 +297,22 @@ All experiments were run using RinSim 4.1.0 on computers at the P\&O lab at the 
 		\begin{tabular}{ p{0.4\columnwidth}p{0.5\columnwidth} }
 			\hline
 			Variable & Meaning \\ \hline
-			nbCrashes & The number of drones that crashed \\
-			profit & The profit the company made (in \euro{}) \\
+			%nbCrashes & The number of drones that crashed \\
+			totalProfit & The profit the company made (in \euro{}) \\
 			nbClientsNotDelivered & The number of clients that weren't delivered \\
 			averageDeliveryTime & The average delivery time in milliseconds (for the clients that are delivered) \\
-			averageDistance & The average distance (in km) a drone travelled\\
-			maximumOrders & The maximum orders 1 drone delivered\\
-			estimatedProfit & The sum of the estimated profits of the accepted contracts (in \euro{})\\
-			estimatedCrashes & The estimated number of crashes (for the accepted contracts) \\
+			%averageDistance-TravelledPerDrone & The average distance (in km) a drone travelled\\
+			%maximumNbOrders-PerDrone & The maximum orders 1 drone delivered\\
+			%estimatedTotalProfit & The sum of the estimated profits of the accepted contracts (in \euro{})\\
+			%estimatedNbCrashes & The estimated number of crashes (for the accepted contracts) \\
 			nbMessages & The number of messages exchanged \\
-			nbCallsForProposal & The number of task announcements (on average) \\
-			switchesPerDrone & The (average) number of times a drone switched contracts \\
-			switchesPerClient & The (average) number of times a client switched contracts \\
+			%averageNbCalls-ForProposal & The number of task announcements (on average) \\
+			averageNbSwitches-PerDrone & The (average) number of times a drone switched contracts \\
+			%averageNbSwitches-PerClient & The (average) number of times a client switched contracts \\
 			\hline
 		\end{tabular}
 	\end{center}
-	\caption{Dependant variables and their meaning\commentY{wat doen we met dependant variables die in csv voorkomen maar niet in de grafieken? \commentV{niet vermelden zou ik zeggen }Is het ok dat ik sommige variabelen hernoemd heb om in tabel te passen? \commentV{als ook header in csv hernoemd (+eventueel code): ok}}}
+	\caption{Dependant variables and their meaning\commentY{wat doen we met dependant variables die in csv voorkomen maar niet in de grafieken? \commentV{niet vermelden zou ik zeggen }}}
 	\label{tbl:dependent}
 \end{table}
 \begin{table}[htp]
