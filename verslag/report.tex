@@ -387,7 +387,7 @@ When there are a small number of clients (5 initial clients and 10 extra clients
 \section{Conclusion}
 Our objective in this report was to investigate CNCP and DynCNET, two extensions of CNET, and compare them to CNET in a drone delivery setting where drones deliver packages from warehouses to clients. To be able to do experiments for this comparison, we researched the three protocols and implemented them for our logistics problem, adapting them to fit the specific setting of drones, warehouses and clients.
 
-We ran two experiments on these implementations: one where the number of drones, warehouses and clients were varied, and one where the number of drones was fixed and the number of warehouses and clients were varied. Using these experiments, we can now evaluate our hypotheses.
+We ran two experiments on these implementations: one where the number of drones, warehouses and clients were varied, and one where the number of drones and warehouses was fixed and the number of clients were varied. Using these experiments, we can now evaluate our hypotheses.
 
 The profit that is earned is influenced by the protocol used, but depends on the specific configuration of drones, warehouses and clients. We expected DynCNET to be more profitable than CNCP, and CNCP more profitable than CNET, which is the case but only when there are many drones. For lower number of drones, CNCP improves on CNET or performs equally well, but both are better than DynCNET. This is due to a breakdown in DynCNET when there are too many clients for too little drones. All three approaches are able to generate a profit if the number of drones and warehouses are appropriate for the number of clients.
 
