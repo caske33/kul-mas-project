@@ -113,9 +113,11 @@ We expect that CNET and CNCP will deliver the same amount of clients and DynCNET
 We expect that CNCP will need less messages because we expect less rounds of bidding. CNET will need more messages but still less than DynCNET, which needs a lot of messages due to the dynamism to make sure the best contract is being executed. 
 \end{enumerate}
 
-\section{Theory}
+This report is organized as follows. Section~\ref{sec:theory} discusses the theory of the three protocols that are tested. Section~\ref{sec:masdesign} gives the multi-agent system design of our problem and compares it to the theory. Section~\ref{sec:experiments} details the results of the experiments that were run to test the hypotheses. Section~\ref{sec:conclusion} concludes with a discussion of the hypotheses.
 
-In this section we describe the theory of the Contract Net Protocol and the two extensions CNCP and DynCNET. We use the literature on these protocols to highlight their characteristics and differences.
+\section{Theory}\label{sec:theory}
+
+In this section we describe the theory of the Contract Net Protocol and the two extensions CNCP and DynCNET. We use the literature on these protocols to highlight their characteristics and differences. We also discuss some alternative extensions to CNET.
 
 \subsection{Contract Net} The Contract Net Protocol, or CNET, was conceived by Smith in 1980 \cite{CNET}. It is a high-level protocol for communication between agents to allow distributed task execution. The high-level protocol messages have a particular structure and meaning, which means the agents can interpret them to receive information on tasks and allocations and to send replies such as bids. 
 
@@ -166,9 +168,10 @@ One of the main differences between \cite{TentativeBidding} and ICN is that in I
 
 \cite{LeveledCommitment} uses game theory to prove that a leveled commitment is to be preferred over full commitment in all situations. In the negotiation of a contract in this protocol, a decommitting penalty is agreed, which might be different for both agents. When an agent wants to cancel the contract, it then has to pay this decommitting fee to the other agent. The fee becomes a factor in calculating whether or not it is interesting to cancel the current contract in favor of another contract.\footnote{The paper proves, using the chicken game from game theory, that the consideration by an agent of canceling a contract is more than just checking if the added profit of the new contract is more than the decommitting fee that would then have to be paid. The other agent might decommit at some point, which means that this agent gets released from the contract without paying a fee and even receives the fee from the other agent.} It also allows for contracts that were not possible using full commitment. Normally the benefit from an offered contract could be lower than the expected benefit from other contracts that have not yet been announced, which means the agent would wait and not commit to that offered contract. By having the right decommitting fees, this offered leveled commitment contract could become interesting and could be taken up.
 
-\commentV{uitleggen dat we deze niet geimplementeerd hebben\commentY{Dan in design sectie?}}
+\commentV{uitleggen dat we deze niet geimplementeerd hebben\commentY{Dan in design sectie?\commentV{wat bedoel je?}}}
+\proposalV{As these protocols are not part of our objective, we have not implemented our design for them.}
 
-\section{Multi-agent system design}
+\section{Multi-agent system design}\label{sec:masdesign}
 \outline{Wat wij concreet doen}
 \subsection{Design}
 We consider a logistics problem where a company serves an area with a fleet of drones. In this area, a number of clients appear with an order for a specific product. One of the drones takes up the order and is dispatched to a warehouse to collect a package with that product. Finally it flies to the client to deliver the package. The goal is to maximize the profit earned on making these deliveries.
@@ -260,8 +263,8 @@ A potential risk of DynCNET is oscillation of tasks between drones. \cite{DynCNE
     \end{itemize}
     }
 
-\section{Experiments}
-\taskV{mini-inleiding}
+\section{Experiments}\label{sec:experiments}
+To test our hypotheses in our multi-agent system design, we experiment using implementations of this design for the three protocols.
 \subsection{Setup}
 \outline{\begin{itemize}
         \item independent: aantal drones, warehouses, clients
@@ -382,7 +385,7 @@ In our second experiment, DynCNET outperforms CNCP when the number of clients in
 
 When there are a small number of clients (5 initial clients and 10 extra clients), no significant difference in the number of exchanged messages could be found between CNET and CNCP. However, in other configurations with more clients, CNCP actually needs more messages than CNET (not less). DynCNET always needs more messages than the other two protocols.
 
-\section{Conclusion}
+\section{Conclusion}\label{sec:conclusion}
 Our objective in this report was to investigate CNCP and DynCNET, two extensions of CNET, and compare them to CNET in a drone delivery setting where drones deliver packages from warehouses to clients. To be able to do experiments for this comparison, we researched the three protocols and implemented them for our logistics problem, adapting them to fit the specific setting of drones, warehouses and clients.
 
 We ran two experiments on these implementations: one where the number of drones, warehouses and clients were varied, and one where the number of drones and warehouses were fixed and the number of clients was varied. Using these experiments, we can now evaluate our hypotheses.
@@ -397,6 +400,9 @@ While we expected CNCP and CNET to deliver the same amount of clients, in practi
 
 As expected, DynCNET needs more messages than the other two protocols due to messaging continuing when both agents are not fully committed to the contract they have. CNCP however needs more messages than CNET when there are a large number of clients. For a small number of clients, CNET and CNCP need about the same number of messages.
 
+\proposalV{
+In conclusion we could say that overall CNCP and DynCNET are an improvement on CNET. Between the two extensions the choice for our setting is less clear cut. The largest factor that determines the relative performance is the proportion of clients to drones. DynCNET performs better when there are enough drones so that all clients can be delivered and there is little competition between clients for the drones, i.e. the number of switches is low. When too many switches start to occur, CNCP becomes the better protocol. 
+}
 \taskV{heel algemene conclusie? (zoiets als DynCNET is over het algemeen beter/slechter)\commentY{Dan moet conclusie zijn dat het afhangt van de hoeveelheid drones t.o.v. clients enzo? Bijvoorbeeld best om te starten met DynCNET tot als gedetecteerd wordt dat er te veel swicthes zijn, dan moeten ze CNCP beginnen praten?}}
 
 \commentV{CW566: TABLE 1: INTERFACE DEFINITIONS FOR A TRANSPORT AGENT AND AN AGV AGENT
