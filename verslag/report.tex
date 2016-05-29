@@ -89,14 +89,7 @@ We formulate the following questions and provide our hypotheses for the answers 
 \begin{enumerate}
 \item \textit{Is there a difference between CNET, CNCP and DynCNET in the profit the company can make?} \\
 We expect that the company can make more profit using DynCNET than using CNCP, which should be more profitable than CNET.
-\item\textit{Is there a difference in average delivery time between CNET, CNCP and DynCNET?} \\
-We expect that CNCP and CNET will deliver faster than DynCNET (as DynCNET wastes time when it switches). We don't expect a difference between CNCP and CNET as both will start delivering quickly and won't waste any time by switching.
 
-\item\textit{Is there a difference in the number of clients that are not delivered between CNET, CNCP and DynCNET?} \\
-We expect that CNET and CNCP will deliver the same amount of clients and DynCNET less, again because of the switching between clients.
-
-\item\textit{Is there a difference in the number of messages that needs to be exchanged between CNET, CNCP and DynCNET?}\\
-We expect that CNCP will need less messages because we expect less rounds of bidding. CNET will need more messages but still less than DynCNET, which needs a lot of messages due to the dynamism to make sure the best contract is being executed. 
 
 \item\textit{Is it possible to make a profit using any of the 3 approaches?}\\
 We expect that all three approaches should be profitable given the right number of warehouses, drones and clients.
@@ -109,6 +102,15 @@ We expect the profit to scale with the number of warehouses. As more warehouses 
 
 \item\textit{What is the influence of the number of clients on the profit?}\\
 We expect the profit to rise until there are too many clients, after which the fines of not delivering start to become too large.
+
+\item\textit{Is there a difference in average delivery time between CNET, CNCP and DynCNET?} \\
+We expect that CNCP and CNET will deliver faster than DynCNET (as DynCNET wastes time when it switches). We don't expect a difference between CNCP and CNET as both will start delivering quickly and won't waste any time by switching.
+
+\item\textit{Is there a difference in the number of clients that are not delivered between CNET, CNCP and DynCNET?} \\
+We expect that CNET and CNCP will deliver the same amount of clients and DynCNET less, again because of the switching between clients.
+
+\item\textit{Is there a difference in the number of messages that needs to be exchanged between CNET, CNCP and DynCNET?}\\
+We expect that CNCP will need less messages because we expect less rounds of bidding. CNET will need more messages but still less than DynCNET, which needs a lot of messages due to the dynamism to make sure the best contract is being executed. 
 \end{enumerate}
 
 \section{Theory}
@@ -367,12 +369,6 @@ To test whether the experimental data we obtained proves or disproves our hypoth
 
 Figure~\ref{fig:drones-profit} makes it clear that the number of drones has an influence on which protocol maximizes profit. When there are many drones (7 or more), DynCNET is better than CNCP, which outperforms CNET. For an average number of drones (4 to 6), CNCP outperforms CNET and DynCNET. For 3 drones or less, there is no difference between CNET and CNCP, but both outperform DynCNET. As figure~\ref{fig:dynamicclients-profit} and \ref{fig:dynamicclients-profit-largeNbDrones} show, no breakdown happens when enough drones are present. DynCNET is thus only able to outperform CNCP and CNET with enough drones. Otherwise, it performs worse. CNCP outperforms CNET for an average or large number of drones.
 
-Figure~\ref{fig:drones-deliverytime} shows the influence of the number of drones on the delivery time. For 1 drone, DynCNET delivers the fastest, while there is no significant difference between CNET and CNCP as both protocols don't behave differently if there is only one drone. If two or more drones are present in the world, CNCP will deliver faster than CNET, which will deliver faster than DynCNET. \proposalY{Contrary to our belief, CNCP is thus, in general, faster to deliver than CNET \commentV{beter in conclusie dan?}}. 
-
-The impact of the protocol on the number of clients that don't get their package delivered also depends on how many clients and drones there are (figure~\ref{fig:drones-delivered} and \ref{fig:dynamicclients-delivered-grid2}). For a small number of clients (less than 20 clients initially and less than 50 clients after the start) or a large number of drones (10 drones), CNCP will deliver the most packages, followed by CNET and DynCNET. In other scenarios in the first experiment, CNCP will still outperform the other two protocols. For 9 drones, there is no significant difference between CNET and DynCNET. But when there are 8 drones, DynCNET outperforms CNET. When the number of drones decreases further (to 4 drones or less), CNET outperforms DynCNET again. 
-In our second experiment, DynCNET outperforms CNCP when the number of clients increases (figure~\ref{fig:dynamicclients-delivered-grid2}). However, in our experiments CNET never outperformed CNCP. At best, it can keep up with CNCP when there is only 1 drone due to similar behaviour. \proposalY{While we expected CNCP and CNET to deliver the same amount of clients, in practice, CNCP is clearly better than CNET. In some situations, DynCNET is actually better than CNET and for a large number of customers, even better than CNCP. \commentV{in conclusie?}}
-
-When there are a small number of clients (5 initial clients and 10 extra clients), no significant difference in the number of exchanged messages could be found between CNET and CNCP. However, in other configurations with more clients, CNCP actually needs more messages than CNET (not less). DynCNET always needs more messages than the other two protocols.
 
 As figures~\ref{fig:drones-profit}--\ref{fig:dynamicclients-profit} show, a company can indeed make a profit using any of the three protocols, given the right number of drones and warehouses for the given number of clients in the world.
 
@@ -382,7 +378,30 @@ When increasing the number of warehouses, the profit increases as well. Figure~\
 
 When increasing the number of clients (figure~\ref{fig:dynamicclients-profit-grid2}), the profit first increases as well. When the number of clients increases even further, the number of clients whose packages aren't delivered also increases (figure~\ref{fig:dynamicclients-delivered-grid2}). This means the profit starts to fall, as the extra fines start to dominate the extra profits. DynCNET outperforms CNET and CNCP in the number of clients that get delivered when the number of clients increases. However the fall of the profit for DynCNET is a lot steeper, which means in DynCNET actually less profit is earned than in CNET and CNCP. This can be explained by the number of times a drone switches their contract. This number increases linearly with the number of clients up to an average of 15 switches per drone when 200 clients appear after the start of the simulation. \commentV{verdere verklaring? drones moeten langer vliegen -> meer crashes? (natrekken met nbCrashes en avgDistance?)}
 
+Figure~\ref{fig:drones-deliverytime} shows the influence of the number of drones on the delivery time. For 1 drone, DynCNET delivers the fastest, while there is no significant difference between CNET and CNCP as both protocols don't behave differently if there is only one drone. If two or more drones are present in the world, CNCP will deliver faster than CNET, which will deliver faster than DynCNET.
+
+The impact of the protocol on the number of clients that don't get their package delivered also depends on how many clients and drones there are (figure~\ref{fig:drones-delivered} and \ref{fig:dynamicclients-delivered-grid2}). For a small number of clients (less than 20 clients initially and less than 50 clients after the start) or a large number of drones (10 drones), CNCP will deliver the most packages, followed by CNET and DynCNET. In other scenarios in the first experiment, CNCP will still outperform the other two protocols. For 9 drones, there is no significant difference between CNET and DynCNET. But when there are 8 drones, DynCNET outperforms CNET. When the number of drones decreases further (to 4 drones or less), CNET outperforms DynCNET again. 
+In our second experiment, DynCNET outperforms CNCP when the number of clients increases (figure~\ref{fig:dynamicclients-delivered-grid2}). However, in our experiments CNET never outperformed CNCP. At best, it can keep up with CNCP when there is only 1 drone due to similar behaviour. 
+
+When there are a small number of clients (5 initial clients and 10 extra clients), no significant difference in the number of exchanged messages could be found between CNET and CNCP. However, in other configurations with more clients, CNCP actually needs more messages than CNET (not less). DynCNET always needs more messages than the other two protocols.
+
 \section{Conclusion}
+Our objective in this report was to investigate CNCP and DynCNET, two extensions of CNET, and compare them to CNET in a drone delivery setting where drones deliver packages from warehouses to clients. To be able to do experiments for this comparison, we researched the three protocols and implemented them for our logistics problem, adapting them to fit the specific setting of drones, warehouses and clients.
+
+We ran two experiments on these implementations: one where the number of drones, warehouses and clients were varied, and one where the number of drones was fixed and the number of warehouses and clients were varied. Using these experiments, we can now evaluate our hypotheses.
+
+The profit that is earned is influenced by the protocol used, but depends on the specific configuration of drones, warehouses and clients. We expected DynCNET to be more profitable than CNCP, and CNCP more profitable than CNET, which is the case but only when there are many drones. For lower number of drones, CNCP improves on CNET or performs equally well, but both are better than DynCNET. This is due to a breakdown in DynCNET when there are too many clients for too little drones. All three approaches are able to generate a profit if the number of drones and warehouses are appropriate for the number of clients.
+
+When the number of drones increases, the profit also increases until a point of saturation. This saturation sets in quickly so it cannot be said that the increase in profit is linear. When the number of warehouses increases, the profit also increases. The increase slows down when the number of warehouses is further increased. When the number of clients increases, the profit increases at first before it starts to fall again as the extra fines start to dominate the extra profits.
+
+Except when there is only one drone, CNCP delivers faster than CNET which delivers faster than DynCNET. DynCNET is slower due to task switching, but CNET is also slower than CNCP, contrary to what we expected.
+
+While we expected CNCP and CNET to deliver the same amount of clients, in practice, CNCP is clearly better than CNET. In some situations, DynCNET is actually better than CNET and for a large number of customers, even better than CNCP.
+
+As expected, DynCNET needs more messages than the other two protocols due to messaging continuing when both agents are not fully committed to the contract they have. CNCP however needs more messages than CNET when there are a large number of clients. For a small number of clients, CNET and CNCP need about the same number of messages.
+
+\taskV{heel algemene conclusie? (zoiets als DynCNET is over het algemeen beter/slechter)}
+
 \commentV{CW566: TABLE 1: INTERFACE DEFINITIONS FOR A TRANSPORT AGENT AND AN AGV AGENT
 nakijken of we die allemaal hebben}
 \commentY{Ook http://www.fipa.org/specs/fipa00037/SC00037J.html als referentie voor de ACL acts?}
