@@ -3,7 +3,7 @@ target/
 .idea/
 *.aux
 *.synctex.gz
-report.pdf
+verslag/report.pdf
 .Rproj.user
 .Rhistory
 *.csv
