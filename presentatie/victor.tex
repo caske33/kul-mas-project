@@ -1,0 +1,132 @@
+\documentclass{beamer}
+
+\usepackage{default}
+
+\usetheme{Szeged}
+\usecolortheme{beaver}
+
+\title{Extensions on Contract Net Protocol for AGVs}
+\subtitle{Multi-Agent Systems}
+
+\author{Jens Claes \and \textbf{Victor Le Pochat}}
+\date{June 6, 2016}
+
+\begin{document}
+	\frame{\titlepage}
+	
+	\section{Introduction}
+	\begin{frame}{Objectives \& Hypotheses}
+		\begin{itemize}
+		\item CNET vs CNCP vs DynCNET
+		\item Hypotheses:
+			\begin{itemize}
+			\item Compare
+				\begin{itemize}
+				\item Profit
+				\item Delivery time
+				\item \# clients undelivered
+				\item Message count
+				\end{itemize}
+			\item Influence on profit
+				\begin{itemize}
+				\item \# drones
+				\item \# warehouses
+				\item \# clients
+				\end{itemize}
+			\end{itemize}
+		\end{itemize}
+	\end{frame}
+
+	\section{Design}
+	
+	\begin{frame}{MAS design}
+		\begin{itemize}
+			\item Package delivery company
+			\item Clients have an order
+			\item Drone takes up order
+			\item Drone collects package at warehouse
+			\item Drone flies to client and delivers package
+		\end{itemize}
+	\end{frame}
+	
+	\begin{frame}{MAS design}
+		\begin{itemize}
+			\item Goal: maximize profit
+			\begin{itemize}
+				\item Allocate task to most suitable drone
+				\item Find cheapest warehouse
+				\item Minimize crashes
+				\begin{itemize}
+					\item Keep battery charged
+					\item Poisson distribution
+				\end{itemize}
+				\item Deliver on time
+			\end{itemize}
+		\end{itemize}
+	\end{frame}
+	
+	\section{Protocols}
+		
+	\begin{frame}{Contract Net Protocol (CNET)}
+		\begin{itemize}
+			\item Contract negotiation between manager and contractor
+			\begin{itemize}
+				\item M: Task announcement
+				\item C: Bid
+				\item M: Awarding
+				\item C: Execution
+			\end{itemize}
+			\item Simplified task announcement: only order
+			\item Committed to bids
+			\item Extension to delay announcement
+		\end{itemize}
+	\end{frame}
+	
+	\begin{frame}{Contract Net with Confirmation (CNCP)}
+		\begin{itemize}
+			\item CNET problem: early commitment
+			\item CNCP solution: full commitment when awarded
+			\item When awarded, first check if contractor accepts
+			\begin{itemize}
+				\item if yes: award \& execute task
+				\item if no: try next best contractor
+			\end{itemize}
+			\item Reannounce task instead of trying next best bidder
+			\note{omvat ook mergen task acceptance in 1 bericht}
+		\end{itemize}
+	\end{frame}
+
+	\begin{frame}{Dynamic Contract Net (DynCNET)}
+		\begin{itemize}
+			\item CNET problem: no dynamism
+			\item DynCNET solution: allow contract switching
+			\item When awarded but still in preparation
+			\item Contract final when preparation is finished
+			\item DynCNET: no consideration for oscillation
+		\end{itemize}
+	\end{frame}
+	
+
+	
+	\section{Experiments}
+	\begin{frame}{Experiments}
+		\begin{itemize}
+			\item Test hypotheses
+			\item Two experiments
+			\begin{enumerate}
+				\item Vary \# drones/warehouses/clients
+				\item Large \# drones -- big range \# clients
+			\end{enumerate}
+		\end{itemize}
+	\end{frame}
+	
+	\section{Conclusion}
+	\begin{frame}{Conclusion}
+		\begin{itemize}
+			\item Both extensions improve on CNET
+			\item No choice between the two
+			\item Influence of \# clients vs \# drones
+		\end{itemize}
+	\end{frame}
+	
+\end{document}
