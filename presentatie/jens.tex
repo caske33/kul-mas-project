@@ -8,7 +8,7 @@
 \title{Extensions on Contract Net Protocol for AGVs}
 \subtitle{Multi-Agent Systems}
 
-\author{Jens Claes \and Victor Le Pochat}
+\author{\textbf{Jens Claes} \and Victor Le Pochat}
 \date{June 6, 2016}
 
 \begin{document}
@@ -56,89 +56,99 @@
 		\begin{itemize}
 			\item Assigning tasks to (idle) agents
 			\item Distributed manner
-			\item Contract negotiation between manager and contractor
+			\item Contract negotiation between initiator and participant
 			\begin{itemize}
-				\item M: Task announcement
-				\item C: Bid
-				\item M: Awarding
-				\item C: Execution
+				\item I: Task announcement
+				\item P: Bid on best
+				\item I: Awarding
+				\item P: Execution
 			\end{itemize}
 		\end{itemize}
 	\end{frame}
 	
-	\begin{frame}{Contract Net Protocol (CNET)}
-	  \begin{columns}[T] % the "c" option specifies center vertical alignment
-	  \column{.5\textwidth} % column designated by a command
-	   Negotiation protocol
-	  \column{.5\textwidth}
-	   \includegraphics[width=\columnwidth]{FIPA-CNET}
-	  \end{columns}
-	\end{frame}
+%	\begin{frame}{Contract Net Protocol (CNET)}
+%	  \begin{columns}[T] % the "c" option specifies center vertical alignment
+%	  \column{.5\textwidth} % column designated by a command
+%	   Negotiation protocol
+%	  \column{.5\textwidth}
+%	   \includegraphics[width=\columnwidth]{FIPA-CNET}
+%	  \end{columns}
+%	\end{frame}
 
 	\begin{frame}{Contract Net with Confirmation (CNCP)}
 		\begin{itemize}
-			\item CNET problem: early commitment
-			\item CNCP solution: full commitment when awarded
-			\item Contractor submits bid but continues bidding
-			\item When awarded, first check if contractor accepts
-			\begin{itemize}
-				\item if yes: award \& execute task
-				\item if no: try next best contractor
-			\end{itemize}
+			\item Delayed commitment
+			\item Bid on all
+			\item Accept/Decline when awarded
 		\end{itemize}
 	\end{frame}
 
 	\begin{frame}{Dynamic Contract Net (DynCNET)}
 		\begin{itemize}
-			\item CNET problem: no dynamism
-			\item DynCNET solution: allow contract switching
-			\item When awarded but still in preparation
-			\item Contract final when preparation is finished
+			\item Allow contract switching
+				\begin{itemize}
+				\item Initiator
+				\item Participant
+				\end{itemize}
+			\item Preparation vs execution
+			\item Oscillation
 		\end{itemize}
 	\end{frame}
 	
-		
-	\section{Design}
-	\begin{frame}{MAS design}
+	\begin{frame}{Other extensions}
 		\begin{itemize}
-			\item Clients have an order
-			\item Drone takes up order
-			\item Drone collects package at warehouse
-			\item Drone flies to client and delivers package
+			\item Prebidding vs Definitive bidding (Aknine et al.)
+			\item Iterated Contract Net
+			\item Leveled commitment
 		\end{itemize}
 	\end{frame}
+	
+	\section{Design}
+%	\begin{frame}{MAS design}
+%		\begin{itemize}
+%			\item Clients have an order
+%			\item Drone takes up order
+%			\item Drone collects package at warehouse
+%			\item Drone flies to client and delivers package
+%		\end{itemize}
+%	\end{frame}
 	
 	\begin{frame}{MAS design}
 		\begin{itemize}
 			\item Goal: maximize profit
+			\item Allocate task to most suitable drone
+			\item Find cheapest warehouse
+			\item Minimize crashes
 			\begin{itemize}
-				\item Allocate task to most suitable drone
-				\item Find cheapest warehouse
-				\item Minimize crashes
-				\begin{itemize}
-					\item Keep battery charged
-					\item Poisson distribution
-				\end{itemize}
-				\item Deliver on time
+				\item Keep battery charged
+				\item Poisson distribution
 			\end{itemize}
+			\item Deliver on time
+			\item Cost estimation
+				\begin{itemize}
+				\item Price package
+				\item Price battery charge
+				\item Price failed drone
+				\item Price client
+				\end{itemize}
 		\end{itemize}
 	\end{frame}
 	
 	\begin{frame}{MAS design comparison}
 		\begin{itemize}
 			\item Simplified task announcement: only order
-			\item CNET: committed to bids
-			\item Extension to delay announcement
-			\item CNCP: reannounce task instead of trying next best bidder
-			\note{omvat ook mergen task acceptance in 1 bericht}
-			\item DynCNET: no consideration for oscillation
+			\item CNET: only 1 bid
+			\item Implemented RefusalReason (+ nextAvailableTime)
+			\item CNCP: 1 message + reannounce task
+			\item DynCNET: no prevention of oscillation
 		\end{itemize}
 	\end{frame}
 	
 	\section{Experiments}
 	\begin{frame}{Experiments}
 		\begin{itemize}
-			\item
+			\item ANOVA
+			\item Games-Howell vs TukeyHSD
 		\end{itemize}
 	\end{frame}
 	
