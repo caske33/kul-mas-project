@@ -79,13 +79,37 @@
 	
 	\begin{frame}{MAS design}
 		\begin{itemize}
-			\item
+			\item Clients have an order
+			\item Drone takes up order
+			\item Drone collects package at warehouse
+			\item Drone flies to client and delivers package
+		\end{itemize}
+	\end{frame}
+	
+	\begin{frame}{MAS design}
+		\begin{itemize}
+			\item Goal: maximize profit
+			\begin{itemize}
+				\item Allocate task to most suitable drone
+				\item Find cheapest warehouse
+				\item Minimize crashes
+				\begin{itemize}
+					\item Keep battery charged
+					\item Poisson distribution
+				\end{itemize}
+				\item Deliver on time
+			\end{itemize}
 		\end{itemize}
 	\end{frame}
 	
 	\begin{frame}{MAS design comparison}
 		\begin{itemize}
-			\item
+			\item Simplified task announcement: only order
+			\item CNET: committed to bids
+			\item Extension to delay announcement
+			\item CNCP: reannounce task instead of trying next best bidder
+			\note{omvat ook mergen task acceptance in 1 bericht}
+			\item DynCNET: no consideration for oscillation
 		\end{itemize}
 	\end{frame}
 	
