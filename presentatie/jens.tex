@@ -2,7 +2,7 @@
 
 \usepackage{default}
 
-\usetheme{Malmoe}
+\usetheme{Szeged}
 \usecolortheme{dolphin}
 
 \title{Extensions on Contract Net Protocol for AGVs}
@@ -30,80 +30,28 @@
 				\end{itemize}
 			\item Influence on profit
 				\begin{itemize}
-				\item \# Drones
-				\item \# Warehouses
-				\item \# Clients
+				\item \# drones
+				\item \# warehouses
+				\item \# clients
 				\end{itemize}
 			\end{itemize}
 		\end{itemize}
 	\end{frame}
 	\note{Hypotheses zelf gewoon zeggen}
 		
+	\section{Design}
 	\begin{frame}{Setting}
 		\begin{itemize}
 		\item Package delivery company
 		\item Drones (UAV)
 		\item Battery-constrained
+		\item Crashes (Poisson-distributed)
 		\item Warehouses
 		\item 2 types clients
 		\item Fines
 		\end{itemize}
 	\end{frame}
-
-	\section{Theory}
 	
-	\begin{frame}{Contract Net Protocol (CNET)}
-		\begin{itemize}
-			\item Assigning tasks to (idle) agents
-			\item Distributed manner
-			\item Contract negotiation between initiator and participant
-			\begin{itemize}
-				\item I: Task announcement
-				\item P: Bid on best
-				\item I: Awarding
-				\item P: Execution
-			\end{itemize}
-		\end{itemize}
-	\end{frame}
-	
-%	\begin{frame}{Contract Net Protocol (CNET)}
-%	  \begin{columns}[T] % the "c" option specifies center vertical alignment
-%	  \column{.5\textwidth} % column designated by a command
-%	   Negotiation protocol
-%	  \column{.5\textwidth}
-%	   \includegraphics[width=\columnwidth]{FIPA-CNET}
-%	  \end{columns}
-%	\end{frame}
-
-	\begin{frame}{Contract Net with Confirmation (CNCP)}
-		\begin{itemize}
-			\item Delayed commitment
-			\item Bid on all
-			\item Accept/Decline when awarded
-		\end{itemize}
-	\end{frame}
-
-	\begin{frame}{Dynamic Contract Net (DynCNET)}
-		\begin{itemize}
-			\item Allow contract switching
-				\begin{itemize}
-				\item Initiator
-				\item Participant
-				\end{itemize}
-			\item Preparation vs execution
-			\item Oscillation
-		\end{itemize}
-	\end{frame}
-	
-	\begin{frame}{Other extensions}
-		\begin{itemize}
-			\item Prebidding vs Definitive bidding (Aknine et al.)
-			\item Iterated Contract Net
-			\item Leveled commitment
-		\end{itemize}
-	\end{frame}
-	
-	\section{Design}
 %	\begin{frame}{MAS design}
 %		\begin{itemize}
 %			\item Clients have an order
@@ -115,14 +63,11 @@
 	
 	\begin{frame}{MAS design}
 		\begin{itemize}
-			\item Goal: maximize profit
+			\item Maximize profit company
 			\item Allocate task to most suitable drone
 			\item Find cheapest warehouse
 			\item Minimize crashes
-			\begin{itemize}
-				\item Keep battery charged
-				\item Poisson distribution
-			\end{itemize}
+			\note{Keep battery charged}
 			\item Deliver on time
 			\item Cost estimation
 				\begin{itemize}
@@ -133,14 +78,54 @@
 				\end{itemize}
 		\end{itemize}
 	\end{frame}
-	
-	\begin{frame}{MAS design comparison}
+
+	\section{Protocols}
+	\begin{frame}{Contract Net Protocol (CNET)}
 		\begin{itemize}
-			\item Simplified task announcement: only order
-			\item CNET: only 1 bid
+			\item Contract negotiation
+			\linebreak
+			\begin{tabular}{cl}
+				M & Task announcement \\
+				C & Bid (on best) \\
+				M & Awarding \\
+				C & Execution \\
+			\end{tabular}
+			\hrule
+			\item Only announce order\note{Not bid deadline etc}
+			\item Only 1 outstanding bid
 			\item Implemented RefusalReason (+ nextAvailableTime)
-			\item CNCP: 1 message + reannounce task
-			\item DynCNET: no prevention of oscillation
+		\end{itemize}
+	\end{frame}
+
+	\begin{frame}{Contract Net with Confirmation (CNCP)}
+		\begin{itemize}
+			\item Delayed commitment
+			\item Bid on all
+			\item Accept/Decline when awarded
+			\hrule
+			\item 1 message
+			\item Reannounce task
+		\end{itemize}
+	\end{frame}
+
+	\begin{frame}{Dynamic Contract Net (DynCNET)}
+		\begin{itemize}
+			\item Allow contract switching
+				\begin{itemize}
+				\item Manager
+				\item Contractor
+				\end{itemize}
+			\item Preparation vs execution
+			\hrule
+			\item No oscillation prevention
+		\end{itemize}
+	\end{frame}
+	
+	\begin{frame}{Other extensions}
+		\begin{itemize}
+			\item Prebidding vs Definitive bidding (Aknine et al.)
+			\item Iterated Contract Net
+			\item Leveled commitment
 		\end{itemize}
 	\end{frame}
 	
@@ -148,6 +133,10 @@
 	\begin{frame}{Experiment Setup}
 		\begin{itemize}
 			\item 2 experiments
+				\begin{enumerate}
+				\item Vary \# drones/warehouses/clients
+				\item 10 drones, warehouses; vary \# clients
+				\end{enumerate}
 			\item 150 repetitions
 			\item ANOVA
 			\item Games-Howell vs TukeyHSD
