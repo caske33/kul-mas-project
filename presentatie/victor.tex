@@ -69,14 +69,17 @@
 		
 	\begin{frame}{Contract Net Protocol (CNET)}
 		\begin{itemize}
-			\item Contract negotiation between manager and contractor
-			\begin{itemize}
-				\item M: Task announcement
-				\item C: Bid
-				\item M: Awarding
-				\item C: Execution
-			\end{itemize}
-			\item Simplified task announcement: only order
+			\item Contract negotiation
+			\linebreak			\begin{tabular}{cl}
+				M & Task announcement \\
+				C & Bid (on best) \\
+				M & Awarding \\
+				C & Execution \\
+			\end{tabular}
+		\end{itemize}
+		
+		
+		\begin{itemize}			\item Simplified task announcement: only order
 			\item Committed to bids
 			\item Extension to delay announcement
 		\end{itemize}
@@ -85,12 +88,14 @@
 	\begin{frame}{Contract Net with Confirmation (CNCP)}
 		\begin{itemize}
 			\item CNET problem: early commitment
-			\item CNCP solution: full commitment when awarded
+			\item CNCP solution: commitment when awarded
 			\item When awarded, first check if contractor accepts
 			\begin{itemize}
 				\item if yes: award \& execute task
 				\item if no: try next best contractor
 			\end{itemize}
+		\end{itemize}
+		\begin{itemize}
 			\item Reannounce task instead of trying next best bidder
 			\note{omvat ook mergen task acceptance in 1 bericht}
 		\end{itemize}
@@ -101,8 +106,8 @@
 			\item CNET problem: no dynamism
 			\item DynCNET solution: allow contract switching
 			\item When awarded but still in preparation
-			\item Contract final when preparation is finished
-			\item DynCNET: no consideration for oscillation
+		\end{itemize}
+		\begin{itemize}			\item No consideration for oscillation
 		\end{itemize}
 	\end{frame}
 	
@@ -115,7 +120,7 @@
 			\item Two experiments
 			\begin{enumerate}
 				\item Vary \# drones/warehouses/clients
-				\item Large \# drones -- big range \# clients
+				\item 10 drones/warehouses -- vary \# clients
 			\end{enumerate}
 		\end{itemize}
 	\end{frame}
