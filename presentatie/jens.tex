@@ -168,17 +168,41 @@
 			\includegraphics[width=\columnwidth]{drones-profit}
 		\end{columns}
 	\end{frame}
+	\begin{frame}{Experiment Results (Profit)}
+		\begin{columns}	
+			\column{.5\textwidth}
+			\begin{center}	
+				\includegraphics[height=0.4\textheight]{warehouses-profit}\\
+				\includegraphics[height=0.4\textheight]{initialclients-profit}
+			\end{center}
+		
+			\column{.5\textwidth}
+			\begin{center}	
+				\includegraphics[height=0.4\textheight]{dynamicclients-profit}\\
+				\includegraphics[height=0.4\textheight]{dynamicclients-profit-largeNbDrones}
+			\end{center}
+		\end{columns}
+	\end{frame}
 	\begin{frame}{Experiment Results (Rest)}
-		\begin{columns}[c]
-			\column{.6\textwidth}
-			\begin{itemize}
-				\item Delivery time: $CNCP < CNET < DynCNET$
-				\item \# clients not delivered: $CNCP < CNET$, complex
-				\item \# messages: $CNET < CNCP << DynCNET$
-			\end{itemize}
-			
-			\column{.4\textwidth}
-			\includegraphics[width=\columnwidth]{drones-deliverytime}
+		\begin{itemize}
+			\item Delivery time: $CNCP \leq CNET < DynCNET$
+			\item \# clients not delivered: $CNCP < CNET$, complex
+			\item \# messages: $CNET < CNCP << DynCNET$
+		\end{itemize}
+	\end{frame}
+	\begin{frame}{Experiment Results (Rest)}
+		\begin{columns}	
+			\column{.5\textwidth}
+			\begin{center}	
+				\includegraphics[height=0.4\textheight]{drones-deliverytime}\\
+				\includegraphics[height=0.4\textheight]{drones-delivered}
+			\end{center}
+		
+			\column{.5\textwidth}
+			\begin{center}	
+				\includegraphics[height=0.4\textheight]{dynamicclients-delivered-grid2}\\
+				\includegraphics[height=0.4\textheight]{dynamicclients-profit-grid2}
+			\end{center}
 		\end{columns}
 	\end{frame}
 	
