@@ -17,6 +17,8 @@
 \newcommand{\seperation}{\vspace{0.5cm}\hrule\vspace{0.5cm}}
 %\setbeameroption{show notes on second screen=right} % Both
 
+\graphicspath{ {../verslag/images/} }
+
 \begin{document}
 	\frame{\titlepage}
 
@@ -149,26 +151,38 @@
 		\end{itemize}
 	\end{frame}
 	\begin{frame}{Experiment Results (Profit)}
-		\begin{itemize}
-			\item All profitable
-			\item CNCP
-				\begin{itemize}
-				\item Few drones: Similar CNET, slightly better
-				\item Many drones: A lot better than CNET
-				\end{itemize}
-			\item DynCNET
+		\begin{columns}[c]
+			\column{.6\textwidth}
 			\begin{itemize}
-				\item Few drones: breaks down
-				\item Many drones: Most profitable of all
+				\item All profitable
+				\item CNCP
+					\begin{itemize}
+					\item Few drones: Similar CNET, slightly better
+					\item Many drones: A lot better than CNET
+					\end{itemize}
+				\item DynCNET
+				\begin{itemize}
+					\item Few drones: breaks down
+					\item Many drones: Most profitable of all
+				\end{itemize}
 			\end{itemize}
-		\end{itemize}
+			
+			\column{.4\textwidth}
+			\includegraphics[width=\columnwidth]{drones-profit}
+		\end{columns}
 	\end{frame}
 	\begin{frame}{Experiment Results (Rest)}
-		\begin{itemize}
-			\item Delivery time: $CNCP < CNET < DynCNET$
-			\item \# clients not delivered: $CNCP < CNET$, complex
-			\item \# messages: $CNET < CNCP << DynCNET$
-		\end{itemize}
+		\begin{columns}[c]
+			\column{.6\textwidth}
+			\begin{itemize}
+				\item Delivery time: $CNCP < CNET < DynCNET$
+				\item \# clients not delivered: $CNCP < CNET$, complex
+				\item \# messages: $CNET < CNCP << DynCNET$
+			\end{itemize}
+			
+			\column{.4\textwidth}
+			\includegraphics[width=\columnwidth]{drones-deliverytime}
+		\end{columns}
 	\end{frame}
 	
 	\section{Conclusion}
