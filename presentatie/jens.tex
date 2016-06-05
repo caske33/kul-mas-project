@@ -145,17 +145,52 @@
 	\end{frame}
 	
 	\section{Experiments}
-	\begin{frame}{Experiments}
+	\begin{frame}{Experiment Setup}
 		\begin{itemize}
+			\item 2 experiments
+			\item 150 repetitions
 			\item ANOVA
 			\item Games-Howell vs TukeyHSD
+		\end{itemize}
+	\end{frame}
+	\begin{frame}{Experiment Results (Profit)}
+		\begin{itemize}
+			\item All profitable
+			\item CNCP
+				\begin{itemize}
+				\item Few drones: Similar CNET, slightly better
+				\item Many drones: A lot better than CNET
+				\end{itemize}
+			\item DynCNET
+			\begin{itemize}
+				\item Few drones: breaks down
+				\item Many drones: Most profitable of all
+			\end{itemize}
+		\end{itemize}
+	\end{frame}
+	\begin{frame}{Experiment Results (Rest)}
+		\begin{itemize}
+			\item Delivery time: $CNCP < CNET < DynCNET$
+			\item \# clients not delivered: $CNCP < CNET$, complex
+			\item \# messages: $CNET < CNCP << DynCNET$
 		\end{itemize}
 	\end{frame}
 	
 	\section{Conclusion}
 	\begin{frame}{Conclusion}
 		\begin{itemize}
-			\item
+			\item Both improve upon CNET
+			\item CNCP
+				\begin{itemize}
+				\item Few drones: best
+				\item Few drawbacks
+				\end{itemize}
+			\item DynCNET
+				\begin{itemize}
+				\item Many drones: best
+				\item A lot more messages
+				\item Oscillation prevention necessary
+				\end{itemize}
 		\end{itemize}
 	\end{frame}
 	
