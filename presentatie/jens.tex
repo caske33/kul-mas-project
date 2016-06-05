@@ -1,6 +1,7 @@
-\documentclass{beamer}
+\documentclass[notes]{beamer}
 
 \usepackage{default}
+\usepackage{pgfpages}
 
 \usetheme{Szeged}
 \usecolortheme{dolphin}
@@ -10,6 +11,11 @@
 
 \author{\textbf{Jens Claes} \and Victor Le Pochat}
 \date{June 6, 2016}
+
+\setbeamertemplate{note page}{\pagecolor{yellow!15}\insertnote}
+\setbeameroption{hide notes} % Only slides
+\newcommand{\seperation}{\vspace{0.5cm}\hrule\vspace{0.5cm}}
+%\setbeameroption{show notes on second screen=right} % Both
 
 \begin{document}
 	\frame{\titlepage}
@@ -67,7 +73,7 @@
 			\item Allocate task to most suitable drone
 			\item Find cheapest warehouse
 			\item Minimize crashes
-			\note{Keep battery charged}
+			\note{Minimize crashes by recharging in warehouse mid delivery}
 			\item Deliver on time
 			\item Cost estimation
 				\begin{itemize}
@@ -90,7 +96,7 @@
 				M & Awarding \\
 				C & Execution \\
 			\end{tabular}
-			\hrule
+			\seperation
 			\item Only announce order\note{Not bid deadline etc}
 			\item Only 1 outstanding bid
 			\item Implemented RefusalReason (+ nextAvailableTime)
@@ -102,7 +108,7 @@
 			\item Delayed commitment
 			\item Bid on all
 			\item Accept/Decline when awarded
-			\hrule
+			\seperation
 			\item 1 message
 			\item Reannounce task
 		\end{itemize}
@@ -116,7 +122,7 @@
 				\item Contractor
 				\end{itemize}
 			\item Preparation vs execution
-			\hrule
+			\seperation
 			\item No oscillation prevention
 		\end{itemize}
 	\end{frame}
