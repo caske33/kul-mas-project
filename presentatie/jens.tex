@@ -24,24 +24,21 @@
 
 	\section{Introduction}
 	
-	\begin{frame}{Objectives \& Hypotheses}
+	\begin{frame}{Objectives}
 		\begin{itemize}
 		\item CNET vs CNCP vs DynCNET
-		\item Hypotheses:
+		\item Compare
 			\begin{itemize}
-			\item Compare
-				\begin{itemize}
-				\item Profit
-				\item Delivery time
-				\item \# clients undelivered
-				\item Message count
-				\end{itemize}
-			\item Influence on profit
-				\begin{itemize}
-				\item \# drones
-				\item \# warehouses
-				\item \# clients
-				\end{itemize}
+			\item Profit
+			\item Delivery time
+			\item \# clients undelivered
+			\item Message count
+			\end{itemize}
+		\item Influence on profit
+			\begin{itemize}
+			\item \# drones
+			\item \# warehouses
+			\item \# clients
 			\end{itemize}
 		\end{itemize}
 	\end{frame}
@@ -74,9 +71,6 @@
 			\item Maximize profit company
 			\item Allocate task to most suitable drone
 			\item Find cheapest warehouse
-			\item Minimize crashes
-			\note{Minimize crashes by recharging in warehouse mid delivery}
-			\item Deliver on time
 			\item Cost estimation
 				\begin{itemize}
 				\item Price package
@@ -84,6 +78,9 @@
 				\item Price failed drone
 				\item Price client
 				\end{itemize}
+			\item Minimize crashes
+			\note{Minimize crashes by recharging in warehouse mid delivery}
+			\item Deliver on time
 		\end{itemize}
 	\end{frame}
 
@@ -157,8 +154,8 @@
 				\item All profitable
 				\item CNCP
 					\begin{itemize}
-					\item Few drones: Similar CNET, slightly better
-					\item Many drones: A lot better than CNET
+					\item Few drones: $\approx CNET$
+					\item Many drones: $> CNET$
 					\end{itemize}
 				\item DynCNET
 				\begin{itemize}
